@@ -15,8 +15,12 @@ node_modules
 # Testing
 coverage
 
+.ds_store
+.DS_Store
 # Turbo
 .turbo
+
+.vscode
 
 # Vercel
 .vercel

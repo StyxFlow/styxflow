@@ -1,11 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { Button } from "../ui/button";
 
 const Navbar = () => {
   const pathname = usePathname();
+  const { data: session, isPending, refetch } = authClient.useSession();
+
+  const handleLogout = async () => {
+    authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          redirect("/login");
+        },
+      },
+    });
+    refetch();
+  };
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -43,20 +57,26 @@ const Navbar = () => {
           </div>
 
           {/* Auth Buttons */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-            >
-              Sign Up
-            </Link>
-          </div>
+          {session ? (
+            <Button onClick={handleLogout}>Logout</Button>
+          ) : isPending ? (
+            <p>Loading...</p>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

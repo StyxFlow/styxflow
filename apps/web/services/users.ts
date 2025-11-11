@@ -7,9 +7,11 @@ export const signUp = async (payload: {
   email: string;
   password: string;
   name: string;
+  role: "CANDIDATE" | "RECRUITER";
 }) => {
   const result = await auth.api.signUpEmail({
     body: { ...payload, rememberMe: true, callbackURL: "/" },
+    headers: await headers(),
   });
   return result;
 };

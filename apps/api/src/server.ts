@@ -1,13 +1,19 @@
-import express from "express";
+import app from "./app.js";
+import config from "./config/index.js";
+import { createServer } from "http";
 
-const app = express();
+const server = createServer(app);
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    message: "Welcome to StyxFlow API",
-  });
-});
+const PORT = config.port || 8000;
 
-app.listen(8000, () => {
-  console.log("API Server is running on http://localhost:8000");
-});
+const main = async () => {
+  try {
+    server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+main();

@@ -11,6 +11,13 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { signUp } from "@/services/users";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -21,6 +28,7 @@ export function SignupForm({
 }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<"CANDIDATE" | "RECRUITER">("CANDIDATE");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +56,7 @@ export function SignupForm({
     }
 
     try {
-      const result = await signUp({ name, email, password });
+      const result = await signUp({ name, email, password, role });
 
       // Check if signup was successful
       if (result && result.user) {
@@ -111,6 +119,33 @@ export function SignupForm({
               </Field>
 
               <Field>
+                <FieldLabel htmlFor="role">I want to join as</FieldLabel>
+                <Select
+                  value={role}
+                  onValueChange={(value) =>
+                    setRole(value as "CANDIDATE" | "RECRUITER")
+                  }
+                  disabled={isLoading}
+                >
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CANDIDATE">
+                      Candidate (Job Seeker)
+                    </SelectItem>
+                    <SelectItem value="RECRUITER">
+                      Recruiter (Employer)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldDescription className="text-xs">
+                  Choose whether you&apos;re looking for jobs or hiring
+                  candidates.
+                </FieldDescription>
+              </Field>
+
+              <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
@@ -120,7 +155,7 @@ export function SignupForm({
                   required
                   disabled={isLoading}
                 />
-                <FieldDescription>
+                <FieldDescription className="text-xs">
                   We&apos;ll use this to contact you. We will not share your
                   email with anyone else.
                 </FieldDescription>
@@ -150,7 +185,7 @@ export function SignupForm({
                     />
                   </Field>
                 </Field>
-                <FieldDescription>
+                <FieldDescription className="text-xs">
                   Must be at least 8 characters long.
                 </FieldDescription>
               </Field>

@@ -8,6 +8,8 @@ export const signUp = async (payload: {
   password: string;
   name: string;
   role: "CANDIDATE" | "RECRUITER";
+  organizationName?: string;
+  organizationRole?: string;
 }) => {
   const result = await auth.api.signUpEmail({
     body: { ...payload, rememberMe: true, callbackURL: "/" },

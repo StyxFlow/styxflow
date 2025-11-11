@@ -1,5 +1,12 @@
 import { db } from "@/db/drizzle";
-import { user, session, account, verification, candidate } from "@/db/schema";
+import {
+  user,
+  session,
+  account,
+  verification,
+  candidate,
+  recruiter,
+} from "@/db/schema";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -30,6 +37,17 @@ export const auth = betterAuth({
                   id: crypto.randomUUID(),
                 });
               } else if (ctx?.body?.role == "RECRUITER") {
+                if (!ctx?.body?.organizationName)
+                  throw new Error(
+                    "Organization name is required for recruiters"
+                  );
+                await db.insert(recruiter).values({
+                  userId: createdUser.id,
+                  profilePhoto: ctx?.body?.profilePhoto,
+                  id: crypto.randomUUID(),
+                  organizationName: ctx?.body.organizationName,
+                  organizationRole: ctx?.body?.organizationRole,
+                });
               }
             } catch (error) {
               console.error("Failed to create candidate data:", error);
@@ -61,6 +79,7 @@ export const auth = betterAuth({
     provider: "pg",
     schema: {
       candidate,
+      recruiter,
       user,
       session,
       account,

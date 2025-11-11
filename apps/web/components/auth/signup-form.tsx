@@ -40,6 +40,8 @@ export function SignupForm({
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirm-password") as string;
+    const organizationName = formData.get("organizationName") as string;
+    const organizationRole = formData.get("organizationRole") as string;
 
     // Validate passwords match
     if (password !== confirmPassword) {
@@ -55,8 +57,22 @@ export function SignupForm({
       return;
     }
 
+    // Validate recruiter-specific fields
+    if (role === "RECRUITER" && !organizationName) {
+      setError("Organization name is required for recruiters");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const result = await signUp({ name, email, password, role });
+      const result = await signUp({
+        name,
+        email,
+        password,
+        role,
+        organizationName: role === "RECRUITER" ? organizationName : undefined,
+        organizationRole: role === "RECRUITER" ? organizationRole : undefined,
+      });
 
       // Check if signup was successful
       if (result && result.user) {
@@ -81,7 +97,7 @@ export function SignupForm({
     });
   };
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 pt-16", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <div className="bg-muted relative hidden md:block">
@@ -144,6 +160,54 @@ export function SignupForm({
                   candidates.
                 </FieldDescription>
               </Field>
+
+              {/* Recruiter-specific fields with smooth transition */}
+              <div
+                className={cn(
+                  "grid transition-all duration-300 ease-in-out",
+                  role === "RECRUITER"
+                    ? "grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-0"
+                )}
+              >
+                <div className="overflow-hidden">
+                  <div className="space-y-4 pb-4">
+                    <Field>
+                      <FieldLabel htmlFor="organizationName">
+                        Organization Name{" "}
+                        <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Input
+                        id="organizationName"
+                        name="organizationName"
+                        type="text"
+                        placeholder="Acme Inc."
+                        required={role === "RECRUITER"}
+                        disabled={isLoading}
+                      />
+                      <FieldDescription className="text-xs">
+                        The name of your company or organization.
+                      </FieldDescription>
+                    </Field>
+
+                    <Field>
+                      <FieldLabel htmlFor="organizationRole">
+                        Your Role (Optional)
+                      </FieldLabel>
+                      <Input
+                        id="organizationRole"
+                        name="organizationRole"
+                        type="text"
+                        placeholder="HR Manager, Recruiter, etc."
+                        disabled={isLoading}
+                      />
+                      <FieldDescription className="text-xs">
+                        Your position within the organization.
+                      </FieldDescription>
+                    </Field>
+                  </div>
+                </div>
+              </div>
 
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>

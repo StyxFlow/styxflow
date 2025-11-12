@@ -32,6 +32,14 @@ export const auth = betterAuth({
       clientId: process.env.TWITTER_CLIENT_ID as string,
       clientSecret: process.env.TWITTER_CLIENT_SECRET as string,
     },
+    microsoft: {
+      clientId: process.env.MICROSOFT_CLIENT_ID as string,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
+      // Optional
+      tenantId: "common",
+      authority: "https://login.microsoftonline.com", // Authentication authority URL
+      prompt: "select_account", // Forces account selection
+    },
   },
   databaseHooks: {
     user: {

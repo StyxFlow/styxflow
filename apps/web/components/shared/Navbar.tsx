@@ -9,7 +9,6 @@ import { Button } from "../ui/button";
 const Navbar = () => {
   const pathname = usePathname();
   const { data: session, isPending, refetch } = authClient.useSession();
-  console.log(session);
 
   const handleLogout = async () => {
     authClient.signOut({

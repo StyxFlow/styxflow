@@ -1,14 +1,33 @@
-import { pgTable, text, timestamp, boolean, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  pgEnum,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const UserRole = pgEnum("user_role", ["CANDIDATE", "RECRUITER"]);
 
 export const candidate = pgTable("candidate", {
-  id: text("id").primaryKey(),
+  id: uuid("id").primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   address: text("address"),
-  profilePhoto: text("profile_photo"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+export const recruiter = pgTable("recruiter", {
+  id: uuid("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  organizationName: text("organization_name").notNull(),
+  organizationRole: text("organization_role"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -20,6 +39,7 @@ export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  image: text("image"),
   emailVerified: boolean("email_verified").default(false).notNull(),
   role: UserRole("role").default("CANDIDATE").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

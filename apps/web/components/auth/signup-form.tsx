@@ -11,16 +11,10 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { signUp } from "@/services/users";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import SelectRole from "./SelectRole";
 
 export function SignupForm({
   className,
@@ -134,82 +128,9 @@ export function SignupForm({
                 />
               </Field>
 
-              <Field>
-                <FieldLabel htmlFor="role">I want to join as</FieldLabel>
-                <Select
-                  value={role}
-                  onValueChange={(value) =>
-                    setRole(value as "CANDIDATE" | "RECRUITER")
-                  }
-                  disabled={isLoading}
-                >
-                  <SelectTrigger id="role">
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CANDIDATE">
-                      Candidate (Job Seeker)
-                    </SelectItem>
-                    <SelectItem value="RECRUITER">
-                      Recruiter (Employer)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldDescription className="text-xs">
-                  Choose whether you&apos;re looking for jobs or hiring
-                  candidates.
-                </FieldDescription>
-              </Field>
+              <SelectRole role={role} isLoading={isLoading} setRole={setRole} />
 
-              {/* Recruiter-specific fields with smooth transition */}
-              <div
-                className={cn(
-                  "grid transition-all duration-300 ease-in-out",
-                  role === "RECRUITER"
-                    ? "grid-rows-[1fr] opacity-100"
-                    : "grid-rows-[0fr] opacity-0"
-                )}
-              >
-                <div className="overflow-hidden">
-                  <div className="space-y-4 pb-4">
-                    <Field>
-                      <FieldLabel htmlFor="organizationName">
-                        Organization Name{" "}
-                        <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Input
-                        id="organizationName"
-                        name="organizationName"
-                        type="text"
-                        placeholder="Acme Inc."
-                        required={role === "RECRUITER"}
-                        disabled={isLoading}
-                      />
-                      <FieldDescription className="text-xs">
-                        The name of your company or organization.
-                      </FieldDescription>
-                    </Field>
-
-                    <Field>
-                      <FieldLabel htmlFor="organizationRole">
-                        Your Role (Optional)
-                      </FieldLabel>
-                      <Input
-                        id="organizationRole"
-                        name="organizationRole"
-                        type="text"
-                        placeholder="HR Manager, Recruiter, etc."
-                        disabled={isLoading}
-                      />
-                      <FieldDescription className="text-xs">
-                        Your position within the organization.
-                      </FieldDescription>
-                    </Field>
-                  </div>
-                </div>
-              </div>
-
-              <Field>
+              <Field className={role === "RECRUITER" ? "mt-0" : "-mt-7"}>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"

@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-// import IndexRoute from './routes';
+import IndexRoute from "./routes/index.js";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler.js";
 import config from "./config/index.js";
 
@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "StyxFlow is running successfully!" });
 });
 
-// app.use('/api/v1', IndexRoute);
+app.use("/api/v1", IndexRoute);
 
 app.use(globalErrorHandler);
 

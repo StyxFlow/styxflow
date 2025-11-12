@@ -31,3 +31,33 @@ export const getSession = async () => {
   });
   return session;
 };
+
+export const completeProfile = async (payload: {
+  role: "CANDIDATE" | "RECRUITER";
+  organizationName?: string;
+  organizationRole?: string;
+}) => {
+  const headersList = await headers();
+  const cookie = headersList.get("cookie");
+
+  const response = await fetch("http://localhost:3000/api/complete-profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(cookie && { Cookie: cookie }),
+    },
+    body: JSON.stringify({
+      role: payload.role,
+      organizationName:
+        payload.role === "RECRUITER" ? payload?.organizationName : undefined,
+      organizationRole:
+        payload.role === "RECRUITER" ? payload?.organizationRole : undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    console.log(data);
+    throw new Error(data.error || "Failed to complete profile");
+  }
+};

@@ -27,7 +27,6 @@ export const candidate = pgTable("candidate", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   address: text("address"),
-  profilePhoto: text("profile_photo"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -39,7 +38,6 @@ export const recruiter = pgTable("recruiter", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  profilePhoto: text("profile_photo"),
   organizationName: text("organization_name").notNull(),
   organizationRole: text("organization_role"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -53,8 +51,9 @@ export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  image: text("image"),
   emailVerified: boolean("email_verified").default(false).notNull(),
-  role: UserRole("role").default("CANDIDATE").notNull(),
+  role: UserRole("role"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

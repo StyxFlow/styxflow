@@ -11,6 +11,22 @@ export async function middleware(request: NextRequest) {
   });
   const pathname = request.nextUrl.pathname;
 
+  // If user is authenticated but doesn't have a role, redirect to choose-role
+  if (
+    session?.user &&
+    !session.user.role &&
+    pathname !== "/choose-role" &&
+    !pathname.startsWith("/api")
+  ) {
+    return NextResponse.redirect(new URL("/choose-role", request.url));
+  } else if (
+    session?.user &&
+    session.user.role &&
+    pathname === "/choose-role"
+  ) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   if (privateRoutes.includes(pathname) && !session) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -23,5 +39,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   runtime: "nodejs",
-  matcher: ["/dashboard", "/login", "/signup"],
+  matcher: ["/dashboard", "/login", "/signup", "/", "/about", "/choose-role"],
 };

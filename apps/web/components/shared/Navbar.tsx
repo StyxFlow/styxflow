@@ -5,10 +5,12 @@ import { redirect, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "../ui/button";
+import type { Session } from "@/lib/auth-client";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { data: session, isPending, refetch } = authClient.useSession();
+  const { data, isPending, refetch } = authClient.useSession();
+  const session = data as Session | null;
 
   const handleLogout = async () => {
     authClient.signOut({
@@ -24,6 +26,7 @@ const Navbar = () => {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
+    { href: "/create-job", label: "Create Job", userRole: "RECRUITER" },
   ];
 
   return (
@@ -45,7 +48,7 @@ const Navbar = () => {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary relative pb-1",
+                  `text-sm font-medium transition-colors hover:text-primary relative pb-1 ${link?.userRole && link.userRole !== session?.user.role ? "hidden" : ""}`,
                   pathname === link.href
                     ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full"
                     : "text-muted-foreground"

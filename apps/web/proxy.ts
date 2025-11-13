@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
-const privateRoutes = ["/dashboard"];
+const privateRoutes = ["/dashboard", "/create-job"];
 const authRoutes = ["/login", "/signup"];
+// const candidateOnlyRoutes = [];
+const recruiterOnlyRoutes = ["/create-job"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -34,10 +36,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
+  if (recruiterOnlyRoutes.includes(pathname)) {
+    if (session?.user?.role !== "RECRUITER") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  runtime: "nodejs",
-  matcher: ["/dashboard", "/login", "/signup", "/", "/about", "/choose-role"],
+  matcher: [
+    "/dashboard",
+    "/login",
+    "/signup",
+    "/",
+    "/about",
+    "/choose-role",
+    "/create-job",
+  ],
 };

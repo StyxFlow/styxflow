@@ -3,6 +3,7 @@ import cors from "cors";
 import IndexRoute from "./routes/index.js";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler.js";
 import config from "./config/index.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.use(cookieParser());
 
 // test route
 app.get("/", (req, res) => {

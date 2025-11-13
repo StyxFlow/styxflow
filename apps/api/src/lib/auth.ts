@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/drizzle.js";
-import { schema } from "../db/schema.js";
+import * as schema from "../db/schema.js";
 import config from "../config/index.js";
 
 export const auth = betterAuth({
@@ -20,17 +20,4 @@ export const auth = betterAuth({
   },
   trustedOrigins: [config.client_url!],
   baseURL: config.server_url!,
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    },
-  },
-  // Ensure cookies work in development (localhost)
-  advanced: {
-    cookiePrefix: "better-auth",
-    crossSubDomainCookies: {
-      enabled: true,
-    },
-  },
 });

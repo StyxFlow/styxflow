@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -5,12 +6,43 @@ import {
   boolean,
   pgEnum,
   uuid,
+  integer,
+  json,
 } from "drizzle-orm/pg-core";
 
 export const UserRole = pgEnum("user_role", ["CANDIDATE", "RECRUITER"]);
+export const JobType = pgEnum("job_type", [
+  "FULL_TIME",
+  "PART_TIME",
+  "CONTRACT",
+  "INTERNSHIP",
+]);
+
+export const job = pgTable("job", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  jobRole: text("job_role").notNull(),
+  jobDescription: text("job_description").notNull(),
+  jobType: JobType("job_type").notNull(),
+  location: text("location").notNull(),
+  technologies: text("technologies").array().default([]).notNull(),
+  additionalSkills: text("additional_skills").array().default([]).notNull(),
+  education: text("education"),
+  experience: integer("experience"),
+  salaryRange: json("salary_range").$type<{ min: number; max: number }>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  recruiterId: uuid("recruiter_id")
+    .references(() => recruiter.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+});
 
 export const candidate = pgTable("candidate", {
-  id: uuid("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -22,7 +54,7 @@ export const candidate = pgTable("candidate", {
     .notNull(),
 });
 export const recruiter = pgTable("recruiter", {
-  id: uuid("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -96,9 +128,26 @@ export const verification = pgTable("verification", {
     .notNull(),
 });
 
-export const schema = {
-  user,
-  session,
-  account,
-  verification,
-};
+// Relations ---------------------
+
+export const recruiterRelations = relations(recruiter, ({ one, many }) => ({
+  user: one(user, {
+    fields: [recruiter.userId],
+    references: [user.id],
+  }),
+  jobs: many(job), // One recruiter has many jobs
+}));
+
+export const jobRelations = relations(job, ({ one }) => ({
+  recruiter: one(recruiter, {
+    fields: [job.recruiterId],
+    references: [recruiter.id],
+  }),
+}));
+
+export const userRelations = relations(user, ({ one }) => ({
+  recruiter: one(recruiter, {
+    fields: [user.id],
+    references: [recruiter.userId],
+  }),
+}));

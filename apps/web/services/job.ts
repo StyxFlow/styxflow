@@ -1,9 +1,10 @@
 "use server";
 
 import { config } from "@/config";
+import { IJob } from "@/types/job";
 import { cookies } from "next/headers";
 
-export const createJob = async (payload) => {
+export const createJob = async (payload: Partial<IJob>) => {
   const token = (await cookies()).get("better-auth.session_token")?.value;
   console.log(token);
   console.log(process.env.NEXT_PUBLIC_SERVER_URL);

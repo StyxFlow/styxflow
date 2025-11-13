@@ -53,26 +53,58 @@ const educationOptions = [
   "Any Bachelor's Degree",
 ];
 
-const formSchema = z.object({
-  jobRole: z
-    .string()
-    .min(3, "Job role must be at least 3 characters")
-    .max(100, "Job role must not exceed 100 characters"),
-  jobDescription: z
-    .string()
-    .min(20, "Job description must be at least 20 characters")
-    .max(2000, "Job description must not exceed 2000 characters"),
-  vacancies: z
-    .number()
-    .min(1, "At least 1 vacancy is required")
-    .max(1000, "Vacancies cannot exceed 1000"),
-  technologies: z
-    .array(z.string())
-    .min(1, "At least one technology is required"),
-  additionalSkills: z.array(z.string()).optional(),
-  education: z.string().min(1, "Please select an education requirement"),
-  jobExperience: z.number().optional(),
-});
+const formSchema = z
+  .object({
+    jobRole: z
+      .string()
+      .min(3, "Job role must be at least 3 characters")
+      .max(100, "Job role must not exceed 100 characters"),
+    jobDescription: z
+      .string()
+      .min(20, "Job description must be at least 20 characters")
+      .max(2000, "Job description must not exceed 2000 characters"),
+    jobType: z.enum(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP"], {
+      message: "Please select a job type",
+    }),
+    location: z
+      .string()
+      .min(2, "Location must be at least 2 characters")
+      .max(100, "Location must not exceed 100 characters"),
+    technologies: z
+      .array(z.string())
+      .min(1, "At least one technology is required"),
+    additionalSkills: z.array(z.string()).optional(),
+    education: z.string().min(1, "Please select an education requirement"),
+    jobExperience: z.string().optional(),
+    salaryMin: z.number().optional(),
+    salaryMax: z.number().optional(),
+  })
+  .refine(
+    (data) => {
+      // If one salary field is filled, the other must be filled too
+      if (data.salaryMin !== undefined || data.salaryMax !== undefined) {
+        return data.salaryMin !== undefined && data.salaryMax !== undefined;
+      }
+      return true;
+    },
+    {
+      message: "Both minimum and maximum salary must be provided",
+      path: ["salaryMin"],
+    }
+  )
+  .refine(
+    (data) => {
+      // If both are provided, min should be less than max
+      if (data.salaryMin !== undefined && data.salaryMax !== undefined) {
+        return data.salaryMin < data.salaryMax;
+      }
+      return true;
+    },
+    {
+      message: "Minimum salary must be less than maximum salary",
+      path: ["salaryMin"],
+    }
+  );
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -86,11 +118,14 @@ const CreateJob = () => {
     defaultValues: {
       jobRole: "",
       jobDescription: "",
-      vacancies: 1,
+      jobType: undefined,
+      location: "",
       technologies: [],
       additionalSkills: [],
       education: "",
-      jobExperience: undefined,
+      jobExperience: "",
+      salaryMin: undefined,
+      salaryMax: undefined,
     },
   });
 
@@ -154,7 +189,20 @@ const CreateJob = () => {
   };
 
   const onSubmit = async (data: FormValues) => {
-    const result = await createJob(data);
+    // Transform data to match API expectations
+    const jobData = {
+      ...data,
+      salaryRange:
+        data.salaryMin !== undefined && data.salaryMax !== undefined
+          ? {
+              min: data.salaryMin,
+              max: data.salaryMax,
+            }
+          : undefined,
+      experience: data.jobExperience || null,
+    };
+
+    const result = await createJob(jobData);
     console.log(result);
     // Handle form submission here
   };
@@ -215,20 +263,45 @@ const CreateJob = () => {
               )}
             />
 
-            {/* Vacancies */}
+            {/* Job Type */}
             <FormField
               control={form.control}
-              name="vacancies"
+              name="jobType"
+              render={({ field }) => (
+                <FormItem className="animate-in fade-in slide-in-from-left-2 duration-300 delay-100">
+                  <FormLabel>Job Type *</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="transition-all duration-200 focus:scale-[1.01]">
+                        <SelectValue placeholder="Select job type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="FULL_TIME">Full Time</SelectItem>
+                      <SelectItem value="PART_TIME">Part Time</SelectItem>
+                      <SelectItem value="CONTRACT">Contract</SelectItem>
+                      <SelectItem value="INTERNSHIP">Internship</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Location */}
+            <FormField
+              control={form.control}
+              name="location"
               render={({ field }) => (
                 <FormItem className="animate-in fade-in slide-in-from-left-2 duration-300 delay-150">
-                  <FormLabel>Number of Vacancies *</FormLabel>
+                  <FormLabel>Location *</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      min="1"
-                      placeholder="1"
+                      placeholder="e.g., San Francisco, CA or Remote"
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
                       className="transition-all duration-200 focus:scale-[1.01]"
                     />
                   </FormControl>
@@ -392,16 +465,8 @@ const CreateJob = () => {
                   <FormLabel>Years of Experience (Optional)</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      min="0"
-                      placeholder="e.g., 3"
+                      placeholder="e.g., 3-5 years"
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
-                      value={field.value ?? ""}
                       className="transition-all duration-200 focus:scale-[1.01]"
                     />
                   </FormControl>
@@ -413,10 +478,75 @@ const CreateJob = () => {
               )}
             />
 
+            {/* Salary Range */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-left-2 duration-300 delay-[450ms]">
+              <FormField
+                control={form.control}
+                name="salaryMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Minimum Salary <span className="text-xs">(Optional)</span>{" "}
+                      $
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="e.g., 50000"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : undefined
+                          )
+                        }
+                        value={field.value ?? ""}
+                        className="transition-all duration-200 focus:scale-[1.01]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="salaryMax"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Maximum Salary <span className="text-xs">(Optional)</span>{" "}
+                      ${" "}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="e.g., 80000"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : undefined
+                          )
+                        }
+                        value={field.value ?? ""}
+                        className="transition-all duration-200 focus:scale-[1.01]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormDescription className="text-sm text-muted-foreground -mt-2">
+              Both minimum and maximum salary must be provided if you want to
+              specify a salary range
+            </FormDescription>
+
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full animate-in fade-in slide-in-from-bottom-2 duration-300 delay-[450ms] transition-all hover:scale-[1.02]"
+              className="w-full animate-in fade-in slide-in-from-bottom-2 duration-300 delay-[500ms] transition-all hover:scale-[1.02]"
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting

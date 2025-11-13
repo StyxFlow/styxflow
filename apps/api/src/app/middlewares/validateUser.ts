@@ -36,7 +36,10 @@ export const validateUser = (...roles: TUserRole[]) => {
       if (roles.length && !roles.includes(session.user.role)) {
         throw new ApiError(403, "You are not authorized!");
       }
-      req.user = session.user;
+      req.user = {
+        ...session.user,
+        image: session.user.image ?? null,
+      };
       req.session = session.session;
       next();
     } catch (error) {

@@ -1,4 +1,5 @@
 import type { Request } from "express";
+import type { IUser } from "../db/types.js";
 
 export interface ICustomError {
   message: string;
@@ -6,12 +7,7 @@ export interface ICustomError {
 }
 
 export interface ICustomRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
+  user?: IUser;
   session?: {
     id: string;
     userId: string;

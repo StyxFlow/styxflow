@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
-const privateRoutes = ["/dashboard", "/create-job"];
+const privateRoutes = ["/dashboard", "/create-job", "/uploaded-jobs"];
 const authRoutes = ["/login", "/signup"];
 // const candidateOnlyRoutes = [];
-const recruiterOnlyRoutes = ["/create-job"];
+const recruiterOnlyRoutes = ["/create-job", "/uploaded-jobs"];
 
 export async function proxy(request: NextRequest) {
   const session = await auth.api.getSession({
@@ -54,5 +54,6 @@ export const config = {
     "/about",
     "/choose-role",
     "/create-job",
+    "/uploaded-jobs",
   ],
 };

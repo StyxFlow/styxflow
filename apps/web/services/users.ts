@@ -41,25 +41,6 @@ export const completeProfile = async (payload: {
 }) => {
   const headersList = await headers();
   const cookie = headersList.get("cookie");
-  if (payload.role === "CANDIDATE" && payload?.resume) {
-    const token = (await cookies()).get(config.better_auth_key!)?.value;
-    if (!token) {
-      return;
-    }
-    const formData = new FormData();
-    formData.append("resume", payload.resume);
-    const res = await fetch(`${config.server_url}/user/upload-resume`, {
-      method: "POST",
-      headers: {
-        authorization: token,
-      },
-      body: formData,
-    });
-    return res.json();
-  }
-  if (payload.role === "CANDIDATE") {
-    return;
-  }
 
   const response = await fetch("http://localhost:3000/api/complete-profile", {
     method: "POST",
@@ -81,4 +62,26 @@ export const completeProfile = async (payload: {
     console.log(data);
     throw new Error(data.error || "Failed to complete profile");
   }
+
+  if (payload.role === "CANDIDATE" && payload?.resume) {
+    const token = (await cookies()).get(config.better_auth_key!)?.value;
+    if (!token) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("resume", payload.resume);
+    const res = await fetch(`${config.server_url}/user/upload-resume`, {
+      method: "POST",
+      headers: {
+        authorization: token,
+      },
+      body: formData,
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      console.log(data);
+      throw new Error(data.error || "Failed to upload resume");
+    }
+  }
+  return response.json();
 };

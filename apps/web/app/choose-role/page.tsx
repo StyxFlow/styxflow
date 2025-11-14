@@ -53,7 +53,7 @@ const ChooseRolePage = () => {
       console.log(res);
 
       // Force a hard navigation to clear the session cache
-      // window.location.href = "/";
+      window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error completing profile:", err);

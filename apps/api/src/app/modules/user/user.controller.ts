@@ -1,16 +1,13 @@
-import path from "path";
-import fs from "fs";
 import { catchAsync } from "../../../shared/catchAsync.js";
 import { sendResponse } from "../../../shared/sendResponse.js";
+import { addResumeToQueue } from "../../../queues/producer.js";
+import type { ICustomRequest } from "../../../interface/index.js";
 
-const uploadResume = catchAsync(async (req, res) => {
-  const absolutePath = path.resolve(req.file!.path);
-  fs.unlink(absolutePath, (err) => {
-    if (err) {
-      console.error("Error deleting file:", absolutePath, err);
-      return;
-    }
-  });
+const uploadResume = catchAsync(async (req: ICustomRequest, res) => {
+  if (req?.file) {
+    const queueData = { filePath: req.file.path, userId: req.user!.id };
+    await addResumeToQueue(JSON.stringify(queueData));
+  }
 
   sendResponse(res, {
     statusCode: 200,

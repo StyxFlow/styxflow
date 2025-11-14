@@ -1,7 +1,8 @@
 "use server";
 
+import { config } from "@/config";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export const signUp = async (payload: {
   email: string;
@@ -36,9 +37,29 @@ export const completeProfile = async (payload: {
   role: "CANDIDATE" | "RECRUITER";
   organizationName?: string;
   organizationRole?: string;
+  resume?: File | null;
 }) => {
   const headersList = await headers();
   const cookie = headersList.get("cookie");
+  if (payload.role === "CANDIDATE" && payload?.resume) {
+    const token = (await cookies()).get(config.better_auth_key!)?.value;
+    if (!token) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("resume", payload.resume);
+    const res = await fetch(`${config.server_url}/user/upload-resume`, {
+      method: "POST",
+      headers: {
+        authorization: token,
+      },
+      body: formData,
+    });
+    return res.json();
+  }
+  if (payload.role === "CANDIDATE") {
+    return;
+  }
 
   const response = await fetch("http://localhost:3000/api/complete-profile", {
     method: "POST",

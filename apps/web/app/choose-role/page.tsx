@@ -29,6 +29,13 @@ const ChooseRolePage = () => {
     const organizationName = formData.get("organizationName") as string;
     const organizationRole = formData.get("organizationRole") as string;
 
+    // Validate candidate fields
+    if (role === "CANDIDATE" && !resumeFile) {
+      setError("Resume is required for candidates");
+      setIsLoading(false);
+      return;
+    }
+
     // Validate recruiter fields
     if (role === "RECRUITER" && !organizationName) {
       setError("Organization name is required for recruiters");
@@ -37,14 +44,16 @@ const ChooseRolePage = () => {
     }
 
     try {
-      await completeProfile({
+      const res = await completeProfile({
         role,
         organizationName,
         organizationRole,
+        resume: resumeFile,
       });
+      console.log(res);
 
       // Force a hard navigation to clear the session cache
-      window.location.href = "/";
+      // window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error completing profile:", err);
@@ -52,7 +61,6 @@ const ChooseRolePage = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md animate-in slide-in-from-right duration-500 fade-in">
@@ -75,7 +83,7 @@ const ChooseRolePage = () => {
 
               {/* Resume upload for candidates */}
               {role === "CANDIDATE" && (
-                <div className="animate-in slide-in-from-bottom duration-300 fade-in">
+                <div className="animate-in slide-in-from-bottom duration-300 fade-in -mt-7">
                   <ResumeUpload
                     onFileSelect={setResumeFile}
                     disabled={isLoading}

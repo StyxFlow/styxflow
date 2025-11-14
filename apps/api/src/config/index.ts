@@ -21,13 +21,12 @@ export default {
   //   api_secret: process.env.CLOUDINARY_API_SECRET,
   //   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   // },
-  // redis: {
-  //   host: process.env.REDIS_HOST,
-  //   port: process.env.REDIS_PORT,
-  //   password: process.env.REDIS_PASSWORD,
-  //   url: process.env.REDIS_URL,
-  //   token: process.env.REDIS_TOKEN,
-  // },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD,
+    username: process.env.REDIS_USERNAME,
+  },
   // groq_api_key: process.env.GROQ_API_KEY,
   // admin: {
   //   email: process.env.ADMIN_EMAIL,

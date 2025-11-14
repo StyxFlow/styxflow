@@ -36,13 +36,6 @@ export const ResumeUpload = ({ onFileSelect, disabled }: ResumeUploadProps) => {
     // Simulate upload delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    console.log("📄 File uploaded:", {
-      name: selectedFile.name,
-      size: selectedFile.size,
-      type: selectedFile.type,
-      lastModified: new Date(selectedFile.lastModified).toISOString(),
-    });
-
     setFile(selectedFile);
     onFileSelect(selectedFile);
     setIsUploading(false);
@@ -98,9 +91,7 @@ export const ResumeUpload = ({ onFileSelect, disabled }: ResumeUploadProps) => {
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">
-        Resume (PDF) <span className="text-muted-foreground">(Optional)</span>
-      </label>
+      <label className="text-sm font-medium">Resume (PDF) *</label>
 
       {!file ? (
         <div

@@ -5,9 +5,10 @@ import { authClient } from "@/lib/auth-client";
 
 const SocialLogin = () => {
   const googleLogin = async () => {
-    await authClient.signIn.social({
+    const res = await authClient.signIn.social({
       provider: "google",
     });
+    console.log("Google login response:", res);
   };
   const twitterLogin = async () => {
     await authClient.signIn.social({

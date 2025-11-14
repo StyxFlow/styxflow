@@ -9,18 +9,6 @@ import {
 
 export const UserRole = pgEnum("user_role", ["CANDIDATE", "RECRUITER"]);
 
-// export const organization = pgTable("organization", {
-//   id: uuid("id").primaryKey(),
-//   name: text("name").notNull(),
-//   organizationProfile: text("organization_profile"),
-//   location: text("location"),
-//   createdAt: timestamp("created_at").defaultNow().notNull(),
-//   updatedAt: timestamp("updated_at")
-//     .defaultNow()
-//     .$onUpdate(() => new Date())
-//     .notNull(),
-// });
-
 export const candidate = pgTable("candidate", {
   id: uuid("id").primaryKey(),
   userId: text("user_id")

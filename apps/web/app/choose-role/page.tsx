@@ -12,11 +12,13 @@ import {
 import SelectRole from "@/components/auth/SelectRole";
 import { FieldGroup } from "@/components/ui/field";
 import { completeProfile } from "@/services/users";
+import { ResumeUpload } from "@/components/auth/ResumeUpload";
 
 const ChooseRolePage = () => {
   const [role, setRole] = useState<"CANDIDATE" | "RECRUITER">("CANDIDATE");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,6 +72,16 @@ const ChooseRolePage = () => {
               )}
 
               <SelectRole role={role} isLoading={isLoading} setRole={setRole} />
+
+              {/* Resume upload for candidates */}
+              {role === "CANDIDATE" && (
+                <div className="animate-in slide-in-from-bottom duration-300 fade-in">
+                  <ResumeUpload
+                    onFileSelect={setResumeFile}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
 
               <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? "Setting up your account..." : "Continue"}

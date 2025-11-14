@@ -137,7 +137,7 @@ export const JobCard = ({ job, onDelete }: JobCardProps) => {
 
         {/* Posted Date */}
         <p className="text-xs text-muted-foreground pt-2 border-t">
-          Posted on {new Date(job.created_at).toLocaleDateString()}
+          Posted on {new Date(job.createdAt).toLocaleDateString()}
         </p>
       </CardContent>
     </Card>

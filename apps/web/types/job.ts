@@ -14,6 +14,6 @@ export interface IJob {
     max: number;
   };
   recruiterId: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }

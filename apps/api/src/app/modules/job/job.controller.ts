@@ -13,6 +13,17 @@ const createJob = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const getMyUploadedJobs = catchAsync(async (req: ICustomRequest, res) => {
+  const result = await JobService.getMyUploadedJobs(req.user!.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Uploaded jobs retrieved successfully",
+    data: result,
+  });
+});
+
 export const JobController = {
   createJob,
+  getMyUploadedJobs,
 };

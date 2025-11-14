@@ -32,6 +32,20 @@ const createJob = async (user: IUser, payload: IJob) => {
   return result;
 };
 
+export const getMyUploadedJobs = async (userId: string) => {
+  const isRecruiterExists = await db.query.recruiter.findFirst({
+    where: eq(recruiter.userId, userId),
+  });
+  if (!isRecruiterExists) {
+    throw new ApiError(404, "Recruiter profile not found");
+  }
+  const jobs = await db.query.job.findMany({
+    where: eq(job.recruiterId, isRecruiterExists.id),
+  });
+  return jobs;
+};
+
 export const JobService = {
   createJob,
+  getMyUploadedJobs,
 };

@@ -15,6 +15,7 @@ import { signUp } from "@/services/users";
 import { useState } from "react";
 import SelectRole from "./SelectRole";
 import SocialLogin from "./SocialLogin";
+import { ResumeUpload } from "./ResumeUpload";
 
 export function SignupForm({
   className,
@@ -23,6 +24,7 @@ export function SignupForm({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<"CANDIDATE" | "RECRUITER">("CANDIDATE");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,6 +68,7 @@ export function SignupForm({
         role,
         organizationName: role === "RECRUITER" ? organizationName : undefined,
         organizationRole: role === "RECRUITER" ? organizationRole : undefined,
+        resume: role === "CANDIDATE" ? resumeFile : undefined,
       });
 
       // Check if signup was successful
@@ -125,6 +128,15 @@ export function SignupForm({
               </Field>
 
               <SelectRole role={role} isLoading={isLoading} setRole={setRole} />
+              {/* Resume upload for candidates */}
+              {role === "CANDIDATE" && (
+                <div className="animate-in slide-in-from-bottom duration-300 fade-in -mt-7">
+                  <ResumeUpload
+                    onFileSelect={setResumeFile}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
 
               <Field className={role === "RECRUITER" ? "mt-0" : "-mt-7"}>
                 <FieldLabel htmlFor="email">Email</FieldLabel>

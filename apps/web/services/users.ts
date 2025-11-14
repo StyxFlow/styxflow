@@ -11,11 +11,32 @@ export const signUp = async (payload: {
   role: "CANDIDATE" | "RECRUITER";
   organizationName?: string;
   organizationRole?: string;
+  resume?: File | null;
 }) => {
   const result = await auth.api.signUpEmail({
     body: { ...payload, rememberMe: true, callbackURL: "/" },
     headers: await headers(),
   });
+  if (payload.role === "CANDIDATE" && payload?.resume && result?.user) {
+    const token = (await cookies()).get(config.better_auth_key!)?.value;
+    if (!token) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("resume", payload.resume);
+    const res = await fetch(`${config.server_url}/user/upload-resume`, {
+      method: "POST",
+      headers: {
+        authorization: token,
+      },
+      body: formData,
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      console.log(data);
+      throw new Error(data.error || "Failed to upload resume");
+    }
+  }
   return result;
 };
 

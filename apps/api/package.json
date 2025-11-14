@@ -12,6 +12,11 @@
     "dev:worker": "nodemon --watch src --ext ts,json --exec \"node --loader ts-node/esm ./src/queues/worker.ts\""
   },
   "dependencies": {
+    "@huggingface/inference": "^4.13.3",
+    "@langchain/community": "^1.0.3",
+    "@langchain/core": "^1.0.5",
+    "@langchain/qdrant": "^1.0.0",
+    "@langchain/textsplitters": "^1.0.0",
     "@neondatabase/serverless": "^1.0.2",
     "better-auth": "^1.3.34",
     "bullmq": "^5.63.1",
@@ -21,6 +26,7 @@
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
     "http-status": "^2.1.0",
+    "pdf-parse": "^2.4.5",
     "redis": "^5.9.0"
   },
   "devDependencies": {

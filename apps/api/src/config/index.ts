@@ -27,19 +27,12 @@ export default {
     password: process.env.REDIS_PASSWORD,
     username: process.env.REDIS_USERNAME,
   },
+  qdrant: {
+    key: process.env.QDRANT_KEY,
+    url: process.env.QDRANT_URL,
+  },
+  huggingface: {
+    api_key: process.env.HUGGINGFACE_API_KEY,
+  },
   // groq_api_key: process.env.GROQ_API_KEY,
-  // admin: {
-  //   email: process.env.ADMIN_EMAIL,
-  //   password: process.env.ADMIN_PASSWORD,
-  //   name: process.env.ADMIN_NAME,
-  // },
-  // sslcommerz: {
-  //   store_id: process.env.SSLCOMMERZ_STORE_ID,
-  //   store_password: process.env.SSLCOMMERZ_STORE_PASSWORD,
-  //   payment_api: process.env.SSL_PAYMENT_API,
-  //   success_url: process.env.SUCCESS_URL_DEVELOPMENT,
-  //   fail_url: process.env.FAIL_URL_DEVELOPMENT,
-  //   cancel_url: process.env.CANCEL_URL_DEVELOPMENT,
-  //   validation_api: process.env.SSL_VALIDATION_API,
-  // },
 };

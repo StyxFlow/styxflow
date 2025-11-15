@@ -1,7 +1,7 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "../../../db/drizzle.js";
 import { getVectorStore } from "../../../db/qdrant.js";
-import { candidate, interview } from "../../../db/schema.js";
+import { candidate, interview, question } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
@@ -62,7 +62,11 @@ const getMyInterviews = async (userId: string) => {
   return myInterviews;
 };
 
-const conductInterview = async (userId: string, interviewId: string) => {
+const conductInterview = async (
+  userId: string,
+  interviewId: string,
+  payload: { userResponse: string }
+) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, interviewId),
     with: {
@@ -90,11 +94,36 @@ const conductInterview = async (userId: string, interviewId: string) => {
   if (resumeChunks.length === 0) {
     throw new ApiError(404, "No resume found for the candidate");
   }
-  console.log(resumeChunks.length);
   const resumeText = resumeChunks
     .sort((a, b) => a[0].metadata.chunkIndex - b[0].metadata.chunkIndex)
     .map((chunk) => chunk[0].pageContent)
     .join("\n");
+
+  // const checkpointer = new MemorySaver();
+
+  const interviewQuestions = await db.query.question.findMany({
+    where: eq(question.interviewId, interviewId),
+    orderBy: [asc(question.createdAt)],
+  });
+  if (interviewQuestions.length > 0) {
+    const id = interviewQuestions[interviewQuestions.length - 1]?.id;
+    await db
+      .update(question)
+      .set({
+        answerText: payload.userResponse,
+      })
+      .where(eq(question.id, id as string));
+  }
+  const previousQuestionsAndAnswers = interviewQuestions.map((q) => ({
+    question: q.questionText,
+    answer: q.answerText,
+  }));
+  if (previousQuestionsAndAnswers.length > 0) {
+    previousQuestionsAndAnswers[
+      previousQuestionsAndAnswers.length - 1
+    ]!.answer = payload.userResponse;
+  }
+  console.log(interviewQuestions.length);
 
   const llm = new ChatGroq({
     apiKey: config.groq_api_key!,
@@ -110,9 +139,30 @@ const conductInterview = async (userId: string, interviewId: string) => {
     {
       role: "system",
       content:
-        "You are an interview assistant. Ask the candidate one question at a time based on their resume and previous answers. You are going to send only the text candidate is going to see. Do not include any other text. Keep the interview professional and relevant to the candidate's background. Make it engaging and thought-provoking. Keep conversation flowing naturally. Start with a brief introduction and then proceed to ask the first question. If the interview has already started, ask the next question based on previous answers. Start with greeting the candidate. ",
+        "You are an interview assistant. Ask the candidate one question at a time based on their resume and previous answers. You are going to send only the text candidate is going to see. Do not include any other text. Keep the interview professional and relevant to the candidate's background. Make it engaging and thought-provoking. Keep conversation flowing naturally. Start with a brief introduction and then proceed to ask the first question. If the interview has already started, ask the next question based on previous answers. Start with greeting the candidate. Also ask questions that allow the candidate to showcase their skills and experiences effectively. Ask questions that are open-ended and encourage detailed responses. Avoid simple yes/no questions. Ensure that each question builds upon the candidate's previous answers to create a coherent and engaging interview experience. Continue the interview accordingly if it has already started. ",
+    },
+    {
+      role: "system",
+      content: `Interview already started: ${previousQuestionsAndAnswers.length > 0}`,
+    },
+    {
+      role: "system",
+      content: `questions asked so far:${previousQuestionsAndAnswers.length}. End the interview after asking 5 to 6 questions. At the end of the interview, thank the candidate for their time and provide a brief overview of the next steps in the hiring process. Also Give candidate a score out of 100 based on their responses and provide constructive feedback at the end of the interview. `,
+    },
+    {
+      role: "system",
+      content: `dont ask more than 6 questions in total. If you have already asked 6 questions, end the interview with a thank you message, next steps, score out of 100 and constructive feedback.`,
+    },
+    {
+      role: "user",
+      content: `Previous questions and answers:\n\n${JSON.stringify(previousQuestionsAndAnswers)}`,
     },
   ]);
+  await db.insert(question).values({
+    interviewId: interviewId,
+    questionText: response.content as string,
+  });
+
   return { question: response.content };
 };
 

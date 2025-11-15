@@ -10,9 +10,9 @@ const InterviewPage = async ({
   const { interviewId } = await params;
   const data = await conductInterview(interviewId);
   if (!data || !data.data || !data.data.question) {
+    console.log(data);
     return <FetchFailed message="Failed to start the interview" title="OOPS" />;
   }
-  console.log(data);
   return (
     <div className="pt-24  px-4 container mx-auto py-8 max-w-7xl">
       <AnswerQuestions

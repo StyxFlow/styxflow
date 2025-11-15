@@ -32,7 +32,10 @@ export const getMyInterviews = async (): Promise<
   return response.json();
 };
 
-export const conductInterview = async (interviewId: string) => {
+export const conductInterview = async (
+  interviewId: string,
+  payload?: { userResponse: string }
+) => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(
     `${config.server_url}/interview/conduct-interview/${interviewId}`,
@@ -40,7 +43,9 @@ export const conductInterview = async (interviewId: string) => {
       method: "POST",
       headers: {
         authorization: token!,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(payload),
     }
   );
   return response.json();

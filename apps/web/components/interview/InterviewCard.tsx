@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RiVoiceAiLine } from "react-icons/ri";
 import { FiCalendar, FiCheckCircle, FiClock } from "react-icons/fi";
 import { MdOutlineScore } from "react-icons/md";
+import { redirect } from "next/navigation";
 
 interface Interview {
   id: string;
@@ -22,16 +23,16 @@ interface InterviewCardProps {
   onContinue?: (id: string) => void;
 }
 
-export const InterviewCard = ({
-  interview,
-  onContinue,
-}: InterviewCardProps) => {
+export const InterviewCard = ({ interview }: InterviewCardProps) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
+  };
+  const redirectToInterviewPage = (id: string) => {
+    redirect(`/attempt-interview/${id}`);
   };
 
   return (
@@ -95,7 +96,7 @@ export const InterviewCard = ({
 
         {!interview.isCompleted && interview.isActive && (
           <Button
-            onClick={() => onContinue?.(interview.id)}
+            onClick={() => redirectToInterviewPage(interview.id)}
             className="w-full group-hover:bg-primary/90 transition-colors"
           >
             Continue Interview

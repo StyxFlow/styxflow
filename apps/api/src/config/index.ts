@@ -34,5 +34,5 @@ export default {
   huggingface: {
     api_key: process.env.HUGGINGFACE_API_KEY,
   },
-  // groq_api_key: process.env.GROQ_API_KEY,
+  groq_api_key: process.env.GROQ_API_KEY,
 };

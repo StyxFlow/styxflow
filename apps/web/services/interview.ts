@@ -31,3 +31,17 @@ export const getMyInterviews = async (): Promise<
   });
   return response.json();
 };
+
+export const conductInterview = async (interviewId: string) => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  const response = await fetch(
+    `${config.server_url}/interview/conduct-interview/${interviewId}`,
+    {
+      method: "POST",
+      headers: {
+        authorization: token!,
+      },
+    }
+  );
+  return response.json();
+};

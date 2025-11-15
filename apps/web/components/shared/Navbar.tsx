@@ -24,14 +24,25 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/create-job", label: "Create Job", userRole: "RECRUITER" },
-    { href: "/uploaded-jobs", label: "Uploaded Jobs", userRole: "RECRUITER" },
+    { href: "/", label: "Home", route: "" },
+    { href: "/about", label: "About", route: "about" },
+    {
+      href: "/create-job",
+      label: "Create Job",
+      userRole: "RECRUITER",
+      route: "create-job",
+    },
+    {
+      href: "/uploaded-jobs",
+      label: "Uploaded Jobs",
+      userRole: "RECRUITER",
+      route: "uploaded-jobs",
+    },
     {
       href: "/attempt-interview",
       label: "Attempt Interview",
       userRole: "CANDIDATE",
+      route: "attempt-interview",
     },
   ];
 
@@ -55,7 +66,10 @@ const Navbar = () => {
                 href={link.href}
                 className={cn(
                   `text-sm font-medium transition-colors hover:text-primary relative pb-1 ${link?.userRole && link.userRole !== session?.user.role ? "hidden" : ""}`,
-                  pathname === link.href
+                  pathname
+                    .split("/")
+                    .filter((_, idx) => idx !== 0)
+                    .includes(link.route)
                     ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full"
                     : "text-muted-foreground"
                 )}

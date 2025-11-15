@@ -2,11 +2,16 @@
 
 import { startInterview } from "@/services/interview";
 import { Button } from "../ui/button";
+import { redirect } from "next/navigation";
 
 const StartInterview = () => {
   const handleStartInterview = async () => {
     const result = await startInterview();
-    console.log(result);
+    if (result && result.data && result.data.interviewId) {
+      redirect(`/interview/${result.data.interviewId}`);
+    } else {
+      console.log(result);
+    }
   };
 
   return (

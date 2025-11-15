@@ -24,7 +24,10 @@ const getMyInterviews = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const conductInterview = catchAsync(async (req: ICustomRequest, res) => {
-  const result = await InterviewService.conductInterview();
+  const result = await InterviewService.conductInterview(
+    req.user!.id,
+    req.params.interviewId!
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,

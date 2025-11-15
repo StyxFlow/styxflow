@@ -18,7 +18,7 @@ router.get(
 );
 
 router.post(
-  "/conduct-interview",
+  "/conduct-interview/:interviewId",
   validateUser(UserRole.candidate),
   InterviewController.conductInterview
 );

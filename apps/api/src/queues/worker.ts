@@ -8,6 +8,7 @@ import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/
 import { Document } from "@langchain/core/documents";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import config from "../config/index.js";
+import { vectorStore } from "../db/qdrant.js";
 
 const worker = new Worker(
   "resume-upload-queue",
@@ -21,10 +22,6 @@ const worker = new Worker(
       chunkOverlap: 0,
     });
     const texts = await textSplitter.splitText(parsedData);
-    const embeddings = new HuggingFaceInferenceEmbeddings({
-      apiKey: config.huggingface.api_key!,
-      model: "sentence-transformers/all-MiniLM-L6-v2",
-    });
     const docs = texts.map(
       (t, idx) =>
         new Document({
@@ -34,14 +31,6 @@ const worker = new Worker(
             chunkIndex: idx,
           },
         })
-    );
-    const vectorStore = await QdrantVectorStore.fromExistingCollection(
-      embeddings,
-      {
-        url: config.qdrant.url!,
-        collectionName: "resume",
-        apiKey: config.qdrant.key!,
-      }
     );
     await vectorStore.addDocuments(docs);
     console.log("all docs are added to vector database");

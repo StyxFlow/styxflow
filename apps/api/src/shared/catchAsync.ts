@@ -1,8 +1,8 @@
-import type { NextFunction, Request, RequestHandler, Response } from "express";
-// import { ICustomRequest } from '../interface';
+import type { NextFunction, RequestHandler, Response } from "express";
+import type { ICustomRequest } from "../interface/index.js";
 
 export const catchAsync = (fn: RequestHandler) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (req: ICustomRequest, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch((error) => {
       next(error);
     });

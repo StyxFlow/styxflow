@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -8,6 +8,7 @@ import {
   uuid,
   integer,
   json,
+  check,
 } from "drizzle-orm/pg-core";
 
 export const UserRole = pgEnum("user_role", ["CANDIDATE", "RECRUITER"]);
@@ -17,6 +18,29 @@ export const JobType = pgEnum("job_type", [
   "CONTRACT",
   "INTERNSHIP",
 ]);
+
+export const interview = pgTable(
+  "interview",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    candidateId: uuid("candidate_id")
+      .references(() => candidate.id)
+      .notNull(),
+    score: integer("score"),
+    review: text("review"),
+    attempt: integer("attempt").default(1).notNull(),
+    isCompleted: boolean("is_completed").default(false).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    check("age_check1", sql`${table.score} >=0 AND ${table.score} <=100`),
+  ]
+);
 
 export const job = pgTable("job", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -151,3 +175,22 @@ export const userRelations = relations(user, ({ one }) => ({
     references: [recruiter.userId],
   }),
 }));
+
+export const candidateRelations = relations(candidate, ({ one, many }) => {
+  return {
+    user: one(user, {
+      fields: [candidate.userId],
+      references: [user.id],
+    }),
+    interview: many(interview),
+  };
+});
+
+export const interviewRelations = relations(interview, ({ one }) => {
+  return {
+    candidate: one(candidate, {
+      fields: [interview.candidateId],
+      references: [candidate.id],
+    }),
+  };
+});

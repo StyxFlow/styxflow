@@ -11,4 +11,16 @@ router.post(
   InterviewController.startInterview
 );
 
+router.get(
+  "/my-interviews",
+  validateUser(UserRole.candidate),
+  InterviewController.getMyInterviews
+);
+
+router.post(
+  "/conduct-interview",
+  validateUser(UserRole.candidate),
+  InterviewController.conductInterview
+);
+
 export const InterviewRoutes = router;

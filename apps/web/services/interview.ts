@@ -1,6 +1,8 @@
 "use server";
 
 import { config } from "@/config";
+import { IServerResponse } from "@/types";
+import { IInterview } from "@/types/interview";
 import { cookies } from "next/headers";
 
 export const startInterview = async () => {
@@ -14,5 +16,18 @@ export const startInterview = async () => {
       },
     }
   );
+  return response.json();
+};
+
+export const getMyInterviews = async (): Promise<
+  IServerResponse<IInterview[]>
+> => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  const response = await fetch(`${config.server_url}/interview/my-interviews`, {
+    method: "GET",
+    headers: {
+      authorization: token!,
+    },
+  });
   return response.json();
 };

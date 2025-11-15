@@ -19,6 +19,21 @@ export const JobType = pgEnum("job_type", [
   "INTERNSHIP",
 ]);
 
+export const question = pgTable("question", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  interviewId: uuid("interview_id")
+    .notNull()
+    .references(() => interview.id),
+  questionText: text("question_text").notNull(),
+  answerText: text("answer_text"),
+  isCorrect: boolean("is_correct"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 export const interview = pgTable(
   "interview",
   {
@@ -186,11 +201,21 @@ export const candidateRelations = relations(candidate, ({ one, many }) => {
   };
 });
 
-export const interviewRelations = relations(interview, ({ one }) => {
+export const interviewRelations = relations(interview, ({ one, many }) => {
   return {
     candidate: one(candidate, {
       fields: [interview.candidateId],
       references: [candidate.id],
+    }),
+    question: many(question),
+  };
+});
+
+export const questionRelations = relations(question, ({ one }) => {
+  return {
+    interview: one(interview, {
+      fields: [question.interviewId],
+      references: [interview.id],
     }),
   };
 });

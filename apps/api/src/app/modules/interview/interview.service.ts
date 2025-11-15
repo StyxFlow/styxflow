@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/drizzle.js";
 import { getVectorStore } from "../../../db/qdrant.js";
 import { candidate, interview } from "../../../db/schema.js";
@@ -11,7 +11,16 @@ const startInterview = async (userId: string) => {
   if (!isCandidate) {
     throw new ApiError(404, "Candidate profile not found");
   }
+  const isInterviewActive = await db.query.interview.findFirst({
+    where: and(
+      eq(interview.candidateId, isCandidate.id),
+      eq(interview.isActive, true)
+    ),
+  });
 
+  if (isInterviewActive) {
+    throw new ApiError(400, "An active interview already exists");
+  }
   const vectorStore = await getVectorStore();
   const resumeChunks = await vectorStore.similaritySearchWithScore("*", 20, {
     must: [{ key: "metadata.candidateId", match: { value: isCandidate.id } }],
@@ -36,6 +45,24 @@ const startInterview = async (userId: string) => {
   return { chunks: resumeChunks, newInterview };
 };
 
+const getMyInterviews = async (userId: string) => {
+  const isCandidate = await db.query.candidate.findFirst({
+    where: eq(candidate.userId, userId),
+  });
+  if (!isCandidate) {
+    throw new ApiError(404, "Candidate profile not found");
+  }
+
+  const myInterviews = await db.query.interview.findMany({
+    where: eq(interview.candidateId, isCandidate.id),
+  });
+  return myInterviews;
+};
+
+const conductInterview = async () => {};
+
 export const InterviewService = {
   startInterview,
+  conductInterview,
+  getMyInterviews,
 };

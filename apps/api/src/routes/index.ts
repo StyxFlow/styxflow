@@ -17,7 +17,6 @@ const appRoutes = [
     path: "/job",
     routes: JobRoutes,
   },
-  // TODO: Fix Qdrant connection issue before enabling InterviewRoutes
   {
     path: "/interview",
     routes: InterviewRoutes,

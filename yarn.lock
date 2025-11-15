@@ -1295,7 +1295,7 @@
     tslib "^2.8.1"
     tsyringe "^4.10.0"
 
-"@qdrant/js-client-rest@^1.15.0":
+"@qdrant/js-client-rest@^1.15.0", "@qdrant/js-client-rest@^1.15.1":
   version "1.15.1"
   resolved "https://registry.yarnpkg.com/@qdrant/js-client-rest/-/js-client-rest-1.15.1.tgz#4af45add5d5082d173acc27db6d55b11e40db907"
   integrity sha512-FAPMz6Z7RFj9vUun8R9e8SYcX6EkZtdfYfnh5lFXWcjEaat9q/jce1baAJCWAr3k8yHh62HpzCRYOatLVII28g==

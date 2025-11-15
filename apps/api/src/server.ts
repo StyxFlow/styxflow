@@ -2,6 +2,7 @@ import app from "./app.js";
 import config from "./config/index.js";
 import { createServer } from "http";
 import { connectRedis } from "./db/redis.js";
+import { connectQdrant } from "./db/qdrant.js";
 
 const server = createServer(app);
 
@@ -9,9 +10,8 @@ const PORT = config.port || 8000;
 
 const main = async () => {
   try {
-    console.log("Starting server...");
     await connectRedis();
-    console.log("Redis connected successfully");
+    await connectQdrant();
 
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

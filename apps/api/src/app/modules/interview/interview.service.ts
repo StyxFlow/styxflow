@@ -1,15 +1,17 @@
+import { eq } from "drizzle-orm";
 import { db } from "../../../db/drizzle.js";
-import { vectorStore } from "../../../db/qdrant.js";
-import { interview } from "../../../db/schema.js";
+import { getVectorStore } from "../../../db/qdrant.js";
+import { candidate, interview } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 
 const startInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
-    where: (candidate, { eq }) => eq(candidate.userId, userId),
+    where: eq(candidate.userId, userId),
   });
   if (!isCandidate) {
     throw new ApiError(404, "Candidate profile not found");
   }
+  const vectorStore = await getVectorStore();
   const resumeChunks = await vectorStore.similaritySearch("*", 20, {
     must: [
       {

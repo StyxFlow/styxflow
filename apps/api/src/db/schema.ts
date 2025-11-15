@@ -27,7 +27,7 @@ export const interview = pgTable(
       .references(() => candidate.id)
       .notNull(),
     score: integer("score"),
-    review: text("review"),
+    feedback: text("feedback"),
     attempt: integer("attempt").default(1).notNull(),
     isCompleted: boolean("is_completed").default(false).notNull(),
     isActive: boolean("is_active").default(true).notNull(),

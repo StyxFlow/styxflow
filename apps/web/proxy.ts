@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 
 const privateRoutes = ["/dashboard", "/create-job", "/uploaded-jobs"];
 const authRoutes = ["/login", "/signup"];
-// const candidateOnlyRoutes = [];
+const candidateOnlyRoutes = ["/attempt-interview"];
 const recruiterOnlyRoutes = ["/create-job", "/uploaded-jobs"];
 
 export async function proxy(request: NextRequest) {
@@ -42,6 +42,11 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  if (candidateOnlyRoutes.includes(pathname)) {
+    if (session?.user?.role !== "CANDIDATE") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
   return NextResponse.next();
 }
 
@@ -55,5 +60,6 @@ export const config = {
     "/choose-role",
     "/create-job",
     "/uploaded-jobs",
+    "/attempt-interview",
   ],
 };

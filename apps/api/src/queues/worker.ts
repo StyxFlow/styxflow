@@ -8,7 +8,7 @@ import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/
 import { Document } from "@langchain/core/documents";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import config from "../config/index.js";
-import { vectorStore } from "../db/qdrant.js";
+import { getVectorStore } from "../db/qdrant.js";
 
 const worker = new Worker(
   "resume-upload-queue",
@@ -32,6 +32,8 @@ const worker = new Worker(
           },
         })
     );
+
+    const vectorStore = await getVectorStore();
     await vectorStore.addDocuments(docs);
     console.log("all docs are added to vector database");
     const absolutePath = path.resolve(filePath);

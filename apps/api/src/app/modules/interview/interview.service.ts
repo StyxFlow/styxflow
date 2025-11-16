@@ -67,7 +67,7 @@ const conductInterview = async (
   payload: { userResponse: string }
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
-    where: eq(interview.id, interviewId),
+    where: and(eq(interview.id, interviewId), eq(interview.isActive, true)),
     with: {
       candidate: true,
     },
@@ -152,15 +152,48 @@ const conductInterview = async (
       content: `dont ask more than 6 questions in total. If you have already asked 6 questions, end the interview with a thank you message, next steps, score out of 100 and constructive feedback.`,
     },
     {
+      role: "system",
+      content: `to end an interview, send the response in the following json format: {"endInterview": true, "response": "your closing message here which the candidate going to see", "score": number between 0 and 100, "feedback": "constructive feedback here"}`,
+    },
+    {
       role: "user",
       content: `Previous questions and answers:\n\n${JSON.stringify(previousQuestionsAndAnswers)}`,
     },
   ]);
+  if (
+    !response.content ||
+    (response.content as string).includes('"endInterview": true')
+  ) {
+    try {
+      const content = response.content as string;
+      const startIndex = content.indexOf("{");
+      const endIndex = content.lastIndexOf("}");
+      const jsonString = content.slice(startIndex, endIndex + 1);
+      const evaluation = JSON.parse(`${jsonString}`);
+      if (evaluation?.endInterview) {
+        const result = await db
+          .update(interview)
+          .set({
+            isActive: false,
+            score: evaluation?.score,
+            feedback: evaluation?.feedback,
+            isCompleted: true,
+          })
+          .where(eq(interview.id, interviewId))
+          .returning();
+
+        return { interview: result[0], question: evaluation.response };
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+    }
+  }
+
   await db.insert(question).values({
     interviewId: interviewId,
     questionText: response.content as string,
   });
-
   return { question: response.content };
 };
 

@@ -69,6 +69,10 @@ export async function proxy(request: NextRequest) {
           return NextResponse.redirect(
             new URL("/attempt-interview", request.url)
           );
+        } else if (!result.data.isActive) {
+          return NextResponse.redirect(
+            new URL("/attempt-interview", request.url)
+          );
         }
       }
     } catch (error) {

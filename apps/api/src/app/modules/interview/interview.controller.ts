@@ -50,9 +50,23 @@ const finishInterview = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const getSingleInterview = catchAsync(async (req: ICustomRequest, res) => {
+  const result = await InterviewService.getSingleInterview(
+    req.user!.id,
+    req.params.interviewId!
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Interview fetched successfully",
+    data: result,
+  });
+});
+
 export const InterviewController = {
   startInterview,
   conductInterview,
   getMyInterviews,
   finishInterview,
+  getSingleInterview,
 };

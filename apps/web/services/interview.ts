@@ -64,3 +64,17 @@ export const finishInterviewService = async (interviewId: string) => {
   );
   return response.json();
 };
+
+export const getSingleInterview = async (interviewId: string) => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  const response = await fetch(
+    `${config.server_url}/interview/${interviewId}`,
+    {
+      method: "GET",
+      headers: {
+        authorization: token!,
+      },
+    }
+  );
+  return response.json();
+};

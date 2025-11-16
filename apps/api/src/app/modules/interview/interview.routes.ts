@@ -17,6 +17,12 @@ router.get(
   InterviewController.getMyInterviews
 );
 
+router.get(
+  "/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.getSingleInterview
+);
+
 router.post(
   "/conduct-interview/:interviewId",
   validateUser(UserRole.candidate),

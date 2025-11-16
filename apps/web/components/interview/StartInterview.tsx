@@ -2,17 +2,17 @@
 
 import { startInterview } from "@/services/interview";
 import { Button } from "../ui/button";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const StartInterview = () => {
+  const router = useRouter();
   const handleStartInterview = async () => {
     const result = await startInterview();
-    if (result && result.data) {
-      console.log(result);
-      // redirect(`/interview/${result.data.newInterview.id}`);
-    } else {
-      console.log(result);
-    }
+    console.log(`/attempt-interview/${result.data.newInterview.id}`);
+    // console.log(result);
+    router.push(`/attempt-interview/${result.data.newInterview.id}`);
+    // window.location.href = `/attempt-interview/${result.data.newInterview.id}`;
+    console.log("pushed");
   };
 
   return (

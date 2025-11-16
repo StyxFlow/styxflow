@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { getSingleInterview } from "./services/interview";
 
-const privateRoutes = ["/dashboard", "/create-job", "/uploaded-jobs"];
+const privateRoutes = [
+  "/dashboard",
+  "/create-job",
+  "/uploaded-jobs",
+  "/attempt-interview",
+  "/attempt-interview/:interviewId",
+];
 const authRoutes = ["/login", "/signup"];
-const candidateOnlyRoutes = ["/attempt-interview"];
+const candidateOnlyRoutes = [
+  /^\/attempt-interview$/,
+  /^\/attempt-interview\/[^\/]+$/,
+];
 const recruiterOnlyRoutes = ["/create-job", "/uploaded-jobs"];
 
 export async function proxy(request: NextRequest) {
@@ -42,9 +52,28 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  if (candidateOnlyRoutes.includes(pathname)) {
+  if (candidateOnlyRoutes.some((route) => route.test(pathname))) {
     if (session?.user?.role !== "CANDIDATE") {
       return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  // check if candidate is authorized to attempt the interview
+  if (/^\/attempt-interview\/[^\/]+$/.test(pathname)) {
+    try {
+      const interviewId = pathname.split("/").pop();
+      if (interviewId) {
+        const result = await getSingleInterview(interviewId);
+        if (!result || !result?.data) {
+          console.log(result);
+          return NextResponse.redirect(
+            new URL("/attempt-interview", request.url)
+          );
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      return NextResponse.redirect(new URL("/attempt-interview", request.url));
     }
   }
   return NextResponse.next();
@@ -61,5 +90,6 @@ export const config = {
     "/create-job",
     "/uploaded-jobs",
     "/attempt-interview",
+    "/attempt-interview/:interviewId",
   ],
 };

@@ -27,7 +27,6 @@ const startInterview = async (userId: string) => {
   const resumeChunks = await vectorStore.similaritySearchWithScore("*", 20, {
     must: [{ key: "metadata.candidateId", match: { value: isCandidate.id } }],
   });
-  console.log(resumeChunks.length);
 
   if (resumeChunks.length === 0) {
     throw new ApiError(404, "No resume found for the candidate");
@@ -123,7 +122,6 @@ const conductInterview = async (
       previousQuestionsAndAnswers.length - 1
     ]!.answer = payload.userResponse;
   }
-  console.log(interviewQuestions.length);
 
   const llm = new ChatGroq({
     apiKey: config.groq_api_key!,
@@ -212,7 +210,6 @@ const finishInterview = async (userId: string, interviewId: string) => {
   const startIndex = content.indexOf("{");
   const endIndex = content.lastIndexOf("}");
   const jsonString = content.slice(startIndex, endIndex + 1);
-  console.log(jsonString);
   const evaluation = JSON.parse(`${jsonString}`);
   const result = await db
     .update(interview)
@@ -227,9 +224,26 @@ const finishInterview = async (userId: string, interviewId: string) => {
   return result[0];
 };
 
+const getSingleInterview = async (userId: string, interviewId: string) => {
+  const result = await db.query.interview.findFirst({
+    where: eq(interview.id, interviewId),
+    with: {
+      candidate: true,
+    },
+  });
+  if (!result) {
+    throw new ApiError(404, "Interview not found");
+  }
+  if (result?.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
+  }
+  return result;
+};
+
 export const InterviewService = {
   startInterview,
   conductInterview,
   getMyInterviews,
   finishInterview,
+  getSingleInterview,
 };

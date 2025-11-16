@@ -9,7 +9,6 @@ const AttemtInterviewPage = async () => {
   if (!data) {
     return <FetchFailed />;
   }
-  console.log(data);
   const activeInterview = data.find((i) => i.isActive && !i.isCompleted);
   return (
     <div className="pt-20 px-4 container mx-auto py-8 max-w-7xl">

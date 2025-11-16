@@ -45,7 +45,7 @@ const startInterview = async (userId: string) => {
       attempt: 1,
     })
     .returning();
-  return { chunks: resumeChunks, newInterview };
+  return { chunks: resumeChunks, newInterview: newInterview[0] };
 };
 
 const getMyInterviews = async (userId: string) => {
@@ -166,8 +166,70 @@ const conductInterview = async (
   return { question: response.content };
 };
 
+const finishInterview = async (userId: string, interviewId: string) => {
+  const isInterviewExists = await db.query.interview.findFirst({
+    where: eq(interview.id, interviewId),
+    with: {
+      candidate: true,
+    },
+  });
+  if (!isInterviewExists) {
+    throw new ApiError(404, "Interview not found");
+  }
+  if (isInterviewExists?.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
+  }
+
+  const interviewQuestions = await db.query.question.findMany({
+    where: eq(question.interviewId, interviewId),
+    orderBy: [asc(question.createdAt)],
+  });
+  const previousQuestionsAndAnswers = interviewQuestions.map((q) => ({
+    question: q.questionText,
+    answer: q.answerText,
+  }));
+  const llm = new ChatGroq({
+    apiKey: config.groq_api_key!,
+    model: "llama-3.3-70b-versatile",
+    temperature: 0.3,
+  });
+  const response = await llm.invoke([
+    {
+      role: "system",
+      content:
+        "You are an interview evaluator. Based on the candidate's responses, provide a score out of 100 and constructive feedback to help them improve. Keep the feedback professional and encouraging.",
+    },
+    {
+      role: "system",
+      content: `send response in the following format: {"score": number between 0 and 100, "feedback": string with constructive feedback}`,
+    },
+    {
+      role: "user",
+      content: `Here are the candidate's responses:\n\n${JSON.stringify(previousQuestionsAndAnswers)}`,
+    },
+  ]);
+  const content = response.content as string;
+  const startIndex = content.indexOf("{");
+  const endIndex = content.lastIndexOf("}");
+  const jsonString = content.slice(startIndex, endIndex + 1);
+  console.log(jsonString);
+  const evaluation = JSON.parse(`${jsonString}`);
+  const result = await db
+    .update(interview)
+    .set({
+      isActive: false,
+      score: evaluation?.score,
+      feedback: evaluation?.feedback,
+      isCompleted: true,
+    })
+    .where(eq(interview.id, interviewId))
+    .returning();
+  return result[0];
+};
+
 export const InterviewService = {
   startInterview,
   conductInterview,
   getMyInterviews,
+  finishInterview,
 };

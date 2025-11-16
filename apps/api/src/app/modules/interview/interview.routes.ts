@@ -23,4 +23,10 @@ router.post(
   InterviewController.conductInterview
 );
 
+router.patch(
+  "/finish-interview/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.finishInterview
+);
+
 export const InterviewRoutes = router;

@@ -7,8 +7,9 @@ import { redirect } from "next/navigation";
 const StartInterview = () => {
   const handleStartInterview = async () => {
     const result = await startInterview();
-    if (result && result.data && result.data.interviewId) {
-      redirect(`/interview/${result.data.interviewId}`);
+    if (result && result.data) {
+      console.log(result);
+      // redirect(`/interview/${result.data.newInterview.id}`);
     } else {
       console.log(result);
     }

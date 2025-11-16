@@ -7,6 +7,7 @@ import { RiVoiceAiLine } from "react-icons/ri";
 import { FiCalendar, FiCheckCircle, FiClock } from "react-icons/fi";
 import { MdOutlineScore } from "react-icons/md";
 import { redirect } from "next/navigation";
+import { finishInterviewService } from "@/services/interview";
 
 interface Interview {
   id: string;
@@ -33,6 +34,10 @@ export const InterviewCard = ({ interview }: InterviewCardProps) => {
   };
   const redirectToInterviewPage = (id: string) => {
     redirect(`/attempt-interview/${id}`);
+  };
+  const finishInterview = async (id: string) => {
+    const result = await finishInterviewService(id);
+    console.log(result);
   };
 
   return (
@@ -95,12 +100,20 @@ export const InterviewCard = ({ interview }: InterviewCardProps) => {
         )}
 
         {!interview.isCompleted && interview.isActive && (
-          <Button
-            onClick={() => redirectToInterviewPage(interview.id)}
-            className="w-full group-hover:bg-primary/90 transition-colors"
-          >
-            Continue Interview
-          </Button>
+          <>
+            <Button
+              onClick={() => redirectToInterviewPage(interview.id)}
+              className="w-full group-hover:bg-primary/90 transition-colors"
+            >
+              Continue Interview
+            </Button>
+            <Button
+              onClick={() => finishInterview(interview.id)}
+              className="w-full group-hover:bg-primary/90 transition-colors"
+            >
+              Finish Interview
+            </Button>
+          </>
         )}
       </CardContent>
     </Card>

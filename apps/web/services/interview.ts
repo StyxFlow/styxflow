@@ -50,3 +50,17 @@ export const conductInterview = async (
   );
   return response.json();
 };
+
+export const finishInterviewService = async (interviewId: string) => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  const response = await fetch(
+    `${config.server_url}/interview/finish-interview/${interviewId}`,
+    {
+      method: "PATCH",
+      headers: {
+        authorization: token!,
+      },
+    }
+  );
+  return response.json();
+};

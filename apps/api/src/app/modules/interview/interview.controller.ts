@@ -37,8 +37,22 @@ const conductInterview = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const finishInterview = catchAsync(async (req: ICustomRequest, res) => {
+  const result = await InterviewService.finishInterview(
+    req.user!.id,
+    req.params.interviewId!
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Interview finished successfully",
+    data: result,
+  });
+});
+
 export const InterviewController = {
   startInterview,
   conductInterview,
   getMyInterviews,
+  finishInterview,
 };

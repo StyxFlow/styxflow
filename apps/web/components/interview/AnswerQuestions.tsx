@@ -1,8 +1,8 @@
 "use client";
-import { conductInterview } from "@/services/interview";
+import { conductInterview, finishInterviewService } from "@/services/interview";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const AnswerQuestions = ({
   interviewId,
@@ -16,6 +16,18 @@ const AnswerQuestions = ({
   ]);
   const [userResponse, setUserResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      (async () => {
+        try {
+          await finishInterviewService(interviewId);
+        } catch (error) {
+          console.error("Error finishing interview:", error);
+        }
+      })();
+    };
+  }, [interviewId]);
 
   const handleSubmit = async () => {
     if (!userResponse.trim()) return;

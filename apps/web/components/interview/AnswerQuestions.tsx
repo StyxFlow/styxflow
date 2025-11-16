@@ -78,6 +78,15 @@ const AnswerQuestions = ({
           setFeedback(result.data.interview.feedback);
         }
       }
+      if (result.data.wavFile) {
+        const audioBytes = Uint8Array.from(atob(result.data.wavFile), (c) =>
+          c.charCodeAt(0)
+        );
+        const blob = new Blob([audioBytes], { type: result.data.mimeType });
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        audio.play().catch((err) => console.log("Audio playback failed:", err));
+      }
       setMessages((prev) => [
         ...prev,
         { from: "ai", text: result.data.question },

@@ -27,6 +27,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
+    "groq-sdk": "^0.35.0",
     "http-status": "^2.1.0",
     "pdf-parse": "^2.4.5",
     "redis": "^5.9.0"

@@ -3610,6 +3610,19 @@ groq-sdk@^0.19.0:
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
 
+groq-sdk@^0.35.0:
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/groq-sdk/-/groq-sdk-0.35.0.tgz#68d12c08182caa92be980f15c44e6783b600a6da"
+  integrity sha512-jrRqtV4kwtYFpuiQ5EM+vVUM0xS4kQAyQx1tFpbHOCoaM/ad6ECMZxPT9bzA7SkXVDzhF1TYh5SYqxYiFqk/Pw==
+  dependencies:
+    "@types/node" "^18.11.18"
+    "@types/node-fetch" "^2.6.4"
+    abort-controller "^3.0.0"
+    agentkeepalive "^4.2.1"
+    form-data-encoder "1.7.2"
+    formdata-node "^4.3.2"
+    node-fetch "^2.6.7"
+
 handlebars@^4.7.8:
   version "4.7.8"
   resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.7.8.tgz#41c42c18b1be2365439188c77c6afae71c0cd9e9"

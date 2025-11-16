@@ -9,6 +9,7 @@ const InterviewPage = async ({
 }) => {
   const { interviewId } = await params;
   const data = await conductInterview(interviewId);
+  console.log(data);
   if (!data || !data.data || !data.data.question) {
     console.log(data);
     return <FetchFailed message="Failed to start the interview" title="OOPS" />;

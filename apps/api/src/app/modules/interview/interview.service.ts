@@ -5,6 +5,9 @@ import { candidate, interview, question } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
+import { Groq } from "groq-sdk";
+import path from "path";
+import fs from "fs";
 
 const startInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
@@ -190,11 +193,24 @@ const conductInterview = async (
     }
   }
 
+  const groq = new Groq({ apiKey: config.groq_api_key! });
+  const speechFile = path.resolve("./speech.wav");
+
+  const wav = await groq.audio.speech.create({
+    model: "playai-tts",
+    voice: "Ruby-PlayAI",
+    response_format: "wav",
+    input: response.content as string,
+  });
+
+  const buffer = Buffer.from(await wav.arrayBuffer());
+  await fs.promises.writeFile(speechFile, buffer);
+
   await db.insert(question).values({
     interviewId: interviewId,
     questionText: response.content as string,
   });
-  return { question: response.content };
+  return { question: response.content, wavFile: buffer.toString("base64") };
 };
 
 const finishInterview = async (userId: string, interviewId: string) => {

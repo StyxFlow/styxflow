@@ -5,9 +5,33 @@ import { candidate, interview, question } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
-import { Groq } from "groq-sdk";
-import path from "path";
+import { GoogleGenAI } from "@google/genai";
 import fs from "fs";
+import wav from "wav";
+import { gemini } from "../../../agents/gemini.js";
+
+function pcmToWavBuffer(
+  pcmData: Buffer,
+  channels = 1,
+  rate = 24000,
+  sampleWidth = 2
+): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const writer = new wav.FileWriter("ignored.wav", {
+      channels,
+      sampleRate: rate,
+      bitDepth: sampleWidth * 8,
+    });
+
+    const chunks: Buffer[] = [];
+    writer.on("data", (chunk: Buffer) => chunks.push(chunk));
+    writer.on("finish", () => resolve(Buffer.concat(chunks)));
+    writer.on("error", reject);
+
+    writer.write(pcmData);
+    writer.end();
+  });
+}
 
 const startInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
@@ -34,10 +58,6 @@ const startInterview = async (userId: string) => {
   if (resumeChunks.length === 0) {
     throw new ApiError(404, "No resume found for the candidate");
   }
-  // const resumeText = resumeChunks
-  //   .sort((a, b) => a[0].metadata.chunkIndex - b[0].metadata.chunkIndex)
-  //   .map((chunk) => chunk[0].pageContent)
-  //   .join("\n");
 
   const newInterview = await db
     .insert(interview)
@@ -193,24 +213,73 @@ const conductInterview = async (
     }
   }
 
-  const groq = new Groq({ apiKey: config.groq_api_key! });
-  const speechFile = path.resolve("./speech.wav");
+  // const groq = new Groq({ apiKey: config.groq_api_key! });
+  // const speechFile = path.resolve("./speech.wav");
 
-  const wav = await groq.audio.speech.create({
-    model: "playai-tts",
-    voice: "Ruby-PlayAI",
-    response_format: "wav",
-    input: response.content as string,
+  // const wav = await groq.audio.speech.create({
+  //   model: "playai-tts",
+  //   voice: "Ruby-PlayAI",
+  //   response_format: "wav",
+  //   input: response.content as string,
+  // });
+
+  // const buffer = Buffer.from(await wav.arrayBuffer());
+
+  const speechResponse = await gemini.models.generateContent({
+    model: "gemini-2.5-flash-preview-tts",
+    contents: [
+      {
+        parts: [
+          {
+            text: `Say like you are interested: ${response.content as string}`,
+          },
+        ],
+      },
+    ],
+    config: {
+      responseModalities: ["AUDIO"],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: "Kore" },
+        },
+      },
+    },
   });
 
-  const buffer = Buffer.from(await wav.arrayBuffer());
-  await fs.promises.writeFile(speechFile, buffer);
+  // console.log(speechResponse);
+  const part = speechResponse.candidates?.[0]?.content?.parts?.[0];
+  const inline = part?.inlineData;
+
+  if (!inline?.data) {
+    await db.insert(question).values({
+      interviewId,
+      questionText: response.content as string,
+    });
+
+    return {
+      question: response.content,
+      wavFile: null,
+      mimeType: null,
+    };
+  }
+
+  const pcmBase64 = inline.data;
+  const pcmBuffer = Buffer.from(pcmBase64, "base64");
+
+  const wavBuffer = await pcmToWavBuffer(pcmBuffer, 1, 24000, 2);
+  // await fs.promises.writeFile("out.wav", wavBuffer);
+  const wavBase64 = wavBuffer.toString("base64");
 
   await db.insert(question).values({
-    interviewId: interviewId,
+    interviewId,
     questionText: response.content as string,
   });
-  return { question: response.content, wavFile: buffer.toString("base64") };
+  const mimeType = "audio/wav";
+  return {
+    question: response.content,
+    wavFile: wavBase64, // send base64, not Buffer
+    mimeType, // send real mime type
+  };
 };
 
 const finishInterview = async (userId: string, interviewId: string) => {

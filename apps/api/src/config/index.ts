@@ -35,4 +35,5 @@ export default {
     api_key: process.env.HUGGINGFACE_API_KEY,
   },
   groq_api_key: process.env.GROQ_API_KEY,
+  google_genai_api_key: process.env.GOOGLE_GENAI_API_KEY,
 };

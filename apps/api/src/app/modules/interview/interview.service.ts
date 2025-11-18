@@ -1,37 +1,12 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "../../../db/drizzle.js";
 import { getVectorStore } from "../../../db/qdrant.js";
 import { candidate, interview, question } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
-import { GoogleGenAI } from "@google/genai";
-import fs from "fs";
-import wav from "wav";
-import { gemini } from "../../../agents/gemini.js";
-
-function pcmToWavBuffer(
-  pcmData: Buffer,
-  channels = 1,
-  rate = 24000,
-  sampleWidth = 2
-): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const writer = new wav.FileWriter("ignored.wav", {
-      channels,
-      sampleRate: rate,
-      bitDepth: sampleWidth * 8,
-    });
-
-    const chunks: Buffer[] = [];
-    writer.on("data", (chunk: Buffer) => chunks.push(chunk));
-    writer.on("finish", () => resolve(Buffer.concat(chunks)));
-    writer.on("error", reject);
-
-    writer.write(pcmData);
-    writer.end();
-  });
-}
+import { geminiTTS } from "../../../agents/gemini.js";
+import { convertTextToSpeech } from "../../../agents/awsPolly.js";
 
 const startInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
@@ -40,14 +15,19 @@ const startInterview = async (userId: string) => {
   if (!isCandidate) {
     throw new ApiError(404, "Candidate profile not found");
   }
-  const isInterviewActive = await db.query.interview.findFirst({
-    where: and(
-      eq(interview.candidateId, isCandidate.id),
-      eq(interview.isActive, true)
-    ),
-  });
+  const allInterviews = await db.query.interview.findMany();
+  // {
+  // where: and(
+  //   eq(interview.candidateId, isCandidate.id),
+  //   eq(interview.isActive, true)
+  // ),
+  // }
 
-  if (isInterviewActive) {
+  const isActiveInterview = allInterviews.find(
+    (i) => i.candidateId === isCandidate.id && i.isActive
+  );
+
+  if (isActiveInterview) {
     throw new ApiError(400, "An active interview already exists");
   }
   const vectorStore = await getVectorStore();
@@ -64,7 +44,7 @@ const startInterview = async (userId: string) => {
     .values({
       candidateId: isCandidate.id,
       isActive: true,
-      attempt: 1,
+      attempt: allInterviews.length + 1,
     })
     .returning();
   return { chunks: resumeChunks, newInterview: newInterview[0] };
@@ -87,7 +67,7 @@ const getMyInterviews = async (userId: string) => {
 const conductInterview = async (
   userId: string,
   interviewId: string,
-  payload: { userResponse: string }
+  payload: { userResponse: string; voiceId: string; LanguageCode: string }
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: and(eq(interview.id, interviewId), eq(interview.isActive, true)),
@@ -160,7 +140,7 @@ const conductInterview = async (
     {
       role: "system",
       content:
-        "You are an interview assistant. Ask the candidate one question at a time based on their resume and previous answers. You are going to send only the text candidate is going to see. Do not include any other text. Keep the interview professional and relevant to the candidate's background. Make it engaging and thought-provoking. Keep conversation flowing naturally. Start with a brief introduction and then proceed to ask the first question. If the interview has already started, ask the next question based on previous answers. Start with greeting the candidate. Also ask questions that allow the candidate to showcase their skills and experiences effectively. Ask questions that are open-ended and encourage detailed responses. Avoid simple yes/no questions. Ensure that each question builds upon the candidate's previous answers to create a coherent and engaging interview experience. Continue the interview accordingly if it has already started. ",
+        "You are an interview assistant. Ask the candidate based on their resume and previous answers. You are going to send only the text candidate is going to listen. Do not include any other text. Keep the interview professional and relevant to the candidate's background. Make it engaging and thought-provoking. Keep conversation flowing naturally. Start with a brief introduction and then proceed to ask the first question. If the interview has already started, ask the next question based on previous answers. Start with greeting the candidate. Also ask questions that allow the candidate to showcase their skills and experiences effectively. Ask questions that are open-ended and encourage detailed responses. Avoid simple yes/no questions. Ensure that each question builds upon the candidate's previous answers to create a coherent and engaging interview experience. Continue the interview accordingly if it has already started. ",
     },
     {
       role: "system",
@@ -173,6 +153,10 @@ const conductInterview = async (
     {
       role: "system",
       content: `dont ask more than 6 questions in total. If you have already asked 6 questions, end the interview with a thank you message, next steps, score out of 100 and constructive feedback.`,
+    },
+    {
+      role: "system",
+      content: `Ask only one question at a time. Wait for the candidate's response before asking the next question.`,
     },
     {
       role: "system",
@@ -212,69 +196,16 @@ const conductInterview = async (
     } finally {
     }
   }
-
-  // const groq = new Groq({ apiKey: config.groq_api_key! });
-  // const speechFile = path.resolve("./speech.wav");
-
-  // const wav = await groq.audio.speech.create({
-  //   model: "playai-tts",
-  //   voice: "Ruby-PlayAI",
-  //   response_format: "wav",
-  //   input: response.content as string,
-  // });
-
-  // const buffer = Buffer.from(await wav.arrayBuffer());
-
-  const speechResponse = await gemini.models.generateContent({
-    model: "gemini-2.5-flash-preview-tts",
-    contents: [
-      {
-        parts: [
-          {
-            text: `Say like you are interested: ${response.content as string}`,
-          },
-        ],
-      },
-    ],
-    config: {
-      responseModalities: ["AUDIO"],
-      speechConfig: {
-        voiceConfig: {
-          prebuiltVoiceConfig: { voiceName: "Kore" },
-        },
-      },
-    },
+  const wavBase64 = await convertTextToSpeech(response.content as string, {
+    voiceId: payload.voiceId,
+    LanguageCode: payload.LanguageCode,
   });
-
-  // console.log(speechResponse);
-  const part = speechResponse.candidates?.[0]?.content?.parts?.[0];
-  const inline = part?.inlineData;
-
-  if (!inline?.data) {
-    await db.insert(question).values({
-      interviewId,
-      questionText: response.content as string,
-    });
-
-    return {
-      question: response.content,
-      wavFile: null,
-      mimeType: null,
-    };
-  }
-
-  const pcmBase64 = inline.data;
-  const pcmBuffer = Buffer.from(pcmBase64, "base64");
-
-  const wavBuffer = await pcmToWavBuffer(pcmBuffer, 1, 24000, 2);
-  // await fs.promises.writeFile("out.wav", wavBuffer);
-  const wavBase64 = wavBuffer.toString("base64");
 
   await db.insert(question).values({
     interviewId,
     questionText: response.content as string,
   });
-  const mimeType = "audio/wav";
+  const mimeType = "audio/mp3";
   return {
     question: response.content,
     wavFile: wavBase64, // send base64, not Buffer

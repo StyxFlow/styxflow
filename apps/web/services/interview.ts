@@ -34,7 +34,7 @@ export const getMyInterviews = async (): Promise<
 
 export const conductInterview = async (
   interviewId: string,
-  payload?: { userResponse: string }
+  payload?: { userResponse: string; voiceId: string; LanguageCode: string }
 ) => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(

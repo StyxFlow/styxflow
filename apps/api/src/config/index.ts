@@ -34,6 +34,10 @@ export default {
   huggingface: {
     api_key: process.env.HUGGINGFACE_API_KEY,
   },
+  aws: {
+    access_key_id: process.env.AWS_ACCESS_KEY,
+    secret_access_key: process.env.AWS_SECRET_ACCESS_KEY,
+  },
   groq_api_key: process.env.GROQ_API_KEY,
   google_genai_api_key: process.env.GOOGLE_GENAI_API_KEY,
 };

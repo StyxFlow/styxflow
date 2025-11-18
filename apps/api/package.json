@@ -12,6 +12,7 @@
     "dev:worker": "nodemon --watch src --ext ts,json --exec \"node --loader ts-node/esm ./src/queues/worker.ts\""
   },
   "dependencies": {
+    "@aws-sdk/client-polly": "^3.932.0",
     "@google/genai": "^1.29.1",
     "@huggingface/inference": "^4.13.3",
     "@langchain/community": "^1.0.3",

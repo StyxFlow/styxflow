@@ -5,12 +5,17 @@ import { Input } from "../ui/input";
 import { useEffect, useRef, useState } from "react";
 
 const INTERVIEWERS = [
-  { id: "alex", name: "Alex Thompson", avatar: "👨‍💼" },
-  { id: "sarah", name: "Sarah Chen", avatar: "👩‍💼" },
-  { id: "michael", name: "Michael Rodriguez", avatar: "👨‍🏫" },
-  { id: "emily", name: "Emily Watson", avatar: "👩‍🔬" },
-  { id: "david", name: "David Kim", avatar: "👨‍💻" },
-  { id: "lisa", name: "Lisa Anderson", avatar: "👩‍⚕️" },
+  { id: "Kajal", name: "Alex Thompson", avatar: "👨‍💼", languageCode: "en-IN" },
+  { id: "Remi", name: "Remi", avatar: "👩‍💼", languageCode: "fr-FR" },
+  {
+    id: "Zayd",
+    name: "Michael Rodriguez",
+    avatar: "👨‍🏫",
+    languageCode: "ar-AE",
+  },
+  { id: "Stephen", name: "Stephen", avatar: "👩‍🔬", languageCode: "en-US" },
+  { id: "Aria", name: "Aria", avatar: "👨‍💻", languageCode: "en-NZ" },
+  { id: "Ayanda", name: "Ayanda", avatar: "👩‍⚕️", languageCode: "en-ZA" },
 ];
 
 const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
@@ -27,6 +32,7 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
     id: string;
     name: string;
     avatar: string;
+    languageCode: string;
   }>(INTERVIEWERS[0]!);
 
   const hasInteracted = useRef(false);
@@ -115,15 +121,19 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
     setIsLoading(true);
     const result = await conductInterview(interviewId, {
       userResponse: "Hello, I'm ready to start the interview.",
+      voiceId: selectedInterviewer.id,
+      LanguageCode: selectedInterviewer.languageCode,
     });
 
     if (result && result.data && result.data.question) {
       setIsConnected(true);
+      console.log(result);
       if (result.data.wavFile) {
         playAudioFromBase64(
           result.data.wavFile as string,
-          (result.data.mimeType as string) || "audio/mpeg"
+          (result.data.mimeType as string) || "audio/mp3"
         );
+        // playAudioFromUrl(result.data.wavFile as string);
       }
       setMessages([{ from: "ai", text: result.data.question }]);
     }
@@ -138,7 +148,11 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
     // Add user message to chat
     setMessages((prev) => [...prev, { from: "user", text: userResponse }]);
 
-    const result = await conductInterview(interviewId, { userResponse });
+    const result = await conductInterview(interviewId, {
+      userResponse,
+      voiceId: selectedInterviewer.id,
+      LanguageCode: selectedInterviewer.languageCode,
+    });
     console.log(result);
 
     if (result && result.data && result.data.question) {
@@ -152,7 +166,7 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
       if (result.data.wavFile) {
         playAudioFromBase64(
           result.data.wavFile as string,
-          (result.data.mimeType as string) || "audio/mpeg"
+          (result.data.mimeType as string) || "audio/mp3"
         );
       }
       setMessages((prev) => [

@@ -27,3 +27,14 @@ export const getMyUploadedJobs = async () => {
   });
   return response.json();
 };
+
+export const getASingleJob = async (jobId: string) => {
+  const token = (await cookies()).get("better-auth.session_token")?.value;
+  const response = await fetch(`${config.server_url}/job/single-job/${jobId}`, {
+    method: "GET",
+    headers: {
+      authorization: token!,
+    },
+  });
+  return response.json();
+};

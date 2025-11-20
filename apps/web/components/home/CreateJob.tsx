@@ -34,6 +34,7 @@ import { Badge } from "@/components/ui/badge";
 import { useForm, useWatch } from "react-hook-form";
 import { RxCross2 } from "react-icons/rx";
 import { createJob } from "@/services/job";
+import { redirect } from "next/navigation";
 
 const educationOptions = [
   "B.Sc. in Computer Science",
@@ -61,8 +62,7 @@ const formSchema = z
       .max(100, "Job role must not exceed 100 characters"),
     jobDescription: z
       .string()
-      .min(20, "Job description must be at least 20 characters")
-      .max(2000, "Job description must not exceed 2000 characters"),
+      .min(20, "Job description must be at least 20 characters"),
     jobType: z.enum(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP"], {
       message: "Please select a job type",
     }),
@@ -204,6 +204,9 @@ const CreateJob = () => {
 
     const result = await createJob(jobData);
     console.log(result);
+    if (result.success) {
+      redirect("/uploaded-jobs");
+    }
     // Handle form submission here
   };
 

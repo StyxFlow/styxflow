@@ -23,7 +23,32 @@ const getMyUploadedJobs = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const findEmployeesForJob = catchAsync(async (req: ICustomRequest, res) => {
+  const result = await JobService.findEmployeesForJob(
+    req.user!.id,
+    req.params.jobId!
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Uploaded jobs retrieved successfully",
+    data: result,
+  });
+});
+
+const getSingleJob = catchAsync(async (req: ICustomRequest, res) => {
+  const result = await JobService.getSingleJob(req.user!.id, req.params.jobId!);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Job retrieved successfully",
+    data: result,
+  });
+});
+
 export const JobController = {
   createJob,
   getMyUploadedJobs,
+  findEmployeesForJob,
+  getSingleJob,
 };

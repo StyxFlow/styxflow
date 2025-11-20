@@ -16,12 +16,6 @@ const startInterview = async (userId: string) => {
     throw new ApiError(404, "Candidate profile not found");
   }
   const allInterviews = await db.query.interview.findMany();
-  // {
-  // where: and(
-  //   eq(interview.candidateId, isCandidate.id),
-  //   eq(interview.isActive, true)
-  // ),
-  // }
 
   const isActiveInterview = allInterviews.find(
     (i) => i.candidateId === isCandidate.id && i.isActive
@@ -208,8 +202,8 @@ const conductInterview = async (
   const mimeType = "audio/mp3";
   return {
     question: response.content,
-    wavFile: wavBase64, // send base64, not Buffer
-    mimeType, // send real mime type
+    wavFile: wavBase64,
+    mimeType,
   };
 };
 

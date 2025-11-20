@@ -11,5 +11,15 @@ router.get(
   validateUser(UserRole.recruiter),
   JobController.getMyUploadedJobs
 );
+router.get(
+  "/find-employees-for-job/:jobId",
+  validateUser(UserRole.recruiter),
+  JobController.findEmployeesForJob
+);
+router.get(
+  "/single-job/:jobId",
+  validateUser(UserRole.recruiter),
+  JobController.getSingleJob
+);
 
 export const JobRoutes = router;

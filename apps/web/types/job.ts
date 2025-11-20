@@ -4,7 +4,7 @@ export interface IJob {
   id: string;
   jobRole: string;
   jobDescription: string;
-  jobExperience: string;
+  experience: string;
   jobType: TjobType;
   location: string;
   technologies: string[];

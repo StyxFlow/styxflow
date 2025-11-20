@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 interface JobCardProps {
   job: IJob;
@@ -71,7 +72,7 @@ export const JobCard = ({ job, onDelete }: JobCardProps) => {
             className="flex items-center gap-1 animate-in zoom-in duration-300 delay-100"
           >
             <Clock className="h-3 w-3" />
-            {job.jobExperience}
+            {job.experience}
           </Badge>
           {job.salaryRange && (
             <Badge
@@ -135,10 +136,16 @@ export const JobCard = ({ job, onDelete }: JobCardProps) => {
           </div>
         )}
 
-        {/* Posted Date */}
-        <p className="text-xs text-muted-foreground pt-2 border-t">
-          Posted on {new Date(job.createdAt).toLocaleDateString()}
-        </p>
+        <div className="flex items-center justify-between pt-2 border-t">
+          {/* Posted Date */}
+          <p className="text-xs text-muted-foreground ">
+            Posted on {new Date(job.createdAt).toLocaleDateString()}
+          </p>
+
+          <Link href={`/uploaded-jobs/${job.id}`}>
+            <Button>Details</Button>
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -199,10 +200,12 @@ const CreateJob = () => {
               max: data.salaryMax,
             }
           : undefined,
-      experience: data.jobExperience || null,
+      experience: data.jobExperience || undefined,
     };
 
-    const result = await createJob(jobData);
+    const { salaryMin, salaryMax, jobExperience, ...filtered } = jobData;
+
+    const result = await createJob(filtered);
     console.log(result);
     if (result.success) {
       redirect("/uploaded-jobs");

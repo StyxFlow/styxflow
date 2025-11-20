@@ -12,6 +12,7 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import { IJob } from "@/types/job";
+import { getCandidateSuggestions } from "@/services/job";
 
 interface JobDetailsProps {
   job: IJob;
@@ -34,7 +35,10 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
     });
   };
 
-  const handleFindCandidates = () => {};
+  const handleFindCandidates = async () => {
+    const result = await getCandidateSuggestions(job.id);
+    console.log(result);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -62,6 +66,7 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
               </div>
             </div>
             <Button
+              onClick={handleFindCandidates}
               size="lg"
               className="transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
             >

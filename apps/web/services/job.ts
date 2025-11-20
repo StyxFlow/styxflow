@@ -38,3 +38,17 @@ export const getASingleJob = async (jobId: string) => {
   });
   return response.json();
 };
+
+export const getCandidateSuggestions = async (jobId: string) => {
+  const token = (await cookies()).get("better-auth.session_token")?.value;
+  const response = await fetch(
+    `${config.server_url}/job/find-employees-for-job/${jobId}`,
+    {
+      method: "GET",
+      headers: {
+        authorization: token!,
+      },
+    }
+  );
+  return response.json();
+};

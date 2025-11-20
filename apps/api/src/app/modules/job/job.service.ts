@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { db } from "../../../db/drizzle.js";
-import { job, recruiter } from "../../../db/schema.js";
+import { candidate, job, recruiter } from "../../../db/schema.js";
 import type { IJob, IUser } from "../../../db/types.js";
 import { eq } from "drizzle-orm";
 import { ApiError } from "../../errors/apiError.js";
@@ -136,8 +136,23 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
   const ranked = Array.from(perCandidate.values()).sort(
     (a, b) => b.bestScore - a.bestScore
   );
+  const finalResult = await Promise.all(
+    ranked.map(async (r) => {
+      const cand = await db.query.candidate.findFirst({
+        where: eq(candidate.id, r.candidateId),
+        with: {
+          user: true,
+        },
+      });
 
-  return ranked;
+      return {
+        ...r,
+        candidateEmail: cand?.user.email || null,
+      };
+    })
+  );
+
+  return finalResult;
 };
 
 const getSingleJob = async (userId: string, jobId: string) => {

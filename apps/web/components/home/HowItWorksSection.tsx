@@ -97,11 +97,11 @@ export default function HowItWorksSection() {
   return (
     <section ref={sectionRef} className="bg-white overflow-hidden">
       <div ref={triggerRef} className="h-screen w-full relative flex items-center overflow-hidden">
-        <div ref={containerRef} className="flex flex-nowrap h-full w-[300vw] bg-gradient-to-br from-white via-[#faf9f7] to-[#F9F8F4]">
+        <div ref={containerRef} className="flex flex-nowrap h-full w-[300vw] bg-linear-to-br from-white via-cream/70 to-cream">
           {steps.map((step, index) => (
             <div
               key={index}
-              className="how-it-works-card w-screen h-screen flex-shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-20 bg-transparent"
+              className="how-it-works-card w-screen h-screen shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-20 bg-transparent"
             >
               <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="order-2 md:order-1">

@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { db } from "../../../db/drizzle.js";
-import { candidate, job, recruiter } from "../../../db/schema.js";
+import { candidate, interview, job, recruiter } from "../../../db/schema.js";
 import type { IJob, IUser } from "../../../db/types.js";
 import { eq } from "drizzle-orm";
 import { ApiError } from "../../errors/apiError.js";
@@ -134,10 +134,16 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
     }
   }
   const ranked = Array.from(perCandidate.values()).sort(
-    (a, b) => b.bestScore - a.bestScore
+    (a, b) => b.avgScore - a.avgScore
   );
   const finalResult = await Promise.all(
     ranked.map(async (r) => {
+      const isInterviewed = await db.query.interview.findFirst({
+        where: eq(interview.candidateId, r.candidateId),
+        orderBy: (interview, { desc }) => [desc(interview.updatedAt)],
+      });
+      if (!isInterviewed) return null;
+
       const cand = await db.query.candidate.findFirst({
         where: eq(candidate.id, r.candidateId),
         with: {
@@ -147,12 +153,19 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
 
       return {
         ...r,
-        candidateEmail: cand?.user.email || null,
+        candidate: cand?.user || null,
+        interview: isInterviewed,
       };
     })
   );
 
-  return finalResult;
+  const sorterInterviewedFirst = finalResult
+    .filter((r) => r !== null)
+    .sort((a, b) => {
+      return b?.interview.score! - a?.interview.score!;
+    });
+
+  return sorterInterviewedFirst;
 };
 
 const getSingleJob = async (userId: string, jobId: string) => {

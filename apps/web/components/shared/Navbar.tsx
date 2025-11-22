@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { redirect, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
@@ -11,6 +12,16 @@ const Navbar = () => {
   const pathname = usePathname();
   const { data, isPending, refetch } = authClient.useSession();
   const session = data as Session | null;
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     authClient.signOut({
@@ -46,57 +57,67 @@ const Navbar = () => {
     },
   ];
 
+  const isHome = pathname === "/";
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <nav
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out",
+        isHome
+          ? isScrolled
+            ? "bg-white/80 backdrop-blur-xl border-b border-gray-100/50 py-3 shadow-sm"
+            : "bg-transparent py-6 border-transparent"
+          : "bg-background/80 backdrop-blur-md border-b border-border py-4"
+      )}
+    >
+      <div className="container mx-auto px-6">
+        <div className="flex items-center justify-between h-12">
           {/* Logo */}
           <Link
             href="/"
-            className="text-2xl font-bold text-primary hover:opacity-80 transition-opacity"
+            className="text-3xl  font-bold font-logo text-main hover:opacity-80 transition-opacity tracking-tight"
           >
             StyxFlow
           </Link>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  `text-sm font-medium transition-colors hover:text-primary relative pb-1 ${link?.userRole && link.userRole !== session?.user.role ? "hidden" : ""}`,
-                  pathname
-                    .split("/")
-                    .filter((_, idx) => idx !== 0)
-                    .includes(link.route)
-                    ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full"
-                    : "text-muted-foreground"
+                  `text-sm font-bold font-body transition-all hover:text-[#4a7199] relative group ${link?.userRole && link.userRole !== session?.user.role ? "hidden" : ""}`,
+                  pathname === link.href
+                    ? "text-[#4a7199]"
+                    : "text-gray-600"
                 )}
               >
                 {link.label}
+                <span className={cn(
+                  "absolute -bottom-1 left-0 w-0 h-0.5 bg-[#4a7199] transition-all duration-300 group-hover:w-full",
+                  pathname === link.href ? "w-full" : ""
+                )} />
               </Link>
             ))}
           </div>
 
           {/* Auth Buttons */}
           {session ? (
-            <Button onClick={handleLogout}>Logout</Button>
+            <Button onClick={handleLogout} variant="default" className="font-bold  hover:text-[#4a7199]">Logout</Button>
           ) : isPending ? (
-            <p>Loading...</p>
+            <div className="w-20 h-9 bg-gray-100 animate-pulse rounded-full"></div>
           ) : (
-            <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
-              >
-                Login
+            <div className="flex items-center gap-4">
+              <Link href="/login">
+                <Button variant="ghost" className="font-bold text-gray-700 hover:text-[#4a7199] hover:bg-transparent">
+                  Login
+                </Button>
               </Link>
-              <Link
-                href="/signup"
-                className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-              >
-                Sign Up
+              <Link href="/signup">
+                <Button className="shadow-lg shadow-[#4a7199]/20 hover:shadow-[#4a7199]/40 transition-all hover:scale-105 active:scale-95">
+                  Sign Up
+                </Button>
               </Link>
             </div>
           )}

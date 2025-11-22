@@ -1,4 +1,4 @@
-import CreateJob from "@/components/home/CreateJob";
+import CreateJob from "@/components/job/CreateJob";
 
 const CreateJobPage = () => {
   return (

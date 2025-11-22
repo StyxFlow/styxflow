@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import {
   FiMapPin,
   FiBriefcase,
@@ -10,15 +10,26 @@ import {
   FiDollarSign,
   FiCalendar,
   FiUsers,
+  FiLoader,
 } from "react-icons/fi";
 import { IJob } from "@/types/job";
 import { getCandidateSuggestions } from "@/services/job";
+import { useState } from "react";
+import { CandidateList } from "./CandidateList";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { IMatchedCandidate } from "./CandidateCard";
 
 interface JobDetailsProps {
   job: IJob;
 }
 
 export const JobDetails = ({ job }: JobDetailsProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showCandidates, setShowCandidates] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [candidates, setCandidates] = useState<Array<IMatchedCandidate>>([]);
+
   const formatSalary = (salary: string) => {
     const num = parseFloat(salary);
     if (num >= 100000) {
@@ -36,8 +47,19 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
   };
 
   const handleFindCandidates = async () => {
-    const result = await getCandidateSuggestions(job.id);
-    console.log(result);
+    setIsLoading(true);
+    setShowCandidates(true);
+    try {
+      const result = await getCandidateSuggestions(job.id);
+      console.log(result);
+      if (result?.data) {
+        setCandidates(result.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch candidates:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,9 +127,28 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
           <CardTitle className="text-xl">Job Description</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {job.jobDescription}
-          </p>
+          <div className="relative">
+            <p
+              className={`text-gray-700 leading-relaxed whitespace-pre-wrap transition-all duration-500 ease-in-out overflow-hidden ${
+                isExpanded ? "max-h-none" : "max-h-32"
+              }`}
+            >
+              {job.jobDescription}
+            </p>
+            {!isExpanded && job.jobDescription.length > 200 && (
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-white to-transparent pointer-events-none" />
+            )}
+          </div>
+          {job.jobDescription.length > 200 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-4 transition-all duration-300 hover:scale-105"
+            >
+              {isExpanded ? "Show less" : "Read more"}
+            </Button>
+          )}
         </CardContent>
       </Card>
 
@@ -162,6 +203,36 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Candidates Dialog */}
+      <Dialog open={showCandidates} onOpenChange={setShowCandidates}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              Candidate Recommendations
+            </DialogTitle>
+          </DialogHeader>
+
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-16 space-y-4">
+              <div className="relative">
+                <div className="h-16 w-16 rounded-full border-4 border-primary/20 animate-pulse" />
+                <FiLoader className="h-16 w-16 text-primary absolute top-0 left-0 animate-spin" />
+              </div>
+              <div className="text-center space-y-2">
+                <p className="text-lg font-semibold animate-pulse">
+                  Finding the best candidates...
+                </p>
+                <p className="text-sm text-muted-foreground animate-in fade-in">
+                  Analyzing resumes and matching skills
+                </p>
+              </div>
+            </div>
+          ) : (
+            <CandidateList candidates={candidates} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -15,7 +15,9 @@ const startInterview = async (userId: string) => {
   if (!isCandidate) {
     throw new ApiError(404, "Candidate profile not found");
   }
-  const allInterviews = await db.query.interview.findMany();
+  const allInterviews = await db.query.interview.findMany({
+    where: eq(interview.candidateId, isCandidate.id),
+  });
 
   const isActiveInterview = allInterviews.find(
     (i) => i.candidateId === isCandidate.id && i.isActive

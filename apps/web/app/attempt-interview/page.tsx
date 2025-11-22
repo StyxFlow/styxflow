@@ -11,7 +11,7 @@ const AttemtInterviewPage = async () => {
   }
   const activeInterview = data.find((i) => i.isActive && !i.isCompleted);
   return (
-    <div className="pt-20 px-4 container mx-auto py-8 max-w-7xl">
+    <div className="pt-28 px-4 container mx-auto py-8 max-w-7xl">
       <div className="flex items-center justify-between">
         <div className="mb-8 animate-in fade-in slide-in-from-top duration-500">
           <div className="flex items-center gap-3 mb-2">

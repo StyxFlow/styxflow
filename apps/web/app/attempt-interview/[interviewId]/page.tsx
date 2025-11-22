@@ -13,7 +13,7 @@ const InterviewPage = async ({
   //   return <FetchFailed message="Failed to start the interview" title="OOPS" />;
   // }
   return (
-    <div className="pt-24  px-4 container mx-auto py-8 max-w-7xl">
+    <div className="pt-28  px-4 container mx-auto py-8 max-w-7xl">
       <AnswerQuestions
         // introMessage={data.data.question}
         interviewId={interviewId}

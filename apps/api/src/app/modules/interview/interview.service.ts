@@ -127,6 +127,7 @@ const conductInterview = async (
     model: "llama-3.3-70b-versatile",
     temperature: 0.3,
   });
+  const numberOfQuestions = 2;
 
   const response = await llm.invoke([
     {
@@ -144,11 +145,11 @@ const conductInterview = async (
     },
     {
       role: "system",
-      content: `questions asked so far:${previousQuestionsAndAnswers.length}. End the interview after asking 5 to 6 questions. At the end of the interview, thank the candidate for their time and provide a brief overview of the next steps in the hiring process. Also Give candidate a score out of 100 based on their responses and provide constructive feedback at the end of the interview. `,
+      content: `questions asked so far:${previousQuestionsAndAnswers.length}. End the interview after asking  ${numberOfQuestions} questions. At the end of the interview, thank the candidate for their time and provide a brief overview of the next steps in the hiring process. Also Give candidate a score out of 100 based on their responses and provide constructive feedback at the end of the interview. `,
     },
     {
       role: "system",
-      content: `dont ask more than 6 questions in total. If you have already asked 6 questions, end the interview with a thank you message, next steps, score out of 100 and constructive feedback.`,
+      content: `dont ask more than ${numberOfQuestions} questions in total. If you have already asked ${numberOfQuestions} questions, end the interview with a thank you message, next steps, score out of 100 and constructive feedback.`,
     },
     {
       role: "system",

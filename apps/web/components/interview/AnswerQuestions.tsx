@@ -3,6 +3,7 @@ import { conductInterview, finishInterviewService } from "@/services/interview";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useEffect, useRef, useState } from "react";
+import VideoRecorder from "./VideoRecorder";
 
 const INTERVIEWERS = [
   { id: "Kajal", name: "Alex Thompson", avatar: "👨‍💼", languageCode: "en-IN" },
@@ -34,6 +35,8 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
     avatar: string;
     languageCode: string;
   }>(INTERVIEWERS[0]!);
+
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
 
   const hasInteracted = useRef(false);
   const isEndedRef = useRef(isEnded);
@@ -226,88 +229,112 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
           </div>
         </div>
       ) : (
-        <>
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-3 animate-in fade-in slide-in-from-top">
-            <div className="text-3xl">{selectedInterviewer.avatar}</div>
-            <div>
-              <div className="font-semibold text-gray-900">
-                {selectedInterviewer.name}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Interview in progress
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-3 animate-in fade-in slide-in-from-top">
+              <div className="text-3xl">{selectedInterviewer.avatar}</div>
+              <div>
+                <div className="font-semibold text-gray-900">
+                  {selectedInterviewer.name}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Interview in progress
+                </div>
               </div>
             </div>
-          </div>
 
-          <div>
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
-                  message.from === "ai"
-                    ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
-                    : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
-                } max-w-[80%]`}
-              >
+            <div>
+              {messages.map((message, index) => (
                 <div
-                  className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${message.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                  key={index}
+                  className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
+                    message.from === "ai"
+                      ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
+                      : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
+                  } max-w-[80%]`}
                 >
-                  {message.from === "ai" ? "AI" : "You"}
+                  <div
+                    className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${message.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                  >
+                    {message.from === "ai" ? "AI" : "You"}
+                  </div>
+                  <div>{message.text}</div>
                 </div>
-                <div>{message.text}</div>
+              ))}
+            </div>
+            {isEnded ? (
+              <div className="mt-8 p-6 bg-linear-to-br from-blue-50 to-green-50 rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Interview Completed! 🎉
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-lg font-semibold text-gray-700">
+                      Score:
+                    </div>
+                    <div className="text-3xl font-bold text-blue-600">
+                      {score !== null ? `${score}/100` : "N/A"}
+                    </div>
+                  </div>
+                  {feedback && (
+                    <div className="mt-4">
+                      <div className="text-lg font-semibold text-gray-700 mb-2">
+                        Feedback:
+                      </div>
+                      <div className="text-gray-600 leading-relaxed bg-white p-4 rounded-md border border-gray-200">
+                        {feedback}
+                      </div>
+                    </div>
+                  )}
+                  {recordedVideoUrl && (
+                    <div className="mt-8 p-6 bg-white rounded-lg border border-gray-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        Your Interview Recording
+                      </h3>
+                      <video
+                        src={recordedVideoUrl}
+                        controls
+                        className="w-full rounded-lg"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            ))}
+            ) : (
+              <div className="flex gap-2 mt-4">
+                <Input
+                  value={userResponse}
+                  onChange={(e) => setUserResponse(e.target.value)}
+                  placeholder="Type your answer..."
+                  disabled={isLoading}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit();
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isLoading || !userResponse.trim()}
+                >
+                  {isLoading ? "Sending..." : "Submit Answer"}
+                </Button>
+              </div>
+            )}
           </div>
-          {isEnded ? (
-            <div className="mt-8 p-6 bg-linear-to-br from-blue-50 to-green-50 rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Interview Completed! 🎉
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="text-lg font-semibold text-gray-700">
-                    Score:
-                  </div>
-                  <div className="text-3xl font-bold text-blue-600">
-                    {score !== null ? `${score}/100` : "N/A"}
-                  </div>
-                </div>
-                {feedback && (
-                  <div className="mt-4">
-                    <div className="text-lg font-semibold text-gray-700 mb-2">
-                      Feedback:
-                    </div>
-                    <div className="text-gray-600 leading-relaxed bg-white p-4 rounded-md border border-gray-200">
-                      {feedback}
-                    </div>
-                  </div>
-                )}
-              </div>
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              {!recordedVideoUrl && (
+                <VideoRecorder
+                  isRecording={isConnected && !isEnded}
+                  onRecordingComplete={setRecordedVideoUrl}
+                />
+              )}
             </div>
-          ) : (
-            <div className="flex gap-2 mt-4">
-              <Input
-                value={userResponse}
-                onChange={(e) => setUserResponse(e.target.value)}
-                placeholder="Type your answer..."
-                disabled={isLoading}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
-                className="flex-1"
-              />
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading || !userResponse.trim()}
-              >
-                {isLoading ? "Sending..." : "Submit Answer"}
-              </Button>
-            </div>
-          )}
-        </>
+          </div>
+        </div>
       )}
     </div>
   );

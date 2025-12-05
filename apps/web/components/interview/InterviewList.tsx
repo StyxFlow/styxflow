@@ -1,27 +1,14 @@
 "use client";
 
+import { IInterview } from "@/types/interview";
 import { InterviewCard } from "./InterviewCard";
 import { RiVoiceAiLine } from "react-icons/ri";
 
-interface Interview {
-  id: string;
-  score: number | null;
-  feedback: string | null;
-  attempt: number;
-  isCompleted: boolean;
-  isActive: boolean;
-  createdAt: string;
-}
-
 interface InterviewListProps {
-  interviews: Interview[];
-  onContinue?: (id: string) => void;
+  interviews: IInterview[];
 }
 
-export const InterviewList = ({
-  interviews,
-  onContinue,
-}: InterviewListProps) => {
+export const InterviewList = ({ interviews }: InterviewListProps) => {
   if (interviews.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in slide-in-from-bottom-4">
@@ -48,7 +35,7 @@ export const InterviewList = ({
             animationFillMode: "both",
           }}
         >
-          <InterviewCard interview={interview} onContinue={onContinue} />
+          <InterviewCard interview={interview} />
         </div>
       ))}
     </div>

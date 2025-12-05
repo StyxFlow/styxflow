@@ -8,20 +8,10 @@ import { FiCalendar, FiCheckCircle, FiClock } from "react-icons/fi";
 import { MdOutlineScore } from "react-icons/md";
 import { redirect } from "next/navigation";
 import { finishInterviewService } from "@/services/interview";
-
-interface Interview {
-  id: string;
-  score: number | null;
-  feedback: string | null;
-  attempt: number;
-  isCompleted: boolean;
-  isActive: boolean;
-  createdAt: string;
-}
+import { IInterview } from "@/types/interview";
 
 interface InterviewCardProps {
-  interview: Interview;
-  onContinue?: (id: string) => void;
+  interview: IInterview;
 }
 
 export const InterviewCard = ({ interview }: InterviewCardProps) => {

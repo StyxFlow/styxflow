@@ -39,10 +39,13 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     ) {
       const stream = webcamRef.current.video.srcObject as MediaStream;
       // Check if already recording to avoid double start
-      if (recorderRef.current && recorderRef.current.getState() === 'recording') {
+      if (
+        recorderRef.current &&
+        recorderRef.current.getState() === "recording"
+      ) {
         return;
       }
-      
+
       recorderRef.current = new RecordRTC(stream, {
         type: "video",
         mimeType: "video/webm",

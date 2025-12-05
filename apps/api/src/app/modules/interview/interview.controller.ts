@@ -63,10 +63,37 @@ const getSingleInterview = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const getCandidateResume = catchAsync(async (req: ICustomRequest, res) => {
+  console.log(req.user);
+  const result = await InterviewService.getCandidateResume(req.user!.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Interview questions generated successfully",
+    data: result,
+  });
+});
+
+const createQuestion = catchAsync(async (req: ICustomRequest, res) => {
+  await InterviewService.createQuestion(
+    req.user!.id,
+    req.params.interviewId!,
+    req.body.question
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Question created successfully",
+    data: {},
+  });
+});
+
 export const InterviewController = {
   startInterview,
   conductInterview,
   getMyInterviews,
   finishInterview,
   getSingleInterview,
+  getCandidateResume,
+  createQuestion,
 };

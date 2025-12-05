@@ -26,7 +26,6 @@ export const question = pgTable("question", {
     .references(() => interview.id),
   questionText: text("question_text").notNull(),
   answerText: text("answer_text"),
-  isCorrect: boolean("is_correct"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

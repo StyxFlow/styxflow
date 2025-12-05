@@ -43,7 +43,7 @@ export default function BackgroundMorph() {
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       <div
         ref={blobRef}
-        className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] bg-[#4a7199]/5 blur-[100px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%]"
+        className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] bg-main/5 blur-[100px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%]"
       />
     </div>
   );

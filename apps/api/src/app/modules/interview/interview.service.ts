@@ -5,7 +5,6 @@ import { candidate, interview, question } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
-import { geminiTTS } from "../../../agents/gemini.js";
 import { convertTextToSpeech } from "../../../agents/awsPolly.js";
 
 const startInterview = async (userId: string) => {
@@ -286,10 +285,64 @@ const getSingleInterview = async (userId: string, interviewId: string) => {
   return result;
 };
 
+const getCandidateResume = async (userId: string) => {
+  const isCandidateExists = await db.query.candidate.findFirst({
+    where: eq(candidate.userId, userId),
+  });
+  if (!isCandidateExists) {
+    throw new ApiError(404, "Interview not found");
+  }
+  const vectorStore = await getVectorStore();
+  const resumeChunks = await vectorStore.similaritySearchWithScore("*", 20, {
+    must: [
+      {
+        key: "metadata.candidateId",
+        match: { value: isCandidateExists.id },
+      },
+    ],
+  });
+
+  if (resumeChunks.length === 0) {
+    throw new ApiError(404, "No resume found for the candidate");
+  }
+  const resumeText = resumeChunks
+    .sort((a, b) => a[0].metadata.chunkIndex - b[0].metadata.chunkIndex)
+    .map((chunk) => chunk[0].pageContent)
+    .join("\n");
+  return { resume: resumeText };
+};
+
+const createQuestion = async (
+  userId: string,
+  interviewId: string,
+  { questionText, answerText }: { questionText: string; answerText: string }
+) => {
+  const isInterviewExists = await db.query.interview.findFirst({
+    where: and(eq(interview.id, interviewId), eq(interview.isActive, true)),
+    with: {
+      candidate: true,
+    },
+  });
+
+  if (!isInterviewExists) {
+    throw new ApiError(404, "Interview not found");
+  }
+  if (isInterviewExists.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
+  }
+  await db.insert(question).values({
+    interviewId,
+    questionText,
+    answerText,
+  });
+};
+
 export const InterviewService = {
   startInterview,
   conductInterview,
   getMyInterviews,
   finishInterview,
   getSingleInterview,
+  getCandidateResume,
+  createQuestion,
 };

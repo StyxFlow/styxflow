@@ -230,7 +230,17 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
+            <div className="sticky top-24">
+              {!recordedVideoUrl && (
+                <VideoRecorder
+                  isRecording={isConnected && !isEnded}
+                  onRecordingComplete={setRecordedVideoUrl}
+                />
+              )}
+            </div>
+          </div>
+          <div className="lg:col-span-3">
             <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-3 animate-in fade-in slide-in-from-top">
               <div className="text-3xl">{selectedInterviewer.avatar}</div>
               <div>
@@ -323,16 +333,6 @@ const AnswerQuestions = ({ interviewId }: { interviewId: string }) => {
                 </Button>
               </div>
             )}
-          </div>
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              {!recordedVideoUrl && (
-                <VideoRecorder
-                  isRecording={isConnected && !isEnded}
-                  onRecordingComplete={setRecordedVideoUrl}
-                />
-              )}
-            </div>
           </div>
         </div>
       )}

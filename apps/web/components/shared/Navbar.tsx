@@ -87,15 +87,15 @@ const Navbar = () => {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  `text-sm font-bold font-body transition-all hover:text-[#4a7199] relative group ${link?.userRole && link.userRole !== session?.user.role ? "hidden" : ""}`,
+                  `text-sm font-bold font-body transition-all hover:text-main relative group ${link?.userRole && link.userRole !== session?.user.role ? "hidden" : ""}`,
                   pathname === link.href
-                    ? "text-[#4a7199]"
+                    ? "text-main"
                     : "text-gray-600"
                 )}
               >
                 {link.label}
                 <span className={cn(
-                  "absolute -bottom-1 left-0 w-0 h-0.5 bg-[#4a7199] transition-all duration-300 group-hover:w-full",
+                  "absolute -bottom-1 left-0 w-0 h-0.5 bg-main transition-all duration-300 group-hover:w-full",
                   pathname === link.href ? "w-full" : ""
                 )} />
               </Link>
@@ -104,18 +104,18 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           {session ? (
-            <Button onClick={handleLogout} variant="default" className="font-bold  hover:text-[#4a7199]">Logout</Button>
+            <Button onClick={handleLogout} variant="default" className="font-bold  hover:text-main">Logout</Button>
           ) : isPending ? (
             <div className="w-20 h-9 bg-gray-100 animate-pulse rounded-full"></div>
           ) : (
             <div className="flex items-center gap-4">
               <Link href="/login">
-                <Button variant="ghost" className="font-bold text-gray-700 hover:text-[#4a7199] hover:bg-transparent">
+                <Button variant="ghost" className="font-bold text-gray-700 hover:text-main hover:bg-transparent">
                   Login
                 </Button>
               </Link>
               <Link href="/signup">
-                <Button className="shadow-lg shadow-[#4a7199]/20 hover:shadow-[#4a7199]/40 transition-all hover:scale-105 active:scale-95">
+                <Button className="shadow-lg shadow-main/20 hover:shadow-main/40 transition-all hover:scale-105 active:scale-95">
                   Sign Up
                 </Button>
               </Link>

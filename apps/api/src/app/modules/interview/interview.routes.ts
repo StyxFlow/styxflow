@@ -11,6 +11,18 @@ router.post(
   InterviewController.startInterview
 );
 
+router.post(
+  "/conduct-interview/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.conductInterview
+);
+
+router.post(
+  "/create-question/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.createQuestion
+);
+
 router.get(
   "/my-interviews",
   validateUser(UserRole.candidate),
@@ -18,15 +30,15 @@ router.get(
 );
 
 router.get(
+  "/get-resume",
+  validateUser(UserRole.candidate),
+  InterviewController.getCandidateResume
+);
+
+router.get(
   "/:interviewId",
   validateUser(UserRole.candidate),
   InterviewController.getSingleInterview
-);
-
-router.post(
-  "/conduct-interview/:interviewId",
-  validateUser(UserRole.candidate),
-  InterviewController.conductInterview
 );
 
 router.patch(

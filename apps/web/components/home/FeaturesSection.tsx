@@ -9,22 +9,22 @@ gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
-    icon: <FaRobot className="text-4xl text-[#4a7199]" />,
+    icon: <FaRobot className="text-4xl text-main" />,
     title: "AI Interviews",
     description: "Our AI conducts initial interviews based on resumes, evaluating soft skills and technical knowledge automatically.",
   },
   {
-    icon: <FaFileAlt className="text-4xl text-[#4a7199]" />,
+    icon: <FaFileAlt className="text-4xl text-main" />,
     title: "Smart Resume Matching",
     description: "Advanced algorithms analyze resumes to find the perfect alignment with your job requirements.",
   },
   {
-    icon: <FaBolt className="text-4xl text-[#4a7199]" />,
+    icon: <FaBolt className="text-4xl text-main" />,
     title: "Instant Recommendations",
     description: "Get a ranked list of top candidates within seconds of posting a job. No more manual screening.",
   },
   {
-    icon: <FaUserCheck className="text-4xl text-[#4a7199]" />,
+    icon: <FaUserCheck className="text-4xl text-main" />,
     title: "Unbiased Evaluation",
     description: "Standardized AI evaluation ensures every candidate gets a fair chance, reducing unconscious bias.",
   },

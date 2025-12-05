@@ -19,18 +19,18 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-gray-900 mb-6">Platform</h4>
             <ul className="space-y-4">
-              <li><Link href="#" className="text-gray-600 hover:text-[#4a7199] transition-colors">For Candidates</Link></li>
-              <li><Link href="#" className="text-gray-600 hover:text-[#4a7199] transition-colors">For Employers</Link></li>
-              <li><Link href="#" className="text-gray-600 hover:text-[#4a7199] transition-colors">Pricing</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-main transition-colors">For Candidates</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-main transition-colors">For Employers</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-main transition-colors">Pricing</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold text-gray-900 mb-6">Company</h4>
             <ul className="space-y-4">
-              <li><Link href="#" className="text-gray-600 hover:text-[#4a7199] transition-colors">About</Link></li>
-              <li><Link href="#" className="text-gray-600 hover:text-[#4a7199] transition-colors">Blog</Link></li>
-              <li><Link href="#" className="text-gray-600 hover:text-[#4a7199] transition-colors">Contact</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-mainsition-colors">About</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-main transition-colors">Blog</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-main transition-colors">Contact</Link></li>
             </ul>
           </div>
         </div>
@@ -40,9 +40,9 @@ export default function Footer() {
             © {new Date().getFullYear()} StyxFlow. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link href="#" className="text-gray-400 hover:text-[#4a7199] transition-colors text-xl"><FaTwitter /></Link>
-            <Link href="#" className="text-gray-400 hover:text-[#4a7199] transition-colors text-xl"><FaLinkedin /></Link>
-            <Link href="#" className="text-gray-400 hover:text-[#4a7199] transition-colors text-xl"><FaGithub /></Link>
+            <Link href="#" className="text-gray-400 hover:text-main transition-colors text-xl"><FaTwitter /></Link>
+            <Link href="#" className="text-gray-400 hover:text-main transition-colors text-xl"><FaLinkedin /></Link>
+            <Link href="#" className="text-gray-400 hover:text-main transition-colors text-xl"><FaGithub /></Link>
           </div>
         </div>
       </div>

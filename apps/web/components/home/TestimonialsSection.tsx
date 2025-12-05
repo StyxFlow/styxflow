@@ -112,7 +112,7 @@ export default function TestimonialsSection() {
     <section ref={sectionRef} className="py-32 bg-white overflow-hidden">
       <div className="container mx-auto px-6 mb-20 testimonial-header text-center">
         <h2 className="text-4xl md:text-6xl font-bold font-heading text-gray-900 mb-6">
-          Loved by <span className="text-[#4a7199]">Thousands</span>
+          Loved by <span className="text-main">Thousands</span>
         </h2>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto font-body">
           See what candidates and employers are saying about the future of hiring.
@@ -144,13 +144,13 @@ export default function TestimonialsSection() {
 
 function TestimonialCard({ quote, author, role }: { quote: string; author: string; role: string }) {
   return (
-    <div className="w-[400px] p-8 rounded-3xl bg-[#F9F8F4] border border-gray-100 hover:border-[#4a7199]/30 transition-colors group">
-      <FaQuoteLeft className="text-3xl text-[#4a7199]/20 mb-6 group-hover:text-[#4a7199] transition-colors" />
+    <div className="w-[400px] p-8 rounded-3xl bg-[#F9F8F4] border border-gray-100 hover:border-main/30 transition-colors group">
+      <FaQuoteLeft className="text-3xl text-main/20 mb-6 group-hover:text-main transition-colors" />
       <p className="text-lg text-gray-700 font-body leading-relaxed mb-6 line-clamp-3">
         "{quote}"
       </p>
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4a7199] to-[#2a4a6d] flex items-center justify-center text-white font-bold text-sm">
+        <div className="w-10 h-10 rounded-full bg-linear-to-br from-main to-[#2a4a6d] flex items-center justify-center text-white font-bold text-sm">
           {author.charAt(0)}
         </div>
         <div>

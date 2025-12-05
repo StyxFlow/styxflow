@@ -1,7 +1,7 @@
 import { InterviewList } from "@/components/interview/InterviewList";
 import StartInterview from "@/components/interview/StartInterview";
 import { FetchFailed } from "@/components/shared/FetchFailed";
-import { getMyInterviews } from "@/services/interview";
+import { getMyInterviews, getResumeText } from "@/services/interview";
 import { RiVoiceAiLine } from "react-icons/ri";
 
 const AttemtInterviewPage = async () => {

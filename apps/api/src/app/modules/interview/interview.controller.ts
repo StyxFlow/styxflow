@@ -64,7 +64,6 @@ const getSingleInterview = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const getCandidateResume = catchAsync(async (req: ICustomRequest, res) => {
-  console.log(req.user);
   const result = await InterviewService.getCandidateResume(req.user!.id);
   sendResponse(res, {
     statusCode: 200,

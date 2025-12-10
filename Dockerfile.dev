@@ -1,0 +1,13 @@
+FROM node:20-alpine
+WORKDIR /app
+# We just install dependencies here. The code comes from volumes.
+COPY package.json turbo.json ./
+# Copy all package.jsons from subfolders to install correct deps
+COPY apps/api/package.json ./apps/api/package.json
+
+COPY packages/ ./packages/
+
+RUN yarn install
+
+# Default command (can be overridden)
+CMD ["npx", "turbo", "run", "dev"]

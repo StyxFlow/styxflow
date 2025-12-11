@@ -9,7 +9,12 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "db:push": "npx drizzle-kit push",
-    "dev:worker": "nodemon --watch src --ext ts,json --exec \"tsx ./src/queues/worker.ts\""
+    "dev:worker": "nodemon --watch src --ext ts,json --exec \"tsx ./src/queues/worker.ts\"",
+    "test": "vitest",
+    "test:unit": "vitest run --reporter=verbose src/__tests__/unit/*.test.ts",
+    "test:integration": "vitest run --reporter=verbose src/__tests__/integration/*.test.ts",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@huggingface/inference": "^4.13.3",
@@ -40,11 +45,15 @@
     "@types/express": "^5.0.5",
     "@types/multer": "^1.4.12",
     "@types/node": "^24.10.0",
+    "@types/supertest": "^6.0.3",
     "@types/wav": "^1.0.4",
+    "@vitest/coverage-v8": "^4.0.15",
     "drizzle-kit": "^0.31.6",
     "nodemon": "^3.1.10",
+    "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
   }
 }

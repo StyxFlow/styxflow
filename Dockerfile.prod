@@ -3,41 +3,44 @@ FROM node:24-alpine AS pruner
 WORKDIR /app
 RUN npm install -g turbo
 COPY . .
-# This command is CRITICAL: It grabs api, worker, and all shared packages they need.
 RUN turbo prune --scope=api --docker
 
-# 2. Install Stage: Install dependencies on the pruned lockfile
+# 2. Installer Stage: Install dependencies
 FROM node:24-alpine AS installer
 WORKDIR /app
-
-# Copy JSON files first (package.json files for each workspace)
-COPY --from=pruner /app/out/json/ .
-# Then copy lockfile
-COPY --from=pruner /app/out/yarn.lock ./yarn.lock
-# Copy the packages directory from the original source (turbo prune doesn't include it)
+COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/packages ./packages
-
+COPY --from=pruner /app/out/yarn.lock ./yarn.lock
 RUN yarn install --frozen-lockfile
 
-# 3. Build Stage: Compile the Typescript/Code
+# 3. Builder Stage: Compile TypeScript
 FROM node:24-alpine AS builder
 WORKDIR /app
-
-# Copy installed node_modules from installer
-COPY --from=installer /app/node_modules ./node_modules
-COPY --from=installer /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=installer /app/packages ./packages
-
-# Copy the actual source code from pruner
-COPY --from=pruner /app/out/full/ .
-
-# Build both apps. Turbo is smart enough to share the cache.
+COPY --from=installer /app .
 RUN npx turbo run build --filter=api
 
-# 4. Runner Stage: The final production image
+# 4. Production Dependencies Stage: Install ONLY production deps
+FROM node:24-alpine AS prod-deps
+WORKDIR /app
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/yarn.lock ./yarn.lock
+# Install only production dependencies (no devDependencies)
+RUN yarn install --frozen-lockfile --production
+
+# 5. Runner Stage: The final lightweight production image
 FROM node:24-alpine AS runner
 WORKDIR /app
-COPY --from=builder /app .
+# Only copy production node_modules (no dev dependencies)
+COPY --from=prod-deps /app/node_modules ./node_modules
+# Only copy package.json files (for metadata)
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+# Only copy compiled JavaScript (not TypeScript source)
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+# Copy shared packages if needed at runtime
+COPY --from=builder /app/packages ./packages
 
-# We don't set a default CMD here because we will override it 
-# in docker-compose or ECS task definitions. 
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+
+CMD ["node", "apps/api/dist/server.js"]

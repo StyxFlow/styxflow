@@ -1,0 +1,14 @@
+//// filepath: /Volumes/SajjadDrive/Web Projects/StyxFlow/.dockerignore
+node_modules
+.next
+.turbo
+dist
+build
+*.log
+.env*.local
+.git
+.vscode
+.DS_Store
+coverage
+apps/web/node_modules
+apps/web/.next

@@ -1,5 +1,6 @@
 services:
   api:
+    image: styxflow-backend
     build:
       context: .
       dockerfile: Dockerfile.dev 
@@ -13,12 +14,10 @@ services:
     command: yarn workspace api dev
   
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    image: styxflow-backend
     volumes:
-      - ./apps/api:/app/apps/api # Sync API code (worker is inside api)
-      - ./packages:/app/packages       # Sync Shared packages
+      - ./apps/api:/app/apps/api 
+      - ./packages:/app/packages   
     command: yarn workspace api dev:worker
     env_file:
       - ./apps/api/.env

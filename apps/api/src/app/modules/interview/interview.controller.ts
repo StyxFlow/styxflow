@@ -23,19 +23,19 @@ const getMyInterviews = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
-const conductInterview = catchAsync(async (req: ICustomRequest, res) => {
-  const result = await InterviewService.conductInterview(
-    req.user!.id,
-    req.params.interviewId!,
-    req.body
-  );
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: "Interview conducted successfully",
-    data: result,
-  });
-});
+// const conductInterview = catchAsync(async (req: ICustomRequest, res) => {
+//   const result = await InterviewService.conductInterview(
+//     req.user!.id,
+//     req.params.interviewId!,
+//     req.body
+//   );
+//   sendResponse(res, {
+//     statusCode: 200,
+//     success: true,
+//     message: "Interview conducted successfully",
+//     data: result,
+//   });
+// });
 
 const finishInterview = catchAsync(async (req: ICustomRequest, res) => {
   const result = await InterviewService.finishInterview(
@@ -89,7 +89,6 @@ const createQuestion = catchAsync(async (req: ICustomRequest, res) => {
 
 export const InterviewController = {
   startInterview,
-  conductInterview,
   getMyInterviews,
   finishInterview,
   getSingleInterview,

@@ -11,11 +11,11 @@ router.post(
   InterviewController.startInterview
 );
 
-router.post(
-  "/conduct-interview/:interviewId",
-  validateUser(UserRole.candidate),
-  InterviewController.conductInterview
-);
+// router.post(
+//   "/conduct-interview/:interviewId",
+//   validateUser(UserRole.candidate),
+//   InterviewController.conductInterview
+// );
 
 router.post(
   "/create-question/:interviewId",

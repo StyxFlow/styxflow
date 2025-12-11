@@ -1,0 +1,43 @@
+# 1. Prune Stage: Isolate just the backend apps
+FROM node:24-alpine AS pruner
+WORKDIR /app
+RUN npm install -g turbo
+COPY . .
+# This command is CRITICAL: It grabs api, worker, and all shared packages they need.
+RUN turbo prune --scope=api --docker
+
+# 2. Install Stage: Install dependencies on the pruned lockfile
+FROM node:24-alpine AS installer
+WORKDIR /app
+
+# Copy JSON files first (package.json files for each workspace)
+COPY --from=pruner /app/out/json/ .
+# Then copy lockfile
+COPY --from=pruner /app/out/yarn.lock ./yarn.lock
+# Copy the packages directory from the original source (turbo prune doesn't include it)
+COPY --from=pruner /app/packages ./packages
+
+RUN yarn install --frozen-lockfile
+
+# 3. Build Stage: Compile the Typescript/Code
+FROM node:24-alpine AS builder
+WORKDIR /app
+
+# Copy installed node_modules from installer
+COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=installer /app/packages ./packages
+
+# Copy the actual source code from pruner
+COPY --from=pruner /app/out/full/ .
+
+# Build both apps. Turbo is smart enough to share the cache.
+RUN npx turbo run build --filter=api
+
+# 4. Runner Stage: The final production image
+FROM node:24-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app .
+
+# We don't set a default CMD here because we will override it 
+# in docker-compose or ECS task definitions. 

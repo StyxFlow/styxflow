@@ -1,0 +1,25 @@
+services:
+  # Service 1: The API
+  api:
+    # image: ghcr.io/youruser/yourrepo:latest
+    image: styxflow-backend-prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: always
+    env_file:
+      - ./apps/api/.env
+    # Override CMD to start the API
+    command: node apps/api/dist/server.js
+    ports:
+      - "8000:8000"
+
+  # Service 2: The Worker
+  worker:
+    # image: ghcr.io/youruser/yourrepo:latest
+    image: styxflow-backend-prod
+    restart: always
+    env_file:
+      - ./apps/api/.env
+    # Override CMD to start the Worker
+    command: node apps/api/dist/queues/worker.js

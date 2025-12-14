@@ -51,9 +51,12 @@ const ChooseRolePage = () => {
         resume: resumeFile,
       });
       console.log(res);
-
+      if (res?.error) {
+        setError(res.message || "Failed to complete profile");
+        return;
+      }
       // Force a hard navigation to clear the session cache
-      window.location.href = "/";
+      // window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error completing profile:", err);

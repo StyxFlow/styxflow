@@ -63,7 +63,7 @@ export const completeProfile = async (payload: {
   const headersList = await headers();
   const cookie = headersList.get("cookie");
 
-  const response = await fetch("http://localhost:3000/api/complete-profile", {
+  const response = await fetch(`${config.client_url}/api/complete-profile`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +81,6 @@ export const completeProfile = async (payload: {
   if (!response.ok) {
     const data = await response.json();
     console.log(data);
-    throw new Error(data.error || "Failed to complete profile");
   }
 
   if (payload.role === "CANDIDATE" && payload?.resume) {
@@ -101,7 +100,7 @@ export const completeProfile = async (payload: {
     if (!res.ok) {
       const data = await res.json();
       console.log(data);
-      throw new Error(data.error || "Failed to upload resume");
+      return data;
     }
   }
   return response.json();

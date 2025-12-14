@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 22.x, 24.x]
+        node-version: [22.x, 24.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -20,5 +20,5 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
       - run: yarn workspace api install
-      - run: yarn workspace api build --if-present
+      - run: yarn workspace api build
       - run: yarn workspace api test

@@ -3,6 +3,8 @@ name: Server CI
 on:
   pull_request:
     branches: ["main"]
+  push:
+    branches: ["main"]
 
 jobs:
   build:
@@ -14,7 +16,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Build and Test
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}

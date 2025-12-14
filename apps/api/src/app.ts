@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 // test route
 app.get("/", (req, res) => {
-  res.status(200).json({ message: "StyxFlow is running successfully!" });
+  res.status(200).json({ message: "StyxFlow is running like a charm!" });
 });
 
 app.use("/api/v1", IndexRoute);

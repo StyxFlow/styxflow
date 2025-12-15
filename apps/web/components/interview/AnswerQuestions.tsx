@@ -8,21 +8,42 @@ import { RiChatVoiceAiLine as AIVoiceIcon } from "react-icons/ri";
 import { vapi } from "@/lib/vapi-sdk";
 import { config } from "@/config";
 import { authClient } from "@/lib/auth-client";
-import { interviewer } from "@/constants/interview";
+// import { interviewer } from "@/constants/interview";
+import { ElevenLabsVoice } from "@vapi-ai/web/dist/api";
 
-const INTERVIEWERS = [
-  { id: "Kajal", name: "Alex Thompson", avatar: "👨‍💼", languageCode: "en-IN" },
-  { id: "Remi", name: "Remi", avatar: "👩‍💼", languageCode: "fr-FR" },
-  {
-    id: "Zayd",
-    name: "Michael Rodriguez",
-    avatar: "👨‍🏫",
-    languageCode: "ar-AE",
-  },
-  { id: "Stephen", name: "Stephen", avatar: "👩‍🔬", languageCode: "en-US" },
-  { id: "Aria", name: "Aria", avatar: "👨‍💻", languageCode: "en-NZ" },
-  { id: "Ayanda", name: "Ayanda", avatar: "👩‍⚕️", languageCode: "en-ZA" },
-];
+const INTERVIEWERS: { voice: ElevenLabsVoice; name: string; avatar: string }[] =
+  [
+    {
+      voice: { voiceId: "sarah", provider: "11labs" },
+      name: "Sarah",
+      avatar: "👩‍💼",
+    },
+    {
+      voice: { voiceId: "phillip", provider: "11labs" },
+      name: "Phillip",
+      avatar: "👨‍💼",
+    },
+    {
+      voice: { voiceId: "joseph", provider: "11labs" },
+      name: "Joseph",
+      avatar: "👨‍🏫",
+    },
+    {
+      voice: { voiceId: "steve", provider: "11labs" },
+      name: "Steve",
+      avatar: "👩‍🔬",
+    },
+    {
+      voice: { voiceId: "marissa", provider: "11labs" },
+      name: "Marissa",
+      avatar: "👨‍💻",
+    },
+    {
+      voice: { voiceId: "paula", provider: "11labs" },
+      name: "Paula",
+      avatar: "👩‍⚕️",
+    },
+  ];
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -31,17 +52,22 @@ enum CallStatus {
   ENDED = "ENDED",
 }
 
-const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume: string }) => {
+const AnswerQuestions = ({
+  interviewId,
+  resume,
+}: {
+  interviewId: string;
+  resume: string;
+}) => {
   const [messages, setMessages] = useState<{ from: string; text: string }[]>(
     []
   );
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [selectedInterviewer, setSelectedInterviewer] = useState<{
-    id: string;
+    voice: ElevenLabsVoice;
     name: string;
     avatar: string;
-    languageCode: string;
   }>(INTERVIEWERS[0]!);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
@@ -50,6 +76,7 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
 
   const { data: user } = authClient.useSession();
 
+  console.log(user);
   const hasInteracted = useRef(false);
   const isEndedRef = useRef(callStatus === CallStatus.ENDED);
 
@@ -99,6 +126,10 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
     //     resume,
     //   },
     // });
+    console.log({
+      user,
+      resume,
+    });
     vapi.start(config.vapi_workflow_id!, {
       variableValues: {
         username: user?.user.name?.split(" ")[0],
@@ -106,6 +137,7 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
         userId: user?.user.id,
         resume,
       },
+      // voice: selectedInterviewer.voice,
     });
     setCallStatus(CallStatus.ACTIVE);
   };
@@ -164,13 +196,13 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
     };
   }, []);
 
-  useEffect(() => { }, [messages, callStatus]);
+  useEffect(() => {}, [messages, callStatus]);
 
   const lastMessage = messages[messages.length - 1];
   return (
     <div className="">
       {callStatus === CallStatus.INACTIVE ||
-        callStatus === CallStatus.CONNECTING ? (
+      callStatus === CallStatus.CONNECTING ? (
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center animate-in fade-in slide-in-from-top duration-500">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -184,12 +216,13 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             {INTERVIEWERS.map((interviewer, index) => (
               <button
-                key={interviewer.id}
+                key={interviewer.name}
                 onClick={() => setSelectedInterviewer(interviewer)}
-                className={`p-6 rounded-lg border-2 transition-all duration-300 hover:scale-105 animate-in fade-in slide-in-from-bottom-4 ${selectedInterviewer.id === interviewer.id
-                  ? "border-primary bg-primary/5 shadow-lg"
-                  : "border-gray-200 hover:border-primary/50"
-                  }`}
+                className={`p-6 rounded-lg border-2 transition-all duration-300 hover:scale-105 animate-in fade-in slide-in-from-bottom-4 ${
+                  selectedInterviewer.name === interviewer.name
+                    ? "border-primary bg-primary/5 shadow-lg"
+                    : "border-gray-200 hover:border-primary/50"
+                }`}
                 style={{
                   animationDelay: `${index * 100}ms`,
                   animationFillMode: "both",
@@ -246,10 +279,11 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
               </div>
             </div>
             <div
-              className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${lastMessage?.from === "ai"
-                ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
-                : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
-                } max-w-[80%]`}
+              className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
+                lastMessage?.from === "ai"
+                  ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
+                  : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
+              } max-w-[80%]`}
             >
               <div
                 className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}

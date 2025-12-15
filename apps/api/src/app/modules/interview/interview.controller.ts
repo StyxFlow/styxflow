@@ -3,8 +3,8 @@ import { catchAsync } from "../../../shared/catchAsync.js";
 import { sendResponse } from "../../../shared/sendResponse.js";
 import { InterviewService } from "./interview.service.js";
 
-const startInterview = catchAsync(async (req: ICustomRequest, res) => {
-  const result = await InterviewService.startInterview(req.user!.id);
+const createInterview = catchAsync(async (req: ICustomRequest, res) => {
+  const result = await InterviewService.createInterview(req.user!.id);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -22,20 +22,6 @@ const getMyInterviews = catchAsync(async (req: ICustomRequest, res) => {
     data: result,
   });
 });
-
-// const conductInterview = catchAsync(async (req: ICustomRequest, res) => {
-//   const result = await InterviewService.conductInterview(
-//     req.user!.id,
-//     req.params.interviewId!,
-//     req.body
-//   );
-//   sendResponse(res, {
-//     statusCode: 200,
-//     success: true,
-//     message: "Interview conducted successfully",
-//     data: result,
-//   });
-// });
 
 const finishInterview = catchAsync(async (req: ICustomRequest, res) => {
   const result = await InterviewService.finishInterview(
@@ -73,12 +59,8 @@ const getCandidateResume = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
-const createQuestion = catchAsync(async (req: ICustomRequest, res) => {
-  await InterviewService.createQuestion(
-    req.user!.id,
-    req.params.interviewId!,
-    req.body.question
-  );
+const saveQuestion = catchAsync(async (req: ICustomRequest, res) => {
+  await InterviewService.saveQuestion(req.body);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -88,10 +70,10 @@ const createQuestion = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 export const InterviewController = {
-  startInterview,
+  createInterview,
   getMyInterviews,
   finishInterview,
   getSingleInterview,
   getCandidateResume,
-  createQuestion,
+  saveQuestion,
 };

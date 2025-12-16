@@ -8,8 +8,14 @@ const router = express.Router();
 
 router.post(
   "/upload-resume",
-  validateUser(),
+  validateUser(UserRole.candidate),
   upload.single("resume"),
   UserController.uploadResume
+);
+
+router.get(
+  "/my-profile",
+  validateUser(UserRole.candidate, UserRole.recruiter),
+  UserController.getMyProfile
 );
 export const UserRoutes = router;

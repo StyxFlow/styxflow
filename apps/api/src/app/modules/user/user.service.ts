@@ -30,6 +30,7 @@ const getMyProfile = async (userId: string, role: string) => {
     if (!profile) {
       throw new ApiError(404, "Profile not found");
     }
+    return profile;
   } else if (role === "RECRUITER") {
     const recruiterProfile = await db.query.recruiter.findFirst({
       where: eq(recruiter.userId, userId),

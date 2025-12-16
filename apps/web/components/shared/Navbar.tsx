@@ -28,7 +28,6 @@ const Navbar = () => {
   const router = useRouter();
   const { data, isPending, refetch } = authClient.useSession();
   const session = data as Session | null;
-  console.log(session);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {

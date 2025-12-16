@@ -14,7 +14,7 @@ const uploadResume = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const getMyProfile = catchAsync(async (req: ICustomRequest, res) => {
-  const result = await UserService.getMyProfile(req.user!.id);
+  const result = await UserService.getMyProfile(req.user!.id, req.user!.role!);
   sendResponse(res, {
     statusCode: 200,
     success: true,

@@ -23,8 +23,12 @@ const getMyProfile = async (userId: string) => {
     where: eq(candidate.userId, userId),
     with: {
       interview: true,
+      user: true,
     },
   });
+  if (!profile) {
+    throw new ApiError(404, "Candidate profile not found");
+  }
   return profile;
 };
 

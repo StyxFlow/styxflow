@@ -7,6 +7,21 @@ import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "../ui/button";
 import type { Session } from "@/lib/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -88,29 +103,107 @@ const Navbar = () => {
                 href={link.href}
                 className={cn(
                   `text-sm font-bold font-body transition-all hover:text-main relative group ${link?.userRole && link.userRole !== session?.user.role ? "hidden" : ""}`,
-                  pathname === link.href
-                    ? "text-main"
-                    : "text-gray-600"
+                  pathname === link.href ? "text-main" : "text-gray-600"
                 )}
               >
                 {link.label}
-                <span className={cn(
-                  "absolute -bottom-1 left-0 w-0 h-0.5 bg-main transition-all duration-300 group-hover:w-full",
-                  pathname === link.href ? "w-full" : ""
-                )} />
+                <span
+                  className={cn(
+                    "absolute -bottom-1 left-0 w-0 h-0.5 bg-main transition-all duration-300 group-hover:w-full",
+                    pathname === link.href ? "w-full" : ""
+                  )}
+                />
               </Link>
             ))}
           </div>
 
           {/* Auth Buttons */}
           {session ? (
-            <Button onClick={handleLogout} variant="default" className="font-bold  hover:text-main">Logout</Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleLogout}
+                variant="default"
+                className="font-bold  hover:text-main"
+              >
+                Logout
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="border-none cursor-pointer focus:outline-none outline-none">
+                  <Avatar>
+                    <AvatarImage
+                      src={session.user.image || ""}
+                      alt={session.user.name || "User"}
+                      referrerPolicy="no-referrer"
+                    />
+                    <AvatarFallback>
+                      {session.user.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuGroup>
+                    <Link href={"/profile"}>
+                      <DropdownMenuItem>
+                        Profile
+                        <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuItem>
+                      Billing
+                      <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Settings
+                      <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Keyboard shortcuts
+                      <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>Team</DropdownMenuItem>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        Invite users
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem>Email</DropdownMenuItem>
+                          <DropdownMenuItem>Message</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>More...</DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                    <DropdownMenuItem>
+                      New Team
+                      <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>GitHub</DropdownMenuItem>
+                  <DropdownMenuItem>Support</DropdownMenuItem>
+                  <DropdownMenuItem disabled>API</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    Log out
+                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : isPending ? (
             <div className="w-20 h-9 bg-gray-100 animate-pulse rounded-full"></div>
           ) : (
             <div className="flex items-center gap-4">
               <Link href="/login">
-                <Button variant="ghost" className="font-bold text-gray-700 hover:text-main hover:bg-transparent">
+                <Button
+                  variant="ghost"
+                  className="font-bold text-gray-700 hover:text-main hover:bg-transparent"
+                >
                   Login
                 </Button>
               </Link>

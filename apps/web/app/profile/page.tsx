@@ -1,7 +1,9 @@
-import React from "react";
+import { getProfile } from "@/services/users";
 
-const ProfilePage = () => {
-  return <div>ProfilePage</div>;
+const ProfilePage = async () => {
+  const profile = await getProfile();
+  console.log(profile);
+  return <div></div>;
 };
 
 export default ProfilePage;

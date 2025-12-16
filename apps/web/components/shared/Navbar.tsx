@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { redirect, usePathname } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "../ui/button";
@@ -25,8 +25,10 @@ import {
 
 const Navbar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const { data, isPending, refetch } = authClient.useSession();
   const session = data as Session | null;
+  console.log(session);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -37,6 +39,24 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Keyboard shortcut for profile navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+      const isProfileShortcut = isMac
+        ? e.metaKey && e.shiftKey && e.key === "p"
+        : e.ctrlKey && e.shiftKey && e.key === "p";
+
+      if (isProfileShortcut && session) {
+        e.preventDefault();
+        router.push("/profile");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [session, router]);
 
   const handleLogout = async () => {
     authClient.signOut({

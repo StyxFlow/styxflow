@@ -15,19 +15,27 @@ export interface IUser {
 export type TUSerRole = "RECRUITER" | "CANDIDATE";
 
 // Profile data for Candidate
-export interface ICandidateProfile {
+export interface ICandidate {
   address: string;
   interview: IInterview[];
+  userId: string;
+  id: string;
   user: IUser;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Profile data for Recruiter
-export interface IRecruiterProfile {
+export interface IRecruiter {
+  id: string;
   jobs: IJob[];
+  userId: string;
   user: IUser;
   organizationName: string;
   organizationRole: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Union type for profile data
-export type IProfileData = ICandidateProfile | IRecruiterProfile;
+export type IProfileData = ICandidate | IRecruiter;

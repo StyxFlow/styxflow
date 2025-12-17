@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useMemo } from "react";
-import { ICandidateProfile } from "@/types/user";
+import { ICandidate } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProfileHeader from "./ProfileHeader";
@@ -33,9 +33,10 @@ import {
   FiPieChart,
 } from "react-icons/fi";
 import gsap from "gsap";
+import Link from "next/link";
 
 interface CandidateProfileProps {
-  data: ICandidateProfile;
+  data: ICandidate;
 }
 
 const CandidateProfile = ({ data }: CandidateProfileProps) => {
@@ -182,7 +183,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
   };
 
   const getScoreColor = (score: number | null) => {
-    if (!score) return "bg-gray-200";
+    if (!score) return "bg-gray-400";
     if (score >= 80) return "bg-green-500";
     if (score >= 60) return "bg-main";
     if (score >= 40) return "bg-amber-500";
@@ -293,7 +294,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
                       x2="0"
                       y2="1"
                     >
-                      <stop offset="5%" stopColor="#4a7199" stopOpacity={0.3} />
+                      <stop offset="5%" stopColor="#4a7199" stopOpacity={0.5} />
                       <stop offset="95%" stopColor="#4a7199" stopOpacity={0} />
                     </linearGradient>
                   </defs>
@@ -436,51 +437,51 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
                   .slice(-6)
                   .reverse()
                   .map((interview) => (
-                    <div
-                      key={interview.id}
-                      className="interview-item flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-default"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            interview.isCompleted
-                              ? "bg-green-100 text-green-600"
-                              : "bg-amber-100 text-amber-600"
-                          }`}
-                        >
-                          {interview.isCompleted ? (
-                            <FiCheckCircle className="w-5 h-5" />
-                          ) : (
-                            <FiClock className="w-5 h-5" />
+                    <Link key={interview.id} href={`/attempt/${interview.id}`}>
+                      <div className="interview-item flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-default">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              interview.isCompleted
+                                ? "bg-green-100 text-green-600"
+                                : "bg-amber-100 text-amber-600"
+                            }`}
+                          >
+                            {interview.isCompleted ? (
+                              <FiCheckCircle className="w-5 h-5" />
+                            ) : (
+                              <FiClock className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-black">
+                              Attempt #{interview.attempt}
+                            </p>
+                            <p className="text-xs font-medium">
+                              {formatDate(interview.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {interview.isCompleted &&
+                            interview.score !== null && (
+                              <Badge
+                                className={`${getScoreColor(interview.score)} text-white font-bold border-0`}
+                              >
+                                {interview.score}%
+                              </Badge>
+                            )}
+                          {!interview.isCompleted && (
+                            <Badge
+                              variant="outline"
+                              className="text-amber-600 border-amber-300"
+                            >
+                              In Progress
+                            </Badge>
                           )}
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">
-                            Attempt #{interview.attempt}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {formatDate(interview.createdAt)}
-                          </p>
-                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {interview.isCompleted && interview.score !== null && (
-                          <Badge
-                            className={`${getScoreColor(interview.score)} text-white border-0`}
-                          >
-                            {interview.score}%
-                          </Badge>
-                        )}
-                        {!interview.isCompleted && (
-                          <Badge
-                            variant="outline"
-                            className="text-amber-600 border-amber-300"
-                          >
-                            In Progress
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
+                    </Link>
                   ))}
               </div>
             ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useMemo } from "react";
-import { IRecruiterProfile } from "@/types/user";
+import { IRecruiter } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProfileHeader from "./ProfileHeader";
@@ -44,7 +44,7 @@ function formatJobType(type: string) {
 }
 
 interface RecruiterProfileProps {
-  data: IRecruiterProfile;
+  data: IRecruiter;
 }
 
 const RecruiterProfile = ({ data }: RecruiterProfileProps) => {

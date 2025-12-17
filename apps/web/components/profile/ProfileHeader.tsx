@@ -89,7 +89,7 @@ const ProfileHeader = ({
         </div>
 
         <div ref={infoRef} className="flex-1 text-center md:text-left">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-3 mb-3">
+          <div className="flex flex-col  md:flex-row items-center  gap-3 mb-3">
             <h1 className="text-2xl font-bold text-gray-800">{user.name}</h1>
             <Badge
               variant="secondary"

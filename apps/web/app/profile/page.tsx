@@ -1,10 +1,10 @@
 import { getProfile } from "@/services/users";
 import ProfileWrapper from "@/components/profile/ProfileWrapper";
-import { ICandidateProfile, IRecruiterProfile } from "@/types/user";
+import { ICandidate, IRecruiter } from "@/types/user";
 
 const ProfilePage = async () => {
   const profile = await getProfile();
-  const data = profile?.data as ICandidateProfile | IRecruiterProfile;
+  const data = profile?.data as ICandidate | IRecruiter;
 
   if (!data || !data.user) {
     return (

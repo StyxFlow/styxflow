@@ -123,6 +123,7 @@ const getSingleInterview = async (userId: string, interviewId: string) => {
     where: eq(interview.id, interviewId),
     with: {
       candidate: true,
+      question: true,
     },
   });
   if (!result) {

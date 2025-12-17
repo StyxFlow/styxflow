@@ -1,4 +1,5 @@
 import { FetchFailed } from "@/components/shared/FetchFailed";
+import { InterviewDetailsView } from "@/components/interview/InterviewDetailsView";
 import { getSingleInterview } from "@/services/interview";
 
 const InterviewDetails = async ({
@@ -8,10 +9,12 @@ const InterviewDetails = async ({
 }) => {
   const interviewId = (await params).interviewId;
   const { data: interview } = await getSingleInterview(interviewId);
+
   if (!interview) {
     return <FetchFailed />;
   }
-  return <div className="pt-24"></div>;
+
+  return <InterviewDetailsView interview={interview} />;
 };
 
 export default InterviewDetails;

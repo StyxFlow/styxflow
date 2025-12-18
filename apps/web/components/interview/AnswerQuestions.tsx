@@ -8,7 +8,6 @@ import { RiChatVoiceAiLine as AIVoiceIcon } from "react-icons/ri";
 import { vapi } from "@/lib/vapi-sdk";
 import { config } from "@/config";
 import { authClient } from "@/lib/auth-client";
-// import { interviewer } from "@/constants/interview";
 import { ElevenLabsVoice } from "@vapi-ai/web/dist/api";
 
 const INTERVIEWERS: { voice: ElevenLabsVoice; name: string; avatar: string }[] =
@@ -73,10 +72,12 @@ const AnswerQuestions = ({
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
 
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
+  const [vapiAudioStream, setVapiAudioStream] = useState<MediaStream | null>(
+    null
+  );
 
   const { data: user } = authClient.useSession();
 
-  console.log(user);
   const hasInteracted = useRef(false);
   const isEndedRef = useRef(callStatus === CallStatus.ENDED);
 
@@ -118,18 +119,6 @@ const AnswerQuestions = ({
 
   const handleConnect = async () => {
     setCallStatus(CallStatus.CONNECTING);
-    // vapi.start(interviewer, {
-    //   variableValues: {
-    //     username: user?.user.name?.split(" ")[user?.user.name?.split(" ").length - 1],
-    //     interviewId: interviewId,
-    //     userId: user?.user.id,
-    //     resume,
-    //   },
-    // });
-    console.log({
-      user,
-      resume,
-    });
     vapi.start(config.vapi_workflow_id!, {
       variableValues: {
         username: user?.user.name?.split(" ")[0],
@@ -137,7 +126,7 @@ const AnswerQuestions = ({
         userId: user?.user.id,
         resume,
       },
-      // voice: selectedInterviewer.voice,
+      voice: selectedInterviewer.voice,
     });
     setCallStatus(CallStatus.ACTIVE);
   };
@@ -149,6 +138,52 @@ const AnswerQuestions = ({
 
   useEffect(() => {
     const onCallStart = () => {
+      // Try multiple methods to find VAPI's audio stream
+      const findAudioStream = () => {
+        console.log("Searching for VAPI audio stream...");
+
+        // Method 1: Check all audio elements for MediaStream
+        const audioElements = document.querySelectorAll("audio");
+        audioElements.forEach((audio, index) => {
+          console.log(`Audio element ${index}:`, {
+            srcObject: audio.srcObject,
+            src: audio.src,
+            id: audio.id,
+            className: audio.className,
+          });
+
+          if (audio.srcObject instanceof MediaStream) {
+            const stream = audio.srcObject;
+            const audioTracks = stream.getAudioTracks();
+            if (audioTracks.length > 0) {
+              console.log(
+                "Found VAPI audio stream from audio element:",
+                audioTracks
+              );
+              setVapiAudioStream(stream);
+            }
+          }
+        });
+
+        // Method 2: Check if VAPI exposes the stream directly
+        // @ts-expect-error - accessing internal VAPI properties
+        if (vapi?.activeCall?.remoteStream) {
+          // @ts-expect-error - accessing internal VAPI properties
+          const remoteStream = vapi.activeCall.remoteStream as MediaStream;
+          console.log("Found VAPI remote stream:", remoteStream);
+          setVapiAudioStream(remoteStream);
+        }
+      };
+
+      // Try immediately and then retry a few times
+      findAudioStream();
+      const interval = setInterval(findAudioStream, 500);
+
+      // Stop searching after 5 seconds
+      setTimeout(() => {
+        clearInterval(interval);
+        console.log("Stopped searching for VAPI audio stream");
+      }, 5000);
       setCallStatus(CallStatus.ACTIVE);
     };
     const onCallFinished = () => {
@@ -261,6 +296,7 @@ const AnswerQuestions = ({
                   <VideoRecorder
                     isRecording={callStatus === CallStatus.ACTIVE}
                     onRecordingComplete={setRecordedVideoUrl}
+                    vapiAudioStream={vapiAudioStream}
                   />
                 </div>
               )}
@@ -323,7 +359,7 @@ const AnswerQuestions = ({
                         Your Interview Recording
                       </h3>
                       <video
-                        src={recordedVideoUrl}
+                        src={recordedVideoUrl || undefined}
                         controls
                         className="w-full rounded-lg"
                       />

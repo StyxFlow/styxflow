@@ -9,6 +9,8 @@ const privateRoutes = [
   "/uploaded-jobs",
   "/attempt-interview",
   "/attempt-interview/:interviewId",
+  "/profile",
+  "/attempt/:interviewId",
 ];
 const authRoutes = ["/login", "/signup"];
 const candidateOnlyRoutes = [
@@ -65,7 +67,6 @@ export async function proxy(request: NextRequest) {
       if (interviewId) {
         const result = await getSingleInterview(interviewId);
         if (!result || !result?.data) {
-          console.log(result);
           return NextResponse.redirect(
             new URL("/attempt-interview", request.url)
           );

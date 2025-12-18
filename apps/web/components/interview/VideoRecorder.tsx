@@ -1,5 +1,6 @@
 "use client";
 
+import { endInterviewCall } from "@/services/interview";
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import type RecordRTC from "recordrtc";
@@ -8,12 +9,18 @@ interface VideoRecorderProps {
   isRecording: boolean;
   onRecordingComplete: (blobUrl: string) => void;
   vapiAudioStream?: MediaStream | null;
+  setScore: (score: number) => void;
+  setFeedback: (feedback: string) => void;
+  interviewId: string;
 }
 
 const VideoRecorder: React.FC<VideoRecorderProps> = ({
   isRecording,
   onRecordingComplete,
   vapiAudioStream,
+  setScore,
+  setFeedback,
+  interviewId,
 }) => {
   const webcamRef = useRef<Webcam>(null);
   const recorderRef = useRef<RecordRTC | null>(null);
@@ -162,11 +169,9 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         recorderRef.current = new RecordRTCLib(combinedStream, {
           type: "video",
           mimeType: "video/webm;codecs=vp9",
-          bitsPerSecond: 2500000,
-          videoBitsPerSecond: 2000000,
+          videoBitsPerSecond: 500000,
           audioBitsPerSecond: 128000,
           frameRate: 30,
-          quality: 0.9,
         });
         recorderRef.current.startRecording();
         console.log("Recording started");
@@ -186,12 +191,25 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   const stopRecording = () => {
     console.log("Recording stopping");
     if (recorderRef.current) {
-      recorderRef.current.stopRecording(() => {
+      recorderRef.current.stopRecording(async () => {
         const blob = recorderRef.current!.getBlob();
         console.log("Recording stopped");
         const url = URL.createObjectURL(blob);
         onRecordingComplete(url);
-
+        const videoFile = new File([blob], `interview_${interviewId}.webm`, {
+          type: "video/webm",
+        });
+        console.log("Video file  -->", videoFile);
+        const formData = new FormData();
+        formData.append("recording", videoFile);
+        const result = await endInterviewCall({
+          videoFile: formData,
+          interviewId,
+        });
+        if (result?.data) {
+          setScore(result.data.score);
+          setFeedback(result.data.feedback);
+        }
         // Clean up audio context
         if (
           audioContextRef.current &&

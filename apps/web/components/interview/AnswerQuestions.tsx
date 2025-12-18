@@ -1,5 +1,5 @@
 "use client";
-import { finishInterviewService } from "@/services/interview";
+import { endInterviewCall, finishInterviewService } from "@/services/interview";
 import { Button } from "../ui/button";
 import { MdSettingsVoice as MicrophoneIcon } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
@@ -68,7 +68,7 @@ const AnswerQuestions = ({
     name: string;
     avatar: string;
   }>(INTERVIEWERS[0]!);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  // const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
 
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
@@ -186,14 +186,27 @@ const AnswerQuestions = ({
       }, 5000);
       setCallStatus(CallStatus.ACTIVE);
     };
-    const onCallFinished = () => {
-      setCallStatus(CallStatus.ENDED);
+    const onCallFinished = async () => {
+      // setCallStatus(CallStatus.ENDED);
+      // if (recordedVideoUrl) {
+      //   const response = await fetch(recordedVideoUrl);
+      //   const blob = await response.blob();
+      //   const videoFile = new File([blob], `interview_${interviewId}.webm`, {
+      //     type: "video/webm",
+      //   });
+      //   console.log("Video file size -->", videoFile.size);
+      //   const result = await endInterviewCall({ videoFile, interviewId });
+      //   if (result?.data) {
+      //     setScore(result.data.score);
+      //     setFeedback(result.data.feedback);
+      //   }
+      // }
     };
     const onSpeachStart = () => {
-      setIsSpeaking(true);
+      // setIsSpeaking(true);
     };
     const onSpeachEnd = () => {
-      setIsSpeaking(false);
+      // setIsSpeaking(false);
     };
     const onMessage = (message: {
       type: string;
@@ -229,7 +242,7 @@ const AnswerQuestions = ({
       vapi.off("message", onMessage);
       vapi.off("error", onError);
     };
-  }, []);
+  });
 
   useEffect(() => {}, [messages, callStatus]);
 
@@ -297,6 +310,9 @@ const AnswerQuestions = ({
                     isRecording={callStatus === CallStatus.ACTIVE}
                     onRecordingComplete={setRecordedVideoUrl}
                     vapiAudioStream={vapiAudioStream}
+                    setScore={setScore}
+                    setFeedback={setFeedback}
+                    interviewId={interviewId}
                   />
                 </div>
               )}
@@ -314,23 +330,25 @@ const AnswerQuestions = ({
                 </div>
               </div>
             </div>
-            <div
-              className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
-                lastMessage?.from === "ai"
-                  ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
-                  : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
-              } max-w-[80%]`}
-            >
+            {callStatus === CallStatus.ACTIVE && lastMessage?.text?.length && (
               <div
-                className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
+                  lastMessage?.from === "ai"
+                    ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
+                    : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
+                } max-w-[80%]`}
               >
-                {lastMessage?.from === "ai" ? "AI" : "You"}
+                <div
+                  className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                >
+                  {lastMessage?.from === "ai" ? "AI" : "You"}
+                </div>
+                <div>{lastMessage?.text}</div>
               </div>
-              <div>{lastMessage?.text}</div>
-            </div>
+            )}
 
             {callStatus === CallStatus.ENDED ? (
-              <div className="mt-8 p-6 bg-linear-to-br from-blue-50 to-green-50 rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
+              <div className="mt-8 p-6 bg-linear-to-br from-white via-main/10 to-cream rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   Interview Completed! 🎉
                 </h2>
@@ -361,7 +379,7 @@ const AnswerQuestions = ({
                       <video
                         src={recordedVideoUrl || undefined}
                         controls
-                        className="w-full rounded-lg"
+                        className="lg:w-[30vw] w-full border-4 shadow-lg border-cream mx-auto mt-8 rounded-lg"
                       />
                     </div>
                   )}

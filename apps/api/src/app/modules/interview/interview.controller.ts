@@ -69,6 +69,19 @@ const saveQuestion = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const evaluateInterview = catchAsync(async (req: ICustomRequest, res) => {
+  await InterviewService.evaluateInterview(
+    { ...req.body, interviewId: req.params.interviewId },
+    req.user!.id
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Interview evaluated successfully",
+    data: { score: 10, feedback: "Great job!" },
+  });
+});
+
 export const InterviewController = {
   createInterview,
   getMyInterviews,
@@ -76,4 +89,5 @@ export const InterviewController = {
   getSingleInterview,
   getCandidateResume,
   saveQuestion,
+  evaluateInterview,
 };

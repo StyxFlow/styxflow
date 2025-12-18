@@ -181,6 +181,14 @@ const saveQuestion = async (payload: {
   return result;
 };
 
+const evaluateInterview = async (
+  payload: {
+    transcript: string;
+    interviewId: string;
+  },
+  userId: string
+) => {};
+
 export const InterviewService = {
   createInterview,
   getMyInterviews,
@@ -188,4 +196,5 @@ export const InterviewService = {
   getSingleInterview,
   getCandidateResume,
   saveQuestion,
+  evaluateInterview,
 };

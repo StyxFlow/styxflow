@@ -72,3 +72,23 @@ export const getResumeText = async () => {
   });
   return response.json();
 };
+
+export const endInterviewCall = async (payload: {
+  videoFile: FormData;
+  interviewId: string;
+}) => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  // const formData = new FormData();
+  // formData.append("recording", payload.videoFile);
+  const response = await fetch(
+    `${config.server_url}/interview/evaluate-interview/${payload.interviewId}`,
+    {
+      method: "PATCH",
+      headers: {
+        authorization: token!,
+      },
+      body: payload.videoFile,
+    }
+  );
+  return response.json();
+};

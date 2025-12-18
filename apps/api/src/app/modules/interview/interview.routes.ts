@@ -41,4 +41,10 @@ router.patch(
   InterviewController.finishInterview
 );
 
+router.patch(
+  "/evaluate-interview/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.evaluateInterview
+);
+
 export const InterviewRoutes = router;

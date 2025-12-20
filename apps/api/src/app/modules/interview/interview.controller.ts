@@ -71,7 +71,7 @@ const saveQuestion = catchAsync(async (req: ICustomRequest, res) => {
 
 const evaluateInterview = catchAsync(async (req: ICustomRequest, res) => {
   await InterviewService.evaluateInterview(
-    { ...req.body, interviewId: req.params.interviewId },
+    { transcript: req.body.transcript, interviewId: req.params.interviewId! },
     req.user!.id
   );
   sendResponse(res, {

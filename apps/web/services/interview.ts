@@ -92,3 +92,8 @@ export const endInterviewCall = async (payload: {
   );
   return response.json();
 };
+
+export const getAuthToken = async () => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  return token;
+};

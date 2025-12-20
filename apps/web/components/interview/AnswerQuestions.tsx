@@ -1,5 +1,5 @@
 "use client";
-import { endInterviewCall, finishInterviewService } from "@/services/interview";
+import { finishInterviewService, getAuthToken } from "@/services/interview";
 import { Button } from "../ui/button";
 import { MdSettingsVoice as MicrophoneIcon } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
@@ -119,12 +119,14 @@ const AnswerQuestions = ({
 
   const handleConnect = async () => {
     setCallStatus(CallStatus.CONNECTING);
+    const token = await getAuthToken();
     vapi.start(config.vapi_workflow_id!, {
       variableValues: {
         username: user?.user.name?.split(" ")[0],
         interviewId: interviewId,
         userId: user?.user.id,
         resume,
+        token,
       },
       voice: selectedInterviewer.voice,
     });

@@ -66,6 +66,7 @@ export async function proxy(request: NextRequest) {
             new URL("/attempt-interview", request.url)
           );
         } else if (!result.data.isActive) {
+          console.log("not active");
           return NextResponse.redirect(
             new URL("/attempt-interview", request.url)
           );

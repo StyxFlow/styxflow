@@ -3,6 +3,7 @@
 import { config } from "@/config";
 import { IServerResponse } from "@/types";
 import { IInterview } from "@/types/interview";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 export const createInterview = async () => {
@@ -28,6 +29,9 @@ export const getMyInterviews = async (): Promise<
     headers: {
       authorization: token!,
     },
+    next: {
+      tags: ["interview-list"],
+    },
   });
   return response.json();
 };
@@ -43,7 +47,9 @@ export const finishInterviewService = async (interviewId: string) => {
       },
     }
   );
-  return response.json();
+  const result = await response.json();
+  revalidatePath("/", "layout");
+  return result;
 };
 
 export const getSingleInterview = async (

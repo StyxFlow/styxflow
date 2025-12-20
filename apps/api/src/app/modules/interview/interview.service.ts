@@ -199,7 +199,61 @@ const evaluateInterview = async (
     interviewId: string;
   },
   userId: string
-) => {};
+) => {
+  const isInterviewExists = await db.query.interview.findFirst({
+    where: eq(interview.id, payload.interviewId),
+    with: {
+      candidate: true,
+    },
+  });
+  if (!isInterviewExists) {
+    throw new ApiError(404, "Interview not found");
+  }
+  if (!isInterviewExists.isActive) {
+    throw new ApiError(400, "Cannot save question to an inactive interview");
+  }
+  if (isInterviewExists.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
+  }
+
+  const llm = new ChatGroq({
+    apiKey: config.groq_api_key!,
+    model: "llama-3.3-70b-versatile",
+    temperature: 0.3,
+  });
+
+  const response = await llm.invoke([
+    {
+      role: "system",
+      content:
+        "You are an interview evaluator. Based on the candidate's responses, provide a score out of 100 and constructive feedback to help them improve. Keep the feedback professional and encouraging.",
+    },
+    {
+      role: "system",
+      content: `send response in the following format: {"score": number between 0 and 100, "feedback": string with constructive feedback}`,
+    },
+    {
+      role: "user",
+      content: `Here is the transcript for the interview:\n\n${payload.transcript}`,
+    },
+  ]);
+  const content = response.content as string;
+  const startIndex = content.indexOf("{");
+  const endIndex = content.lastIndexOf("}");
+  const jsonString = content.slice(startIndex, endIndex + 1);
+  const evaluation = JSON.parse(`${jsonString}`);
+  const result = await db
+    .update(interview)
+    .set({
+      isActive: false,
+      score: evaluation?.score,
+      feedback: evaluation?.feedback,
+      isCompleted: true,
+    })
+    .where(eq(interview.id, payload.interviewId))
+    .returning();
+  return result[0];
+};
 
 export const InterviewService = {
   createInterview,

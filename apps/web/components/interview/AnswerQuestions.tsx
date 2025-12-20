@@ -203,6 +203,17 @@ const AnswerQuestions = ({
       //     setFeedback(result.data.feedback);
       //   }
       // }
+      if (CallStatus.ENDED !== callStatus) {
+        setCallStatus(CallStatus.ENDED);
+      }
+      let transcript = "";
+      messages.forEach((element) => {
+        if (element.from === "user") {
+          transcript += `Candidate: ${element.text}\n`;
+        } else if (element.from === "ai") {
+          transcript += `Interviewer: ${element.text}\n`;
+        }
+      });
     };
     const onSpeachStart = () => {
       // setIsSpeaking(true);

@@ -60,7 +60,7 @@ const getCandidateResume = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const saveQuestion = catchAsync(async (req: ICustomRequest, res) => {
-  await InterviewService.saveQuestion(req.body);
+  await InterviewService.saveQuestion(req.body, req.user!.id);
   sendResponse(res, {
     statusCode: 201,
     success: true,

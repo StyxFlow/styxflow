@@ -162,16 +162,28 @@ const getCandidateResume = async (userId: string) => {
   return { resume: resumeText };
 };
 
-const saveQuestion = async (payload: {
-  questionText: string;
-  answerText: string;
-  interviewId: string;
-}) => {
+const saveQuestion = async (
+  payload: {
+    questionText: string;
+    answerText: string;
+    interviewId: string;
+  },
+  userId: string
+) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, payload.interviewId),
+    with: {
+      candidate: true,
+    },
   });
   if (!isInterviewExists) {
     throw new ApiError(404, "Interview not found");
+  }
+  if (!isInterviewExists.isActive) {
+    throw new ApiError(400, "Cannot save question to an inactive interview");
+  }
+  if (isInterviewExists.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
   }
   const result = await db.insert(question).values({
     interviewId: payload.interviewId,

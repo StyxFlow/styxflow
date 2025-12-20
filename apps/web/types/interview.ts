@@ -8,4 +8,14 @@ export interface IInterview {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  question?: IQuestion[];
+}
+
+export interface IQuestion {
+  id: string;
+  interviewId: string;
+  questionText: string;
+  answerText: string | null;
+  createdAt: string;
+  updatedAt: string;
 }

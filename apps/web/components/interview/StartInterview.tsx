@@ -1,13 +1,13 @@
 "use client";
 
-import { startInterview } from "@/services/interview";
+import { createInterview } from "@/services/interview";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
 const StartInterview = () => {
   const router = useRouter();
   const handleStartInterview = async () => {
-    const result = await startInterview();
+    const result = await createInterview();
     console.log(`/attempt-interview/${result.data.newInterview.id}`);
     // console.log(result);
     router.push(`/attempt-interview/${result.data.newInterview.id}`);

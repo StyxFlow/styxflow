@@ -6,21 +6,15 @@ import { UserRole } from "../user/user.constant.js";
 const router = express.Router();
 
 router.post(
-  "/start-interview",
+  "/create-interview",
   validateUser(UserRole.candidate),
-  InterviewController.startInterview
+  InterviewController.createInterview
 );
 
-// router.post(
-//   "/conduct-interview/:interviewId",
-//   validateUser(UserRole.candidate),
-//   InterviewController.conductInterview
-// );
-
 router.post(
-  "/create-question/:interviewId",
+  "/save-question",
   validateUser(UserRole.candidate),
-  InterviewController.createQuestion
+  InterviewController.saveQuestion
 );
 
 router.get(
@@ -45,6 +39,12 @@ router.patch(
   "/finish-interview/:interviewId",
   validateUser(UserRole.candidate),
   InterviewController.finishInterview
+);
+
+router.patch(
+  "/evaluate-interview/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.evaluateInterview
 );
 
 export const InterviewRoutes = router;

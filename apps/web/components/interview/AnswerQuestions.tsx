@@ -1,5 +1,5 @@
 "use client";
-import { finishInterviewService } from "@/services/interview";
+import { endInterviewCall, finishInterviewService } from "@/services/interview";
 import { Button } from "../ui/button";
 import { MdSettingsVoice as MicrophoneIcon } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
@@ -8,21 +8,41 @@ import { RiChatVoiceAiLine as AIVoiceIcon } from "react-icons/ri";
 import { vapi } from "@/lib/vapi-sdk";
 import { config } from "@/config";
 import { authClient } from "@/lib/auth-client";
-import { interviewer } from "@/constants/interview";
+import { ElevenLabsVoice } from "@vapi-ai/web/dist/api";
 
-const INTERVIEWERS = [
-  { id: "Kajal", name: "Alex Thompson", avatar: "👨‍💼", languageCode: "en-IN" },
-  { id: "Remi", name: "Remi", avatar: "👩‍💼", languageCode: "fr-FR" },
-  {
-    id: "Zayd",
-    name: "Michael Rodriguez",
-    avatar: "👨‍🏫",
-    languageCode: "ar-AE",
-  },
-  { id: "Stephen", name: "Stephen", avatar: "👩‍🔬", languageCode: "en-US" },
-  { id: "Aria", name: "Aria", avatar: "👨‍💻", languageCode: "en-NZ" },
-  { id: "Ayanda", name: "Ayanda", avatar: "👩‍⚕️", languageCode: "en-ZA" },
-];
+const INTERVIEWERS: { voice: ElevenLabsVoice; name: string; avatar: string }[] =
+  [
+    {
+      voice: { voiceId: "sarah", provider: "11labs" },
+      name: "Sarah",
+      avatar: "👩‍💼",
+    },
+    {
+      voice: { voiceId: "phillip", provider: "11labs" },
+      name: "Phillip",
+      avatar: "👨‍💼",
+    },
+    {
+      voice: { voiceId: "joseph", provider: "11labs" },
+      name: "Joseph",
+      avatar: "👨‍🏫",
+    },
+    {
+      voice: { voiceId: "steve", provider: "11labs" },
+      name: "Steve",
+      avatar: "👩‍🔬",
+    },
+    {
+      voice: { voiceId: "marissa", provider: "11labs" },
+      name: "Marissa",
+      avatar: "👨‍💻",
+    },
+    {
+      voice: { voiceId: "paula", provider: "11labs" },
+      name: "Paula",
+      avatar: "👩‍⚕️",
+    },
+  ];
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -31,22 +51,30 @@ enum CallStatus {
   ENDED = "ENDED",
 }
 
-const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume: string }) => {
+const AnswerQuestions = ({
+  interviewId,
+  resume,
+}: {
+  interviewId: string;
+  resume: string;
+}) => {
   const [messages, setMessages] = useState<{ from: string; text: string }[]>(
     []
   );
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [selectedInterviewer, setSelectedInterviewer] = useState<{
-    id: string;
+    voice: ElevenLabsVoice;
     name: string;
     avatar: string;
-    languageCode: string;
   }>(INTERVIEWERS[0]!);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  // const [isSpeaking, setIsSpeaking] = useState(false);
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
 
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
+  const [vapiAudioStream, setVapiAudioStream] = useState<MediaStream | null>(
+    null
+  );
 
   const { data: user } = authClient.useSession();
 
@@ -91,14 +119,6 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
 
   const handleConnect = async () => {
     setCallStatus(CallStatus.CONNECTING);
-    // vapi.start(interviewer, {
-    //   variableValues: {
-    //     username: user?.user.name?.split(" ")[user?.user.name?.split(" ").length - 1],
-    //     interviewId: interviewId,
-    //     userId: user?.user.id,
-    //     resume,
-    //   },
-    // });
     vapi.start(config.vapi_workflow_id!, {
       variableValues: {
         username: user?.user.name?.split(" ")[0],
@@ -106,6 +126,7 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
         userId: user?.user.id,
         resume,
       },
+      voice: selectedInterviewer.voice,
     });
     setCallStatus(CallStatus.ACTIVE);
   };
@@ -117,16 +138,75 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
 
   useEffect(() => {
     const onCallStart = () => {
+      // Try multiple methods to find VAPI's audio stream
+      const findAudioStream = () => {
+        console.log("Searching for VAPI audio stream...");
+
+        // Method 1: Check all audio elements for MediaStream
+        const audioElements = document.querySelectorAll("audio");
+        audioElements.forEach((audio, index) => {
+          console.log(`Audio element ${index}:`, {
+            srcObject: audio.srcObject,
+            src: audio.src,
+            id: audio.id,
+            className: audio.className,
+          });
+
+          if (audio.srcObject instanceof MediaStream) {
+            const stream = audio.srcObject;
+            const audioTracks = stream.getAudioTracks();
+            if (audioTracks.length > 0) {
+              console.log(
+                "Found VAPI audio stream from audio element:",
+                audioTracks
+              );
+              setVapiAudioStream(stream);
+            }
+          }
+        });
+
+        // Method 2: Check if VAPI exposes the stream directly
+        // @ts-expect-error - accessing internal VAPI properties
+        if (vapi?.activeCall?.remoteStream) {
+          // @ts-expect-error - accessing internal VAPI properties
+          const remoteStream = vapi.activeCall.remoteStream as MediaStream;
+          console.log("Found VAPI remote stream:", remoteStream);
+          setVapiAudioStream(remoteStream);
+        }
+      };
+
+      // Try immediately and then retry a few times
+      findAudioStream();
+      const interval = setInterval(findAudioStream, 500);
+
+      // Stop searching after 5 seconds
+      setTimeout(() => {
+        clearInterval(interval);
+        console.log("Stopped searching for VAPI audio stream");
+      }, 5000);
       setCallStatus(CallStatus.ACTIVE);
     };
-    const onCallFinished = () => {
-      setCallStatus(CallStatus.ENDED);
+    const onCallFinished = async () => {
+      // setCallStatus(CallStatus.ENDED);
+      // if (recordedVideoUrl) {
+      //   const response = await fetch(recordedVideoUrl);
+      //   const blob = await response.blob();
+      //   const videoFile = new File([blob], `interview_${interviewId}.webm`, {
+      //     type: "video/webm",
+      //   });
+      //   console.log("Video file size -->", videoFile.size);
+      //   const result = await endInterviewCall({ videoFile, interviewId });
+      //   if (result?.data) {
+      //     setScore(result.data.score);
+      //     setFeedback(result.data.feedback);
+      //   }
+      // }
     };
     const onSpeachStart = () => {
-      setIsSpeaking(true);
+      // setIsSpeaking(true);
     };
     const onSpeachEnd = () => {
-      setIsSpeaking(false);
+      // setIsSpeaking(false);
     };
     const onMessage = (message: {
       type: string;
@@ -162,15 +242,15 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
       vapi.off("message", onMessage);
       vapi.off("error", onError);
     };
-  }, []);
+  });
 
-  useEffect(() => { }, [messages, callStatus]);
+  useEffect(() => {}, [messages, callStatus]);
 
   const lastMessage = messages[messages.length - 1];
   return (
     <div className="">
       {callStatus === CallStatus.INACTIVE ||
-        callStatus === CallStatus.CONNECTING ? (
+      callStatus === CallStatus.CONNECTING ? (
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center animate-in fade-in slide-in-from-top duration-500">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -184,12 +264,13 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             {INTERVIEWERS.map((interviewer, index) => (
               <button
-                key={interviewer.id}
+                key={interviewer.name}
                 onClick={() => setSelectedInterviewer(interviewer)}
-                className={`p-6 rounded-lg border-2 transition-all duration-300 hover:scale-105 animate-in fade-in slide-in-from-bottom-4 ${selectedInterviewer.id === interviewer.id
-                  ? "border-primary bg-primary/5 shadow-lg"
-                  : "border-gray-200 hover:border-primary/50"
-                  }`}
+                className={`p-6 rounded-lg border-2 transition-all duration-300 hover:scale-105 animate-in fade-in slide-in-from-bottom-4 ${
+                  selectedInterviewer.name === interviewer.name
+                    ? "border-primary bg-primary/5 shadow-lg"
+                    : "border-gray-200 hover:border-primary/50"
+                }`}
                 style={{
                   animationDelay: `${index * 100}ms`,
                   animationFillMode: "both",
@@ -228,6 +309,10 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
                   <VideoRecorder
                     isRecording={callStatus === CallStatus.ACTIVE}
                     onRecordingComplete={setRecordedVideoUrl}
+                    vapiAudioStream={vapiAudioStream}
+                    setScore={setScore}
+                    setFeedback={setFeedback}
+                    interviewId={interviewId}
                   />
                 </div>
               )}
@@ -245,22 +330,25 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
                 </div>
               </div>
             </div>
-            <div
-              className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${lastMessage?.from === "ai"
-                ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
-                : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
-                } max-w-[80%]`}
-            >
+            {callStatus === CallStatus.ACTIVE && lastMessage?.text?.length && (
               <div
-                className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
+                  lastMessage?.from === "ai"
+                    ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
+                    : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
+                } max-w-[80%]`}
               >
-                {lastMessage?.from === "ai" ? "AI" : "You"}
+                <div
+                  className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                >
+                  {lastMessage?.from === "ai" ? "AI" : "You"}
+                </div>
+                <div>{lastMessage?.text}</div>
               </div>
-              <div>{lastMessage?.text}</div>
-            </div>
+            )}
 
             {callStatus === CallStatus.ENDED ? (
-              <div className="mt-8 p-6 bg-linear-to-br from-blue-50 to-green-50 rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
+              <div className="mt-8 p-6 bg-linear-to-br from-white via-main/10 to-cream rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   Interview Completed! 🎉
                 </h2>
@@ -289,9 +377,9 @@ const AnswerQuestions = ({ interviewId, resume }: { interviewId: string; resume:
                         Your Interview Recording
                       </h3>
                       <video
-                        src={recordedVideoUrl}
+                        src={recordedVideoUrl || undefined}
                         controls
-                        className="w-full rounded-lg"
+                        className="lg:w-[30vw] w-full border-4 shadow-lg border-cream mx-auto mt-8 rounded-lg"
                       />
                     </div>
                   )}

@@ -105,3 +105,17 @@ export const completeProfile = async (payload: {
   }
   return response.json();
 };
+
+export const getProfile = async () => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  if (!token) {
+    return { success: false, message: "No You are not logged in" };
+  }
+  const response = await fetch(`${config.server_url}/user/my-profile`, {
+    method: "GET",
+    headers: {
+      authorization: token,
+    },
+  });
+  return response.json();
+};

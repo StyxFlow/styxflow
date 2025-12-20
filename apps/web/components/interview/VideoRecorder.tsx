@@ -1,70 +1,223 @@
 "use client";
 
+import { endInterviewCall } from "@/services/interview";
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
-import RecordRTC from "recordrtc";
+import type RecordRTC from "recordrtc";
 
 interface VideoRecorderProps {
   isRecording: boolean;
   onRecordingComplete: (blobUrl: string) => void;
+  vapiAudioStream?: MediaStream | null;
+  setScore: (score: number) => void;
+  setFeedback: (feedback: string) => void;
+  interviewId: string;
 }
 
 const VideoRecorder: React.FC<VideoRecorderProps> = ({
   isRecording,
   onRecordingComplete,
+  vapiAudioStream,
+  setScore,
+  setFeedback,
+  interviewId,
 }) => {
   const webcamRef = useRef<Webcam>(null);
   const recorderRef = useRef<RecordRTC | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const [hasPermission, setHasPermission] = useState(false);
+  const [RecordRTCLib, setRecordRTCLib] = useState<typeof RecordRTC | null>(
+    null
+  );
 
+  // Load RecordRTC dynamically on client side only
   useEffect(() => {
-    // Check for permissions or handle permission errors if needed
-    // react-webcam handles requesting permissions automatically on mount
+    import("recordrtc").then((module) => {
+      setRecordRTCLib(() => module.default);
+    });
   }, []);
 
   useEffect(() => {
-    if (isRecording && hasPermission) {
+    if (isRecording && hasPermission && RecordRTCLib) {
       startRecording();
     } else if (!isRecording && hasPermission) {
       stopRecording();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRecording, hasPermission]);
+  }, [isRecording, hasPermission, vapiAudioStream, RecordRTCLib]);
 
-  const startRecording = () => {
+  const startRecording = async () => {
     if (
-      webcamRef.current &&
-      webcamRef.current.video &&
-      webcamRef.current.video.srcObject
+      !RecordRTCLib ||
+      !webcamRef.current ||
+      !webcamRef.current.video ||
+      !webcamRef.current.video.srcObject
     ) {
-      const stream = webcamRef.current.video.srcObject as MediaStream;
-      // Check if already recording to avoid double start
+      console.log("RecordRTC not loaded or webcam not ready");
+      return;
+    }
+
+    {
+      const webcamStream = webcamRef.current.video.srcObject as MediaStream;
+
+      // If already recording, stop it first to restart with new audio
       if (
         recorderRef.current &&
         recorderRef.current.getState() === "recording"
       ) {
+        console.log("Restarting recording with VAPI audio stream");
+        recorderRef.current.stopRecording(() => {
+          // Destroy old recorder
+          recorderRef.current?.destroy();
+          recorderRef.current = null;
+
+          // Close old audio context
+          if (
+            audioContextRef.current &&
+            audioContextRef.current.state !== "closed"
+          ) {
+            audioContextRef.current.close();
+            audioContextRef.current = null;
+          }
+
+          // Start new recording
+          setTimeout(() => startRecording(), 100);
+        });
         return;
       }
 
-      recorderRef.current = new RecordRTC(stream, {
-        type: "video",
-        mimeType: "video/webm",
-      });
-      recorderRef.current.startRecording();
-      console.log("Recording started");
-    } else {
-      console.log("Webcam stream not ready yet");
+      try {
+        // Create audio context for mixing
+        const audioContext = new AudioContext();
+        audioContextRef.current = audioContext;
+        const destination = audioContext.createMediaStreamDestination();
+
+        // Get microphone audio from webcam
+        const webcamAudioTrack = webcamStream.getAudioTracks()[0];
+        if (webcamAudioTrack) {
+          const micSource = audioContext.createMediaStreamSource(
+            new MediaStream([webcamAudioTrack])
+          );
+          micSource.connect(destination);
+          console.log("Connected microphone audio");
+        }
+
+        // Capture VAPI audio
+        let capturedVapiAudio = false;
+        try {
+          // Method 1: Use provided VAPI audio stream
+          if (vapiAudioStream) {
+            const vapiAudioTracks = vapiAudioStream.getAudioTracks();
+            if (vapiAudioTracks.length > 0) {
+              const vapiSource =
+                audioContext.createMediaStreamSource(vapiAudioStream);
+              vapiSource.connect(destination);
+              console.log("Connected VAPI audio from stream");
+              capturedVapiAudio = true;
+            }
+          }
+
+          // Method 2: Fallback to getDisplayMedia if VAPI stream not available
+          if (!capturedVapiAudio) {
+            console.log("VAPI stream not available, requesting tab audio...");
+            const displayStream = await navigator.mediaDevices.getDisplayMedia({
+              video: false,
+              audio: {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+                suppressLocalAudioPlayback: false,
+              },
+              preferCurrentTab: true,
+            } as DisplayMediaStreamOptions);
+
+            const systemAudioTrack = displayStream.getAudioTracks()[0];
+            if (systemAudioTrack) {
+              const systemSource = audioContext.createMediaStreamSource(
+                new MediaStream([systemAudioTrack])
+              );
+              systemSource.connect(destination);
+              console.log("Connected tab audio via getDisplayMedia");
+              capturedVapiAudio = true;
+
+              // Stop display stream tracks when recording stops
+              systemAudioTrack.onended = () => {
+                displayStream.getTracks().forEach((track) => track.stop());
+              };
+            }
+          }
+        } catch (audioError) {
+          console.warn("Could not capture VAPI audio:", audioError);
+        }
+
+        if (!capturedVapiAudio) {
+          console.warn(
+            "Recording without VAPI audio - only microphone will be captured"
+          );
+        }
+
+        // Create combined stream with video and mixed audio
+        const videoTrack = webcamStream.getVideoTracks()[0];
+        if (!videoTrack) {
+          throw new Error("No video track available");
+        }
+        const combinedStream = new MediaStream([
+          videoTrack,
+          ...destination.stream.getAudioTracks(),
+        ]);
+
+        recorderRef.current = new RecordRTCLib(combinedStream, {
+          type: "video",
+          mimeType: "video/webm;codecs=vp9",
+          videoBitsPerSecond: 500000,
+          audioBitsPerSecond: 128000,
+          frameRate: 30,
+        });
+        recorderRef.current.startRecording();
+        console.log("Recording started");
+      } catch (error) {
+        console.error("Failed to start recording:", error);
+        // Fallback to microphone only
+        recorderRef.current = new RecordRTCLib(webcamStream, {
+          type: "video",
+          mimeType: "video/webm",
+        });
+        recorderRef.current.startRecording();
+        console.log("Recording started (microphone only)");
+      }
     }
   };
 
   const stopRecording = () => {
     console.log("Recording stopping");
     if (recorderRef.current) {
-      recorderRef.current.stopRecording(() => {
+      recorderRef.current.stopRecording(async () => {
         const blob = recorderRef.current!.getBlob();
         console.log("Recording stopped");
         const url = URL.createObjectURL(blob);
         onRecordingComplete(url);
+        const videoFile = new File([blob], `interview_${interviewId}.webm`, {
+          type: "video/webm",
+        });
+        console.log("Video file  -->", videoFile);
+        const formData = new FormData();
+        formData.append("recording", videoFile);
+        const result = await endInterviewCall({
+          videoFile: formData,
+          interviewId,
+        });
+        if (result?.data) {
+          setScore(result.data.score);
+          setFeedback(result.data.feedback);
+        }
+        // Clean up audio context
+        if (
+          audioContextRef.current &&
+          audioContextRef.current.state !== "closed"
+        ) {
+          audioContextRef.current.close();
+          audioContextRef.current = null;
+        }
       });
     }
   };

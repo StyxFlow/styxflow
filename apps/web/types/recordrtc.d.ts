@@ -1,6 +1,6 @@
-declare module 'recordrtc' {
+declare module "recordrtc" {
   export default class RecordRTC {
-    constructor(stream: MediaStream, options?: any);
+    constructor(stream: MediaStream, options?: Record<string, unknown>);
     startRecording(): void;
     stopRecording(callback: () => void): void;
     getBlob(): Blob;

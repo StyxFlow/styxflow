@@ -70,10 +70,10 @@ const saveQuestion = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const evaluateInterview = catchAsync(async (req: ICustomRequest, res) => {
-  await InterviewService.evaluateInterview(
-    { transcript: req.body.transcript, interviewId: req.params.interviewId! },
-    req.user!.id
-  );
+  // const data = await InterviewService.evaluateInterview(
+  //   { transcript: req.body.transcript, interviewId: req.params.interviewId! },
+  //   req.user!.id
+  // );
   sendResponse(res, {
     statusCode: 201,
     success: true,

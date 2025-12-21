@@ -76,6 +76,9 @@ const AnswerQuestions = ({
     null
   );
 
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
   const { data: user } = authClient.useSession();
 
   const hasInteracted = useRef(false);
@@ -326,6 +329,8 @@ const AnswerQuestions = ({
                     setScore={setScore}
                     setFeedback={setFeedback}
                     interviewId={interviewId}
+                    setUploading={setUploading}
+                    setProgress={setProgress}
                   />
                 </div>
               )}
@@ -343,22 +348,28 @@ const AnswerQuestions = ({
                 </div>
               </div>
             </div>
-            {callStatus === CallStatus.ACTIVE && lastMessage?.text?.length && (
-              <div
-                className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
-                  lastMessage?.from === "ai"
-                    ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
-                    : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
-                } max-w-[80%]`}
-              >
+            {callStatus === CallStatus.ACTIVE ? (
+              lastMessage?.text?.length ? (
                 <div
-                  className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                  className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
+                    lastMessage?.from === "ai"
+                      ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
+                      : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
+                  } max-w-[80%]`}
                 >
-                  {lastMessage?.from === "ai" ? "AI" : "You"}
+                  <div
+                    className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                  >
+                    {lastMessage?.from === "ai" ? "AI" : "You"}
+                  </div>
+                  <div>{lastMessage?.text}</div>
                 </div>
-                <div>{lastMessage?.text}</div>
-              </div>
-            )}
+              ) : (
+                <div className=" bg-main/10 w-full text-center py-2 ">
+                  Waiting for the interviewer...{" "}
+                </div>
+              )
+            ) : null}
 
             {callStatus === CallStatus.ENDED ? (
               <div className="mt-8 p-6 bg-linear-to-br from-white via-main/10 to-cream rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
@@ -399,7 +410,7 @@ const AnswerQuestions = ({
                 </div>
               </div>
             ) : (
-              <div className="flex justify-center mt-4">
+              <div className="flex justify-center items-center gap-2  mt-4">
                 <MicrophoneIcon />
                 <Button onClick={handleDisconnect}>Disconnect</Button>
               </div>

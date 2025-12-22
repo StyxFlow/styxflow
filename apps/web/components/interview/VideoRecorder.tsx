@@ -1,6 +1,6 @@
 "use client";
 
-import { endInterviewCall } from "@/services/interview";
+import { endInterviewCall, saveRecordingUrl } from "@/services/interview";
 import { InterviewMessage } from "@/types/interview";
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
@@ -221,7 +221,6 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
           },
           interviewId
         );
-        console.log(result);
         if (result?.data) {
           setScore(result.data.score);
           setFeedback(result.data.feedback);
@@ -252,7 +251,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
             formData.append("api_key", apiKey);
             formData.append("timestamp", timestamp);
             formData.append("signature", signature);
-            formData.append("folder", "user_uploads"); // Must match backend params
+            formData.append("folder", "styxflow_interviews");
             formData.append("cloud_name", cloudName);
 
             // CRITICAL HEADERS for Chunking
@@ -283,7 +282,10 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               if (currentChunk === totalChunks - 1) {
                 const result = await response.json();
                 console.log("Upload Complete! Video URL:", result.secure_url);
-                alert("Upload Finished!");
+                await saveRecordingUrl(
+                  { recordingUrl: result.secure_url },
+                  interviewId
+                );
               }
             } catch (error) {
               console.error("Error uploading chunk:", error);

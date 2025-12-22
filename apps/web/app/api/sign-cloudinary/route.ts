@@ -6,7 +6,7 @@ export async function GET() {
   const timestamp = Math.round(new Date().getTime() / 1000);
   const params = {
     timestamp: timestamp,
-    folder: "user_uploads",
+    folder: "styxflow_interviews",
   };
   const signature = cloudinary.utils.api_sign_request(
     params,

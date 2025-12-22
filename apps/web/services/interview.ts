@@ -97,6 +97,24 @@ export const endInterviewCall = async (
   return response.json();
 };
 
+export const saveRecordingUrl = async (
+  payload: { recordingUrl: string },
+  interviewId: string
+) => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  const response = await fetch(
+    `${config.server_url}/interview/save-recording-url/${interviewId}`,
+    {
+      method: "PATCH",
+      headers: {
+        authorization: token!,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+  return response.json();
+};
+
 export const getAuthToken = async () => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   return token;

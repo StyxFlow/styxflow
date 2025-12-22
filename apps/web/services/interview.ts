@@ -89,6 +89,7 @@ export const endInterviewCall = async (
     {
       method: "PATCH",
       headers: {
+        "Content-Type": "application/json",
         authorization: token!,
       },
       body: JSON.stringify(payload),
@@ -107,6 +108,7 @@ export const saveRecordingUrl = async (
     {
       method: "PATCH",
       headers: {
+        "Content-Type": "application/json",
         authorization: token!,
       },
       body: JSON.stringify(payload),

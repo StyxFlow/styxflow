@@ -221,6 +221,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
           },
           interviewId
         );
+        console.log(result);
         if (result?.data) {
           setScore(result.data.score);
           setFeedback(result.data.feedback);

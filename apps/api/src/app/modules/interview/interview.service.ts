@@ -226,7 +226,7 @@ const evaluateInterview = async (
     {
       role: "system",
       content:
-        "You are an interview evaluator. Based on the candidate's responses, provide a score out of 100 and constructive feedback to help them improve. Keep the feedback professional and encouraging.",
+        "You are an interview evaluator. Based on the candidate's responses, provide a score out of 100 and constructive feedback to help them improve. Keep the feedback professional and encouraging. If there is no user response in the transcript, give a score of 0 and feedback indicating that candidate have not provided any response.",
     },
     {
       role: "system",

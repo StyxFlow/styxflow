@@ -407,7 +407,7 @@ const AnswerQuestions = ({
                               {progress}%
                             </span>
                           </div>
-                          <div className="w-full lg:w-[30vw] bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                          <div className="w-full lg:w-[30vw] mx-auto bg-gray-200 rounded-full h-2.5 overflow-hidden">
                             <div
                               className="bg-main h-2.5 rounded-full transition-all duration-300 ease-out"
                               style={{ width: `${progress}%` }}

@@ -1,18 +1,19 @@
 import { config } from "@/config";
 import { v2 as cloudinary } from "cloudinary";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: Request) {
   const timestamp = Math.round(new Date().getTime() / 1000);
   const params = {
     timestamp: timestamp,
-    folder: "user_uploads", // Optional: Organize files in a folder
+    folder: "user_uploads",
   };
+  console.log(req?.url);
   const signature = cloudinary.utils.api_sign_request(
     params,
     config.cloudinary.api_secret!
   );
-  res.status(200).json({
+  return NextResponse.json({
     signature,
     timestamp,
     apiKey: config.cloudinary.api_key,

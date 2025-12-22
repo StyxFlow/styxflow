@@ -1,6 +1,7 @@
 "use client";
 
 import { endInterviewCall } from "@/services/interview";
+import { InterviewMessage } from "@/types/interview";
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import type RecordRTC from "recordrtc";
@@ -14,6 +15,7 @@ interface VideoRecorderProps {
   interviewId: string;
   setUploading: (uploading: boolean) => void;
   setProgress: (progress: number) => void;
+  messages: InterviewMessage[];
 }
 
 const VideoRecorder: React.FC<VideoRecorderProps> = ({
@@ -25,6 +27,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   interviewId,
   setUploading,
   setProgress,
+  messages,
 }) => {
   const webcamRef = useRef<Webcam>(null);
   const recorderRef = useRef<RecordRTC | null>(null);
@@ -204,9 +207,17 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
           type: "video/webm",
         });
         console.log("Video file size  -->", videoFile.size);
+        let transcript = "";
+        messages.forEach((element) => {
+          if (element.from === "user") {
+            transcript += `Candidate: ${element.text}\n`;
+          } else if (element.from === "ai") {
+            transcript += `Interviewer: ${element.text}\n`;
+          }
+        });
         const result = await endInterviewCall(
           {
-            transcript: "",
+            transcript,
           },
           interviewId
         );

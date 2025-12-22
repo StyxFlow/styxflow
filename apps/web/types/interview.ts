@@ -19,3 +19,8 @@ export interface IQuestion {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface InterviewMessage {
+  from: string;
+  text: string;
+}

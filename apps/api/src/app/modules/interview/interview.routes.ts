@@ -47,4 +47,10 @@ router.patch(
   InterviewController.evaluateInterview
 );
 
+router.patch(
+  "/save-recording-url/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.saveRecordingUrl
+);
+
 export const InterviewRoutes = router;

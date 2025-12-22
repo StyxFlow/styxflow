@@ -44,6 +44,7 @@ export const interview = pgTable(
     feedback: text("feedback"),
     attempt: integer("attempt").default(1).notNull(),
     isCompleted: boolean("is_completed").default(false).notNull(),
+    recordingUrl: text("recording_url"),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

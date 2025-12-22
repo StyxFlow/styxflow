@@ -255,6 +255,35 @@ const evaluateInterview = async (
   return result[0];
 };
 
+const saveRecordingUrl = async (
+  interviewId: string,
+  recordingUrl: string,
+  userId: string
+) => {
+  const isInterviewExists = await db.query.interview.findFirst({
+    where: eq(interview.id, interviewId),
+    with: {
+      candidate: true,
+    },
+  });
+  if (!isInterviewExists) {
+    throw new ApiError(404, "Interview not found");
+  }
+  if (isInterviewExists.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
+  }
+  const result = await db
+    .update(interview)
+    .set({
+      recordingUrl,
+    })
+    .where(eq(interview.id, interviewId))
+    .returning();
+  if (!result[0]) {
+    throw new ApiError(500, "Failed to save recording URL");
+  }
+};
+
 export const InterviewService = {
   createInterview,
   getMyInterviews,
@@ -263,4 +292,5 @@ export const InterviewService = {
   getCandidateResume,
   saveQuestion,
   evaluateInterview,
+  saveRecordingUrl,
 };

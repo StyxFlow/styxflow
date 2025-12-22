@@ -9,6 +9,7 @@ import { vapi } from "@/lib/vapi-sdk";
 import { config } from "@/config";
 import { authClient } from "@/lib/auth-client";
 import { ElevenLabsVoice } from "@vapi-ai/web/dist/api";
+import { InterviewMessage } from "@/types/interview";
 
 const INTERVIEWERS: { voice: ElevenLabsVoice; name: string; avatar: string }[] =
   [
@@ -58,9 +59,7 @@ const AnswerQuestions = ({
   interviewId: string;
   resume: string;
 }) => {
-  const [messages, setMessages] = useState<{ from: string; text: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<InterviewMessage[]>([]);
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [selectedInterviewer, setSelectedInterviewer] = useState<{
@@ -209,14 +208,6 @@ const AnswerQuestions = ({
       if (CallStatus.ENDED !== callStatus) {
         setCallStatus(CallStatus.ENDED);
       }
-      let transcript = "";
-      messages.forEach((element) => {
-        if (element.from === "user") {
-          transcript += `Candidate: ${element.text}\n`;
-        } else if (element.from === "ai") {
-          transcript += `Interviewer: ${element.text}\n`;
-        }
-      });
     };
     const onSpeachStart = () => {
       // setIsSpeaking(true);
@@ -331,6 +322,7 @@ const AnswerQuestions = ({
                     interviewId={interviewId}
                     setUploading={setUploading}
                     setProgress={setProgress}
+                    messages={messages}
                   />
                 </div>
               )}
@@ -417,7 +409,7 @@ const AnswerQuestions = ({
                           </div>
                           <div className="w-full lg:w-[30vw] bg-gray-200 rounded-full h-2.5 overflow-hidden">
                             <div
-                              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                              className="bg-main h-2.5 rounded-full transition-all duration-300 ease-out"
                               style={{ width: `${progress}%` }}
                             />
                           </div>

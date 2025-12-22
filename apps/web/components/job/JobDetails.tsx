@@ -208,7 +208,7 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
       <Dialog open={showCandidates} onOpenChange={setShowCandidates}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">
+            <DialogTitle className="text-2xl font-heading">
               Candidate Recommendations
             </DialogTitle>
           </DialogHeader>

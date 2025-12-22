@@ -6,7 +6,7 @@ const UploadedJobsPage = async () => {
   const { data } = await getMyUploadedJobs();
 
   return (
-    <div className="container mx-auto pt-20 px-4 py-8 max-w-7xl">
+    <div className="container mx-auto pt-28 px-4 py-8 max-w-7xl">
       <div className="mb-8 animate-in fade-in slide-in-from-top duration-500">
         <div className="flex items-center gap-3 mb-2">
           <div className="rounded-lg bg-primary/10 p-2">

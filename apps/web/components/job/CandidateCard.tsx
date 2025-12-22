@@ -40,7 +40,7 @@ export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
 
   return (
     <Card
-      className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
+      className="group font-body hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
       style={{
         animationDelay: `${index * 100}ms`,
         animationFillMode: "both",
@@ -71,9 +71,7 @@ export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
                 {candidate.interview.attempt} Attempts
               </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              email: {candidate.candidate.email}
-            </p>
+            <p className="text-sm ">email: {candidate.candidate.email}</p>
           </div>
         </div>
       </CardHeader>

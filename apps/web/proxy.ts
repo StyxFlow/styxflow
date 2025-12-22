@@ -80,6 +80,7 @@ export async function proxy(request: NextRequest) {
 
   if (candidateOnlyRoutes.some((route) => route.test(pathname))) {
     if (session?.user?.role !== "CANDIDATE") {
+      console.log("Hit");
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
@@ -98,5 +99,6 @@ export const config = {
     "/uploaded-jobs",
     "/attempt-interview",
     "/attempt-interview/:interviewId",
+    "/attempt/:interviewId",
   ],
 };

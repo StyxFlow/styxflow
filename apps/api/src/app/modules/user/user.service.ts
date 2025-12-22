@@ -48,7 +48,27 @@ const getMyProfile = async (userId: string, role: string) => {
   }
 };
 
+const getCandidateProfile = async (candidateId: string, userId: string) => {
+  const isRecruiter = await db.query.recruiter.findFirst({
+    where: eq(recruiter.userId, userId),
+  });
+  if (!isRecruiter) {
+    throw new ApiError(403, "Access denied");
+  }
+  const profile = await db.query.candidate.findFirst({
+    where: eq(candidate.id, candidateId),
+    with: {
+      user: true,
+    },
+  });
+  if (!profile) {
+    throw new ApiError(404, "Candidate profile not found");
+  }
+  return profile;
+};
+
 export const UserService = {
   uploadResume,
   getMyProfile,
+  getCandidateProfile,
 };

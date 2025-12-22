@@ -405,6 +405,24 @@ const AnswerQuestions = ({
                         controls
                         className="lg:w-[30vw] w-full border-4 shadow-lg border-cream mx-auto mt-8 rounded-lg"
                       />
+                      {uploading && (
+                        <div className="mt-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium text-gray-700">
+                              Uploading Recording...
+                            </p>
+                            <span className="text-sm font-semibold text-blue-600">
+                              {progress}%
+                            </span>
+                          </div>
+                          <div className="w-full lg:w-[30vw] bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

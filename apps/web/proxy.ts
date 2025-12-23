@@ -16,7 +16,7 @@ const authRoutes = ["/login", "/signup"];
 const candidateOnlyRoutes = [
   /^\/attempt-interview$/,
   /^\/attempt-interview\/[^\/]+$/,
-  /^\/attempt\/[^\/]+$/,
+  // /^\/attempt\/[^\/]+$/,
 ];
 const recruiterOnlyRoutes = ["/create-job", "/uploaded-jobs"];
 

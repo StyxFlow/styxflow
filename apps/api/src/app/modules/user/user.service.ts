@@ -59,6 +59,7 @@ const getCandidateProfile = async (candidateId: string, userId: string) => {
     where: eq(candidate.id, candidateId),
     with: {
       user: true,
+      interview: true,
     },
   });
   if (!profile) {

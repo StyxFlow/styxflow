@@ -2,6 +2,8 @@
 
 import { config } from "@/config";
 import { auth } from "@/lib/auth";
+import { IServerResponse } from "@/types";
+import { ICandidate } from "@/types/user";
 import { cookies, headers } from "next/headers";
 
 export const signUp = async (payload: {
@@ -117,5 +119,28 @@ export const getProfile = async () => {
       authorization: token,
     },
   });
+  return response.json();
+};
+
+export const getCandidateProfile = async (
+  candidateId: string
+): Promise<IServerResponse<ICandidate>> => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  if (!token) {
+    return {
+      statusCode: 401,
+      success: false,
+      message: "No You are not logged in",
+    };
+  }
+  const response = await fetch(
+    `${config.server_url}/user/candidate-profile/${candidateId}`,
+    {
+      method: "GET",
+      headers: {
+        authorization: token,
+      },
+    }
+  );
   return response.json();
 };

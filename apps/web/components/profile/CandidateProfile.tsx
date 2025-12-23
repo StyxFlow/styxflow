@@ -454,7 +454,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
                             )}
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-black">
+                            <p className="text-sm font-semibold text-black cursor-pointer">
                               Attempt #{interview.attempt}
                             </p>
                             <p className="text-xs font-medium">

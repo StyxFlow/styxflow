@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FiMail, FiStar, FiTrendingUp } from "react-icons/fi";
 import { IUser } from "@/types/user";
 import { IInterview } from "@/types/interview";
+import Link from "next/link";
 
 export interface IMatchedCandidate {
   candidateId: string;
@@ -23,7 +24,6 @@ interface CandidateCardProps {
 
 export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
   const scorePercentage = Math.round(candidate.avgScore * 100);
-
   const getScoreColor = (score: number) => {
     if (score >= 0.8) return "text-green-600";
     if (score >= 0.6) return "text-blue-600";
@@ -65,7 +65,9 @@ export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                {candidate.candidate.name}
+                <Link href={`/candidate/${candidate.candidateId}`}>
+                  {candidate.candidate.name}
+                </Link>
               </h3>
               <p className=" text-xs text-gray-600">
                 {candidate.interview.attempt} Attempts

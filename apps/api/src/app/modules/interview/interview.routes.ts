@@ -31,7 +31,7 @@ router.get(
 
 router.get(
   "/:interviewId",
-  validateUser(UserRole.candidate),
+  validateUser(UserRole.candidate, UserRole.recruiter),
   InterviewController.getSingleInterview
 );
 

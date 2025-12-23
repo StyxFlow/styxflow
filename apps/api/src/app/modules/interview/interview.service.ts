@@ -5,6 +5,8 @@ import { candidate, interview, question } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
+import type { TUserRole } from "../../middlewares/validateUser.js";
+import { UserRole } from "../user/user.constant.js";
 
 const createInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
@@ -118,7 +120,11 @@ const finishInterview = async (userId: string, interviewId: string) => {
   return result[0];
 };
 
-const getSingleInterview = async (userId: string, interviewId: string) => {
+const getSingleInterview = async (
+  userId: string,
+  interviewId: string,
+  userRole: TUserRole
+) => {
   const result = await db.query.interview.findFirst({
     where: eq(interview.id, interviewId),
     with: {
@@ -129,7 +135,7 @@ const getSingleInterview = async (userId: string, interviewId: string) => {
   if (!result) {
     throw new ApiError(404, "Interview not found");
   }
-  if (result?.candidate.userId !== userId) {
+  if (userRole === UserRole.candidate && result?.candidate.userId !== userId) {
     throw new ApiError(403, "Unauthorized access to this interview");
   }
   return result;

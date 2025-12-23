@@ -24,4 +24,5 @@ router.get(
   validateUser(UserRole.recruiter),
   UserController.getCandidateProfile
 );
+
 export const UserRoutes = router;

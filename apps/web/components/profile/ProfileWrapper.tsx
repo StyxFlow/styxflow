@@ -12,7 +12,7 @@ const ProfileWrapper = ({ data }: ProfileWrapperProps) => {
   const isCandidate = data.user.role === "CANDIDATE";
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-white to-cream pt-28 pb-12">
+    <div className="min-h-screen bg-linear-to-br from-whites to-creams pt-28 pb-12">
       <div className="container mx-auto px-6 ">
         {isCandidate ? (
           <CandidateProfile data={data as ICandidate} />

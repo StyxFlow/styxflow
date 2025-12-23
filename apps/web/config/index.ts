@@ -6,7 +6,7 @@ export const config = {
   vapi_workflow_id: process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID,
   vapi_public_key: process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY,
   cloudinary: {
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     api_secret: process.env.CLOUDINARY_API_SECRET,
     api_key: process.env.CLOUDINARY_API_KEY,
   },

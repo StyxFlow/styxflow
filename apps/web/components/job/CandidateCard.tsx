@@ -56,6 +56,11 @@ export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
               size="sm"
               variant="outline"
               className="transition-all duration-300 hover:scale-105 hover:bg-primary hover:text-white"
+              onClick={() => {
+                const subject = `Regarding Your Application`;
+                const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.candidate.email)}&su=${encodeURIComponent(subject)}`;
+                window.open(gmailComposeUrl, "_blank");
+              }}
             >
               <FiMail className="mr-2 h-4 w-4" />
               Contact

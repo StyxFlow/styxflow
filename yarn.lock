@@ -187,6 +187,52 @@
   resolved "https://registry.yarnpkg.com/@cfworker/json-schema/-/json-schema-4.1.1.tgz#4a2a3947ee9fa7b7c24be981422831b8674c3be6"
   integrity sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og==
 
+"@cloudinary-util/types@1.5.10":
+  version "1.5.10"
+  resolved "https://registry.yarnpkg.com/@cloudinary-util/types/-/types-1.5.10.tgz#e1003f47fa1bd4ecc83fce37c997c618138d1c67"
+  integrity sha512-n5lrm7SdAXhgWEbkSJKHZGnaoO9G/g4WYS6HYnq/k4nLj79sYfQZOoKjyR8hF2iyLRdLkT+qlk68RNFFv5tKew==
+
+"@cloudinary-util/url-loader@5.10.4":
+  version "5.10.4"
+  resolved "https://registry.yarnpkg.com/@cloudinary-util/url-loader/-/url-loader-5.10.4.tgz#96fbf8648fc37ad11a34bc4637789898026e903d"
+  integrity sha512-gHkdvOaV+rlcwuIT7Vqd0ts/H5bsH4+bwFten/gIZ8oRjzdTBvgIY3R6F8bbJt0pFIEfpFEQLe4rPkl0NNqEWg==
+  dependencies:
+    "@cloudinary-util/types" "1.5.10"
+    "@cloudinary-util/util" "3.3.2"
+    "@cloudinary/url-gen" "1.15.0"
+    zod "^3.22.4"
+
+"@cloudinary-util/util@3.3.2":
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/@cloudinary-util/util/-/util-3.3.2.tgz#a5cd48d82d5f344008674ebad99767e997bea222"
+  integrity sha512-Cc0iFxzfl7fcOXuznpeZFGYC885Of/vDgccRDnhTe/8Rf8YKv2PjLtezyo0VgmdA/CpeZy29NCXAsf6liokbwg==
+
+"@cloudinary-util/util@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@cloudinary-util/util/-/util-4.0.0.tgz#5ba8e15c8efd2455f5d21c61b87ee89255b190dd"
+  integrity sha512-S4xcou/3A7l5o+bcKlw2VHBNgwups7/0lbVDT/cO5YmtrcEYXgj6LGmwnjvpTm/x571VPVN8x5jWdT3rLZiKJQ==
+
+"@cloudinary/transformation-builder-sdk@^1.10.0", "@cloudinary/transformation-builder-sdk@^1.15.1":
+  version "1.21.2"
+  resolved "https://registry.yarnpkg.com/@cloudinary/transformation-builder-sdk/-/transformation-builder-sdk-1.21.2.tgz#9b39687172782a94e01023ebca2075dbb0f39c0a"
+  integrity sha512-ehOgKUaP+Nvuf7B0TosmB8iilL0kdiVjzjl8tIK06cjvsNnwSJI3xP9nEJmKkvqNxwwFwvYXT+mxUTqnSv9JOA==
+  dependencies:
+    "@cloudinary/url-gen" "^1.7.0"
+
+"@cloudinary/url-gen@1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@cloudinary/url-gen/-/url-gen-1.15.0.tgz#a55c9b51cb27301e0bdc4d60e44a7e73d13db103"
+  integrity sha512-bjU67eZxLUgoRy/Plli4TQio7q6P31OYqnEgXxeN9TKXrzr6h0DeEdIUhKI9gy3HkEBWXWWJIPh7j7gkOJPnyA==
+  dependencies:
+    "@cloudinary/transformation-builder-sdk" "^1.10.0"
+
+"@cloudinary/url-gen@^1.7.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@cloudinary/url-gen/-/url-gen-1.22.0.tgz#32b8c356d9fb67119ffbe37ebf851847ee3002f3"
+  integrity sha512-le8RMlgyC0JN3+FlC/YAlPYfvmJdtw8QGcSKDjCsfhS2CIem0mJl6ayti8bMoZ0P5wDvBewvRB0/dUQvhCzy3g==
+  dependencies:
+    "@cloudinary/transformation-builder-sdk" "^1.15.1"
+
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.npmjs.org/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz"
@@ -5432,6 +5478,15 @@ neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+next-cloudinary@^6.17.5:
+  version "6.17.5"
+  resolved "https://registry.yarnpkg.com/next-cloudinary/-/next-cloudinary-6.17.5.tgz#30ed6a085660318d3f8bb7657ef6f825216ea2ed"
+  integrity sha512-YIyIWw5Ds30f4rnED+E9ssLUd94FOPTtbkO2KUvOcw9z4irOEIpb1goxMxbn2EUBnIGQOd6uUf1gFizjME7pMg==
+  dependencies:
+    "@cloudinary-util/types" "1.5.10"
+    "@cloudinary-util/url-loader" "5.10.4"
+    "@cloudinary-util/util" "4.0.0"
+
 next@16.0.1:
   version "16.0.1"
   resolved "https://registry.yarnpkg.com/next/-/next-16.0.1.tgz#752980c9c30d4d59558d47eaf8e950fa25fb9ce9"
@@ -7222,6 +7277,11 @@ yocto-queue@^0.1.0:
   version "4.0.2"
   resolved "https://registry.npmjs.org/zod-validation-error/-/zod-validation-error-4.0.2.tgz"
   integrity sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ==
+
+zod@^3.22.4:
+  version "3.25.76"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.76.tgz#26841c3f6fd22a6a2760e7ccb719179768471e34"
+  integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==
 
 "zod@^3.25.0 || ^4.0.0", "zod@^3.25.76 || ^4", zod@^4.1.12, zod@^4.1.5:
   version "4.1.12"

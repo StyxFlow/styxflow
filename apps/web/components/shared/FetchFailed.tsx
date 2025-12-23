@@ -11,7 +11,7 @@ export const FetchFailed = ({
   title = "Error",
 }: FetchFailedProps) => {
   return (
-    <div className="flex items-center justify-center py-16 animate-in fade-in zoom-in duration-500">
+    <div className="flex items-center justify-center py-16 mt-28 animate-in fade-in zoom-in duration-500">
       <Alert variant="destructive" className="max-w-md">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>{title}</AlertTitle>

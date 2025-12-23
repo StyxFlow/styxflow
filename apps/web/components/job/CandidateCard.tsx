@@ -52,19 +52,24 @@ export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg transition-transform group-hover:scale-110">
               #{index + 1}
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="transition-all duration-300 hover:scale-105 hover:bg-primary hover:text-white"
-              onClick={() => {
-                const subject = `Regarding Your Application`;
-                const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.candidate.email)}&su=${encodeURIComponent(subject)}`;
-                window.open(gmailComposeUrl, "_blank");
-              }}
-            >
-              <FiMail className="mr-2 h-4 w-4" />
-              Contact
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link href={`/attempt/${candidate.interview.id}`}>
+                <Button variant={"link"}>Interview Details</Button>
+              </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                className="transition-all duration-300 hover:scale-105 hover:bg-primary hover:text-white"
+                onClick={() => {
+                  const subject = `Regarding Your Application`;
+                  const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.candidate.email)}&su=${encodeURIComponent(subject)}`;
+                  window.open(gmailComposeUrl, "_blank");
+                }}
+              >
+                <FiMail className="mr-2 h-4 w-4" />
+                Contact
+              </Button>
+            </div>
           </div>
 
           <div>

@@ -1,135 +1,333 @@
-# Turborepo starter
-
-This Turborepo starter is maintained by the Turborepo core team.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```
+  _____ _                   _____ _
+ / ____| |                 |  ___| |
+| (___ | |_ _   _  __   __ | |_  | |  ___  __    __    __
+ \___ \| __| | | | \ \ / / |  _| | | / _ \ \  \ /  \ /  /
+ ____) | |_| |_| |  \ \ /  | |   | || (_) | \    /\    /
+|_____/ \__|\__,_| /_/ \_\ |_|   |_| \___/   \__/  \__/
+             __| |        StyxFlow
+            |__ /
 ```
 
-## What's inside?
+> A modern turborepo-based interview platform with AI-powered features, real-time communication, and comprehensive job management.
 
-This Turborepo includes the following packages/apps:
+## 📋 Database ER Diagram
 
-### Apps and Packages
+> [Add your database ER diagram image here]
+>
+> To generate an ER diagram, you can use tools like:
+>
+> - [dbdiagram.io](https://dbdiagram.io)
+> - [Drizzle Studio](https://drizzle.studio/) (since the project uses Drizzle ORM)
+> - [Lucidchart](https://www.lucidchart.com)
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## ✨ Features
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- **AI-Powered Interviews**: Intelligent interview generation and evaluation using Google Gemini and Groq AI
+- **Real-Time Communication**: Voice and video capabilities with VAPI integration
+- **Interview Recording**: Built-in recording functionality using RecordRTC
+- **Job Management**: Create, manage, and track job postings and candidate applications
+- **User Authentication**: Secure authentication with Better Auth supporting multiple OAuth providers (Google, Twitter, Microsoft)
+- **Vector Search**: Semantic search capabilities powered by Qdrant vector database
+- **File Uploads**: Cloudinary integration for resume and profile picture uploads
+- **Task Queue System**: Background job processing with Redis-backed queues
+- **Monorepo Structure**: Turborepo-based architecture for efficient development and building
 
-### Utilities
+## 📦 What's Inside?
 
-This Turborepo has some additional tools already setup for you:
+### Apps
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- **`api`**: Express.js REST API backend with TypeScript
+  - Database: PostgreSQL with Drizzle ORM
+  - Vector DB: Qdrant for semantic search
+  - Cache: Redis for caching and queues
+  - AI Agents: Google Gemini and Groq integration
+  - worker: Background job processing service with BullMQ
 
-### Build
+- **`web`**: Next.js 15+ frontend application
+  - Interview attempt interface
+  - Job posting and management
+  - User profile management
+  - Real-time AI powered voice communication with VAPI
 
-To build all apps and packages, run the following command:
+### Packages
 
-```
-cd my-turborepo
+- **`typescript-config`**: Shared TypeScript configurations
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+### Development Tools
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+- [TypeScript](https://www.typescriptlang.org/) - Static type checking
+- [ESLint](https://eslint.org/) - Code linting
+- [Prettier](https://prettier.io/) - Code formatting
+- [Turborepo](https://turborepo.com/) - Monorepo build system
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## 🚀 Quick Start
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+### Prerequisites
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+- Node.js >= 18
+- Yarn 1.22.22 (or npm/pnpm)
+- Docker & Docker Compose (for backend with containers)
+- PostgreSQL (if running on local database)
+- Redis (if running on local redis)
 
-### Develop
+### 1️⃣ Installation
 
-To develop all apps and packages, run the following command:
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/styxflow.git
+cd styxflow
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+# Install dependencies
+yarn install
+# or
+npm install
 ```
 
-### Remote Caching
+### 2️⃣ Environment Configuration
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Create environment files for each app using the provided examples:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+```bash
+# API configuration
+cp apps/api/.env.example apps/api/.env
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+# Web configuration
+cp apps/web/.env.example apps/web/.env
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Refer to each `.env.example` file for detailed parameter descriptions.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## 🏃 Running the Application
+
+### Option A: Full Stack with Yarn/NPM (Recommended for Development)
+
+Run all apps simultaneously using Turborepo:
+
+```bash
+# Start development servers for all apps
+yarn dev
+# or
+npm run dev
+
+# This starts:
+# - API server on http://localhost:8000
+# - Web app on http://localhost:3000
+```
+
+Run specific apps:
+
+```bash
+# Start only the web app
+yarn workspace web dev
+# or
+npm run dev -- --filter=web
+
+# Start only the API
+yarn workspace api dev
+# or
+npm run dev -- --filter=api
+
+# Start only the worker
+yarn workspace api worker
+# or
+npm run worker -- --filter=api
+```
+
+### Option B: Backend+Worker with Docker Compose (API Only)
+
+Run the API backend services using Docker Compose:
+
+```bash
+# Development setup
+docker-compose -f docker-compose.dev.yml up -d
+
+# Production setup
+docker-compose -f docker-compose.prod.yml up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop services
+docker-compose down
+```
+
+After the backend is running, start the web app in a separate terminal:
+
+```bash
+cd apps/web
+yarn dev
+# or
+npm run dev
+```
+
+### Option C: Full Application with Docker Compose
+
+Run the complete application stack using Docker:
+
+```bash
+# Build and start all services
+docker-compose -f docker-compose.prod.yml up -d
+
+# For development with hot reload
+docker-compose -f docker-compose.dev.yml up -d
+
+# View all running services
+docker-compose ps
+
+# Stop all services
+docker-compose down
+```
+
+## 🏗️ Building
+
+Build all packages and apps:
+
+```bash
+yarn build
+# or
+npm run build
+```
+
+Build specific packages:
+
+```bash
+yarn build --filter=web
+# or
+npm run build -- --filter=web
+```
+
+## 🧹 Linting & Formatting
+
+Run linting across the monorepo:
+
+```bash
+yarn lint
+# or
+npm run lint
+```
+
+Format code with Prettier:
+
+```bash
+yarn format
+# or
+npm run format
+```
+
+Check types:
+
+```bash
+yarn check-types
+# or
+npm run check-types
+```
+
+## 🗄️ Database Management
+
+### Drizzle ORM
+
+Generate migrations:
+
+```bash
+cd apps/api
+yarn drizzle-kit generate
+```
+
+Apply migrations:
+
+```bash
+cd apps/api
+yarn drizzle-kit migrate
+```
+
+### Viewing Data with Drizzle Studio
+
+Open Drizzle Studio to inspect database:
+
+```bash
+cd apps/api
+yarn drizzle-kit studio
+```
+
+## 📚 API Documentation
+
+The API is available at `http://localhost:8000` in development.
+
+Key endpoints:
+
+- `/api/v1/auth/*` - Authentication endpoints
+- `/api/v1/interviews/*` - Interview management
+- `/api/v1/jobs/*` - Job postings
+- `/api/v1/users/*` - User profiles
+
+## 🧪 Testing
+
+Run tests across the monorepo:
+
+```bash
+yarn test
+```
+
+Run tests for specific apps:
+
+```bash
+yarn workspace api test
+```
+
+## 📖 Project Structure
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+styxflow/
+├── apps/
+│   ├── api/              # Express.js backend API+Background Worker
+│   ├── web/              # Next.js frontend application
+├── packages/
+│   └── typescript-config/  # Shared TypeScript configs
+├── docker-compose.dev.yml
+├── docker-compose.prod.yml
+└── turbo.json            # Turborepo configuration
 ```
 
-## Useful Links
+## 🔐 Environment Variables
 
-Learn more about the power of Turborepo:
+Each application requires specific environment variables. See the respective `.env.example` files:
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- **API**: [apps/api/.env.example](apps/api/.env.example)
+- **Web**: [apps/web/.env.example](apps/web/.env.example)
+
+## 🚢 Deployment
+
+### Vercel (Next.js Web App)
+
+```bash
+# Push to GitHub and connect your repository to Vercel
+# Vercel will automatically detect the Next.js app and deploy
+```
+
+### Backend Hosting
+
+Deploy the API backend using:
+
+- Docker containers on any cloud platform (AWS, GCP, Azure, DigitalOcean)
+- Railway, Render, or other Node.js-friendly platforms
+
+## 📚 Learn More
+
+- [Turborepo Documentation](https://turborepo.com/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Express.js Documentation](https://expressjs.com/)
+- [Drizzle ORM](https://orm.drizzle.team/)
+- [Better Auth Documentation](https://better-auth.vercel.app/)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Support
+
+For support, open an issue on GitHub or contact the maintainers.

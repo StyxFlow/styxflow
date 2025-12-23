@@ -7,6 +7,7 @@
 |_____/ \__|\__,_| /_/ \_\ |_|   |_| \___/   \__/  \__/
              __| |        StyxFlow
             |__ /
+
 ```
 
 > A modern turborepo-based interview platform with AI-powered features, real-time communication, and comprehensive job management.

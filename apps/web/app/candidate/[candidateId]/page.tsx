@@ -16,7 +16,7 @@ const CandidateProfilePage = async ({
   }
 
   return (
-    <div className="min-h-screen lg:max-w-[75vw] md:max-w-[85vw] max-w-full mx-auto p-4 pt-28">
+    <div className="min-h-screen  lg:max-w-[75vw] md:max-w-[85vw] max-w-full mx-auto p-4 pt-28">
       <CandidateProfile data={candidate} />
     </div>
   );

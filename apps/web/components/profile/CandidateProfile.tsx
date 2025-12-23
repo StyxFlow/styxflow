@@ -255,7 +255,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
       {/* Charts Row */}
       <div className="grid lg:grid-cols-3 gap-6 mb-6  ">
         {/* Score Trend Chart */}
-        <Card className="chart-card w-[calc(100vw-32px)] md:w-full  lg:col-span-2 bg-white border-gray-100 ">
+        <Card className="chart-card w-[calc(100vw-48px)] md:w-full  lg:col-span-2 bg-white border-gray-100 ">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800 ">
               <FiTrendingUp className="w-5 h-5 text-main" />
@@ -316,7 +316,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
         </Card>
 
         {/* Interview Status Distribution */}
-        <Card className="chart-card w-[calc(100vw-32px)] md:w-full bg-white border-gray-100">
+        <Card className="chart-card w-[calc(100vw-48px)] md:w-full bg-white border-gray-100">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
               <FiPieChart className="w-5 h-5 text-main" />
@@ -375,7 +375,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
         {/* Score Distribution Bar Chart */}
         <Card
           ref={chartRef}
-          className="chart-card w-[calc(100vw-32px)] md:w-full  bg-white border-gray-100"
+          className="chart-card w-[calc(100vw-48px)] md:w-full  bg-white border-gray-100"
         >
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">

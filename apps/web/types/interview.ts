@@ -6,6 +6,7 @@ export interface IInterview {
   attempt: number;
   isCompleted: boolean;
   isActive: boolean;
+  recordingUrl: string | null;
   createdAt: string;
   updatedAt: string;
   question?: IQuestion[];
@@ -18,4 +19,9 @@ export interface IQuestion {
   answerText: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface InterviewMessage {
+  from: string;
+  text: string;
 }

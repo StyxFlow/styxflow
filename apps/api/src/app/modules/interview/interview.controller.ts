@@ -39,7 +39,8 @@ const finishInterview = catchAsync(async (req: ICustomRequest, res) => {
 const getSingleInterview = catchAsync(async (req: ICustomRequest, res) => {
   const result = await InterviewService.getSingleInterview(
     req.user!.id,
-    req.params.interviewId!
+    req.params.interviewId!,
+    req.user!.role!
   );
   sendResponse(res, {
     statusCode: 200,
@@ -60,7 +61,7 @@ const getCandidateResume = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const saveQuestion = catchAsync(async (req: ICustomRequest, res) => {
-  await InterviewService.saveQuestion(req.body);
+  await InterviewService.saveQuestion(req.body, req.user!.id);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -70,15 +71,29 @@ const saveQuestion = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const evaluateInterview = catchAsync(async (req: ICustomRequest, res) => {
-  await InterviewService.evaluateInterview(
-    { ...req.body, interviewId: req.params.interviewId },
+  const data = await InterviewService.evaluateInterview(
+    { transcript: req.body.transcript, interviewId: req.params.interviewId! },
     req.user!.id
   );
   sendResponse(res, {
     statusCode: 201,
     success: true,
     message: "Interview evaluated successfully",
-    data: { score: 10, feedback: "Great job!" },
+    data,
+  });
+});
+
+const saveRecordingUrl = catchAsync(async (req: ICustomRequest, res) => {
+  const data = await InterviewService.saveRecordingUrl(
+    req.params.interviewId!,
+    req.body.recordingUrl,
+    req.user!.id
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Interview recording saved successfully",
+    data,
   });
 });
 
@@ -90,4 +105,5 @@ export const InterviewController = {
   getCandidateResume,
   saveQuestion,
   evaluateInterview,
+  saveRecordingUrl,
 };

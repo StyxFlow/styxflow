@@ -222,13 +222,13 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
   ];
 
   return (
-    <div>
+    <div className="">
       <ProfileHeader user={user} address={address} />
 
       {/* Stats Grid */}
       <div
         ref={statsRef}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 "
       >
         {stats.map((stat, index) => (
           <Card
@@ -253,22 +253,22 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid lg:grid-cols-3 gap-6 mb-6  ">
         {/* Score Trend Chart */}
-        <Card className="chart-card lg:col-span-2 bg-white border-gray-100">
+        <Card className="chart-card w-[calc(100vw-48px)] md:w-full  lg:col-span-2 bg-white border-gray-100 ">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
+            <CardTitle className="text-lg flex items-center gap-2 text-gray-800 ">
               <FiTrendingUp className="w-5 h-5 text-main" />
               Score Trend
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4">
             {scoreTrendData.length > 0 ? (
               <ChartContainer
                 config={scoreTrendConfig}
-                className="h-[250px] w-full"
+                className="h-[250px] w-[90vw] md:w-full -mx-8 "
               >
-                <AreaChart data={scoreTrendData}>
+                <AreaChart data={scoreTrendData} className="">
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
                     dataKey="name"
@@ -316,7 +316,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
         </Card>
 
         {/* Interview Status Distribution */}
-        <Card className="chart-card bg-white border-gray-100">
+        <Card className="chart-card w-[calc(100vw-48px)] md:w-full bg-white border-gray-100">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
               <FiPieChart className="w-5 h-5 text-main" />
@@ -373,7 +373,10 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
       {/* Second Row */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Score Distribution Bar Chart */}
-        <Card ref={chartRef} className="chart-card bg-white border-gray-100">
+        <Card
+          ref={chartRef}
+          className="chart-card w-[calc(100vw-48px)] md:w-full  bg-white border-gray-100"
+        >
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
               <FiTarget className="w-5 h-5 text-main" />
@@ -384,7 +387,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
             {completedInterviews.length > 0 ? (
               <ChartContainer
                 config={scoreDistributionConfig}
-                className="h-[220px] w-full"
+                className="h-[220px] w-[90vw] md:w-full -ml-8"
               >
                 <BarChart data={scoreDistributionData}>
                   <CartesianGrid
@@ -454,7 +457,7 @@ const CandidateProfile = ({ data }: CandidateProfileProps) => {
                             )}
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-black">
+                            <p className="text-sm font-semibold text-black cursor-pointer">
                               Attempt #{interview.attempt}
                             </p>
                             <p className="text-xs font-medium">

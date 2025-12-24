@@ -31,7 +31,7 @@ router.get(
 
 router.get(
   "/:interviewId",
-  validateUser(UserRole.candidate),
+  validateUser(UserRole.candidate, UserRole.recruiter),
   InterviewController.getSingleInterview
 );
 
@@ -45,6 +45,12 @@ router.patch(
   "/evaluate-interview/:interviewId",
   validateUser(UserRole.candidate),
   InterviewController.evaluateInterview
+);
+
+router.patch(
+  "/save-recording-url/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.saveRecordingUrl
 );
 
 export const InterviewRoutes = router;

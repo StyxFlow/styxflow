@@ -23,7 +23,21 @@ const getMyProfile = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const getCandidateProfile = catchAsync(async (req: ICustomRequest, res) => {
+  const result = await UserService.getCandidateProfile(
+    req.params.candidateId!,
+    req.user!.id
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Candidate profile retrieved successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   uploadResume,
   getMyProfile,
+  getCandidateProfile,
 };

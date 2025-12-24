@@ -218,7 +218,7 @@ const CreateJob = () => {
   );
 
   return (
-    <Card className="w-full mt-24 mb-16  max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <Card className="w-full mt-28 mb-16  max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       <CardHeader>
         <CardTitle className="text-3xl">Create Job Circular</CardTitle>
         <CardDescription>

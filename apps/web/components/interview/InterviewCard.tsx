@@ -9,6 +9,7 @@ import { MdOutlineScore } from "react-icons/md";
 import { redirect } from "next/navigation";
 import { finishInterviewService } from "@/services/interview";
 import { IInterview } from "@/types/interview";
+import Link from "next/link";
 
 interface InterviewCardProps {
   interview: IInterview;
@@ -40,7 +41,9 @@ export const InterviewCard = ({ interview }: InterviewCardProps) => {
             </div>
             <div>
               <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                Interview Attempt #{interview.attempt}
+                <Link href={`/attempt/${interview.id}`}>
+                  Interview Attempt #{interview.attempt}
+                </Link>
               </CardTitle>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                 <FiCalendar className="h-3.5 w-3.5" />

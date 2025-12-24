@@ -18,4 +18,11 @@ router.get(
   validateUser(UserRole.candidate, UserRole.recruiter),
   UserController.getMyProfile
 );
+
+router.get(
+  "/candidate-profile/:candidateId",
+  validateUser(UserRole.recruiter),
+  UserController.getCandidateProfile
+);
+
 export const UserRoutes = router;

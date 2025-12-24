@@ -16,6 +16,7 @@ const authRoutes = ["/login", "/signup"];
 const candidateOnlyRoutes = [
   /^\/attempt-interview$/,
   /^\/attempt-interview\/[^\/]+$/,
+  // /^\/attempt\/[^\/]+$/,
 ];
 const recruiterOnlyRoutes = ["/create-job", "/uploaded-jobs"];
 
@@ -54,12 +55,6 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  if (candidateOnlyRoutes.some((route) => route.test(pathname))) {
-    if (session?.user?.role !== "CANDIDATE") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }
-
   // check if candidate is authorized to attempt the interview
   if (/^\/attempt-interview\/[^\/]+$/.test(pathname)) {
     try {
@@ -71,6 +66,7 @@ export async function proxy(request: NextRequest) {
             new URL("/attempt-interview", request.url)
           );
         } else if (!result.data.isActive) {
+          console.log("not active");
           return NextResponse.redirect(
             new URL("/attempt-interview", request.url)
           );
@@ -79,6 +75,13 @@ export async function proxy(request: NextRequest) {
     } catch (error) {
       console.log(error);
       return NextResponse.redirect(new URL("/attempt-interview", request.url));
+    }
+  }
+
+  if (candidateOnlyRoutes.some((route) => route.test(pathname))) {
+    if (session?.user?.role !== "CANDIDATE") {
+      console.log("Hit");
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
   return NextResponse.next();
@@ -96,5 +99,6 @@ export const config = {
     "/uploaded-jobs",
     "/attempt-interview",
     "/attempt-interview/:interviewId",
+    "/attempt/:interviewId",
   ],
 };

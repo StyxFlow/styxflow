@@ -51,7 +51,6 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
     setShowCandidates(true);
     try {
       const result = await getCandidateSuggestions(job.id);
-      console.log(result);
       if (result?.data) {
         setCandidates(result.data);
       }
@@ -206,9 +205,9 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
 
       {/* Candidates Dialog */}
       <Dialog open={showCandidates} onOpenChange={setShowCandidates}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">
+            <DialogTitle className="text-2xl font-heading">
               Candidate Recommendations
             </DialogTitle>
           </DialogHeader>

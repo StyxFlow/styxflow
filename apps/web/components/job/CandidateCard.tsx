@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FiMail, FiStar, FiTrendingUp } from "react-icons/fi";
 import { IUser } from "@/types/user";
 import { IInterview } from "@/types/interview";
+import Link from "next/link";
 
 export interface IMatchedCandidate {
   candidateId: string;
@@ -23,7 +24,6 @@ interface CandidateCardProps {
 
 export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
   const scorePercentage = Math.round(candidate.avgScore * 100);
-
   const getScoreColor = (score: number) => {
     if (score >= 0.8) return "text-green-600";
     if (score >= 0.6) return "text-blue-600";
@@ -40,7 +40,7 @@ export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
 
   return (
     <Card
-      className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
+      className="group font-body hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
       style={{
         animationDelay: `${index * 100}ms`,
         animationFillMode: "both",
@@ -52,28 +52,38 @@ export const CandidateCard = ({ candidate, index }: CandidateCardProps) => {
             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg transition-transform group-hover:scale-110">
               #{index + 1}
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="transition-all duration-300 hover:scale-105 hover:bg-primary hover:text-white"
-            >
-              <FiMail className="mr-2 h-4 w-4" />
-              Contact
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link href={`/attempt/${candidate.interview.id}`}>
+                <Button variant={"link"}>Interview Details</Button>
+              </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                className="transition-all duration-300 hover:scale-105 hover:bg-primary hover:text-white"
+                onClick={() => {
+                  const subject = `Regarding Your Application`;
+                  const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.candidate.email)}&su=${encodeURIComponent(subject)}`;
+                  window.open(gmailComposeUrl, "_blank");
+                }}
+              >
+                <FiMail className="mr-2 h-4 w-4" />
+                Contact
+              </Button>
+            </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                {candidate.candidate.name}
+                <Link href={`/candidate/${candidate.candidateId}`}>
+                  {candidate.candidate.name}
+                </Link>
               </h3>
               <p className=" text-xs text-gray-600">
                 {candidate.interview.attempt} Attempts
               </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              email: {candidate.candidate.email}
-            </p>
+            <p className="text-sm ">email: {candidate.candidate.email}</p>
           </div>
         </div>
       </CardHeader>

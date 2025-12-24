@@ -266,7 +266,7 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
         {stats.map((stat, index) => (
           <Card
             key={index}
-            className="stat-card bg-white border-gray-100 hover:shadow-md transition-shadow duration-300 cursor-default"
+            className="stat-card  bg-white border-gray-100 hover:shadow-md transition-shadow duration-300 cursor-default"
           >
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -288,7 +288,7 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
       {/* Charts Row */}
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
         {/* Job Type Distribution Pie Chart */}
-        <Card className="chart-card bg-white border-gray-100">
+        <Card className="chart-card w-[calc(100vw-48px)] md:w-full container bg-white border-gray-100">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
               <FiPieChart className="w-5 h-5 text-main" />
@@ -342,7 +342,7 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
         </Card>
 
         {/* Top Technologies Bar Chart */}
-        <Card className="chart-card lg:col-span-2 bg-white border-gray-100">
+        <Card className="chart-card lg:col-span-2 bg-white border-gray-100   w-[calc(100vw-48px)] md:w-full container">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
               <FiTrendingUp className="w-5 h-5 text-main" />
@@ -351,7 +351,10 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
           </CardHeader>
           <CardContent>
             {topTechnologies.length > 0 ? (
-              <ChartContainer config={techConfig} className="h-[250px] w-full">
+              <ChartContainer
+                config={techConfig}
+                className="h-[250px] w-full -ml-4"
+              >
                 <BarChart data={topTechnologies} layout="vertical">
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -396,7 +399,7 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
       {/* Second Row */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* Jobs Posted Over Time */}
-        <Card className="chart-card bg-white border-gray-100">
+        <Card className="chart-card bg-white border-gray-100  w-[calc(100vw-48px)] md:w-full">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
               <FiCalendar className="w-5 h-5 text-main" />
@@ -407,7 +410,7 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
             {jobsOverTimeData.length > 0 ? (
               <ChartContainer
                 config={jobsTimeConfig}
-                className="h-[200px] w-full"
+                className="h-[200px] w-full -ml-4"
               >
                 <LineChart data={jobsOverTimeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -441,7 +444,7 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
         </Card>
 
         {/* Salary Ranges */}
-        <Card className="chart-card bg-white border-gray-100">
+        <Card className="chart-card bg-white border-gray-100  w-[calc(100vw-48px)] md:w-full">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-gray-800">
               <FiDollarSign className="w-5 h-5 text-main" />
@@ -450,7 +453,10 @@ const RecruiterProfile = ({ data }: RecruiterProfileProps) => {
           </CardHeader>
           <CardContent>
             {salaryRangeData.length > 0 ? (
-              <ChartContainer config={techConfig} className="h-[200px] w-full">
+              <ChartContainer
+                config={techConfig}
+                className="h-[200px] w-full -ml-4"
+              >
                 <BarChart data={salaryRangeData}>
                   <CartesianGrid
                     strokeDasharray="3 3"

@@ -5,6 +5,7 @@ import { InterviewHeader } from "./InterviewHeader";
 import { InterviewStats } from "./InterviewStats";
 import { QuestionsList } from "./QuestionsList";
 import { EmptyQuestions } from "./EmptyQuestions";
+import VideoPlayer from "./VideoPlayer";
 
 interface InterviewDetailsViewProps {
   interview: IInterview;
@@ -32,6 +33,25 @@ export const InterviewDetailsView = ({
 
           {/* Stats Section */}
           <InterviewStats interview={interview} />
+
+          {/* Interview Recording */}
+          <div className="">
+            <h2 className="font-heading text-xl text-center mb-4">
+              Interview Recording
+            </h2>
+            {interview.recordingUrl ? (
+              <VideoPlayer
+                publicId={
+                  interview.recordingUrl?.split("upload/")[1]?.split(".")[0] ||
+                  ""
+                }
+              />
+            ) : (
+              <p className="text-center text-gray-500">
+                No recording available.
+              </p>
+            )}
+          </div>
 
           {/* Questions Section */}
           {hasQuestions ? (

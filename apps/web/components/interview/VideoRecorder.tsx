@@ -1,6 +1,7 @@
 "use client";
 
-import { endInterviewCall } from "@/services/interview";
+import { endInterviewCall, saveRecordingUrl } from "@/services/interview";
+import { InterviewMessage } from "@/types/interview";
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import type RecordRTC from "recordrtc";
@@ -12,6 +13,9 @@ interface VideoRecorderProps {
   setScore: (score: number) => void;
   setFeedback: (feedback: string) => void;
   interviewId: string;
+  setUploading: (uploading: boolean) => void;
+  setProgress: (progress: number) => void;
+  messages: InterviewMessage[];
 }
 
 const VideoRecorder: React.FC<VideoRecorderProps> = ({
@@ -21,6 +25,9 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   setScore,
   setFeedback,
   interviewId,
+  setUploading,
+  setProgress,
+  messages,
 }) => {
   const webcamRef = useRef<Webcam>(null);
   const recorderRef = useRef<RecordRTC | null>(null);
@@ -199,16 +206,95 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         const videoFile = new File([blob], `interview_${interviewId}.webm`, {
           type: "video/webm",
         });
-        console.log("Video file  -->", videoFile);
-        const formData = new FormData();
-        formData.append("recording", videoFile);
-        const result = await endInterviewCall({
-          videoFile: formData,
-          interviewId,
+        console.log("Video file size  -->", videoFile.size);
+        let transcript = "";
+        messages.forEach((element) => {
+          if (element.from === "user") {
+            transcript += `Candidate: ${element.text}\n`;
+          } else if (element.from === "ai") {
+            transcript += `Interviewer: ${element.text}\n`;
+          }
         });
+        const result = await endInterviewCall(
+          {
+            transcript,
+          },
+          interviewId
+        );
+        console.log(result);
         if (result?.data) {
           setScore(result.data.score);
           setFeedback(result.data.feedback);
+          // uploading video file
+          setUploading(true);
+          const signRes = await fetch("/api/sign-cloudinary");
+          const { signature, timestamp, apiKey, cloudName } =
+            await signRes.json();
+          const url = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;
+          const CHUNK_SIZE = 6 * 1024 * 1024; // 6MB
+          const totalChunks = Math.ceil(videoFile.size / CHUNK_SIZE);
+          const uniqueUploadId = `uqid_${Date.now()}`;
+          for (
+            let currentChunk = 0;
+            currentChunk < totalChunks;
+            currentChunk++
+          ) {
+            // Calculate start and end bytes
+            const start = currentChunk * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, videoFile.size);
+
+            // SLICE THE FILE
+            const chunk = videoFile.slice(start, end);
+
+            // Prepare Data
+            const formData = new FormData();
+            formData.append("file", chunk);
+            formData.append("api_key", apiKey);
+            formData.append("timestamp", timestamp);
+            formData.append("signature", signature);
+            formData.append("folder", "styxflow_interviews");
+            formData.append("cloud_name", cloudName);
+
+            // CRITICAL HEADERS for Chunking
+            // Format: "bytes start-end/total_file_size"
+            // Example: "bytes 0-6291455/50000000"
+            const contentRange = `bytes ${start}-${end - 1}/${videoFile.size}`;
+
+            try {
+              console.log("uploading chunk -->", chunk);
+              const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                  "X-Unique-Upload-Id": uniqueUploadId, // The Session Key
+                  "Content-Range": contentRange,
+                },
+                body: formData,
+              });
+
+              if (!response.ok) throw new Error("Chunk upload failed");
+              console.log("chunk uploaded");
+              // Update Progress Bar
+              const percentage = Math.round(
+                ((currentChunk + 1) / totalChunks) * 100
+              );
+              setProgress(percentage);
+
+              // Log final response on last chunk
+              if (currentChunk === totalChunks - 1) {
+                const result = await response.json();
+                console.log("Upload Complete! Video URL:", result.secure_url);
+                await saveRecordingUrl(
+                  { recordingUrl: result.secure_url },
+                  interviewId
+                );
+              }
+            } catch (error) {
+              console.error("Error uploading chunk:", error);
+              setUploading(false);
+              return; // Stop the loop on error
+            }
+          }
+          setUploading(false);
         }
         // Clean up audio context
         if (

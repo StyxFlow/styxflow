@@ -3,6 +3,7 @@
 import { config } from "@/config";
 import { IServerResponse } from "@/types";
 import { IInterview } from "@/types/interview";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 export const createInterview = async () => {
@@ -28,6 +29,9 @@ export const getMyInterviews = async (): Promise<
     headers: {
       authorization: token!,
     },
+    next: {
+      tags: ["interview-list"],
+    },
   });
   return response.json();
 };
@@ -43,7 +47,9 @@ export const finishInterviewService = async (interviewId: string) => {
       },
     }
   );
-  return response.json();
+  const result = await response.json();
+  revalidatePath("/", "layout");
+  return result;
 };
 
 export const getSingleInterview = async (
@@ -73,22 +79,45 @@ export const getResumeText = async () => {
   return response.json();
 };
 
-export const endInterviewCall = async (payload: {
-  videoFile: FormData;
-  interviewId: string;
-}) => {
+export const endInterviewCall = async (
+  payload: { transcript: string },
+  interviewId: string
+) => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
-  // const formData = new FormData();
-  // formData.append("recording", payload.videoFile);
   const response = await fetch(
-    `${config.server_url}/interview/evaluate-interview/${payload.interviewId}`,
+    `${config.server_url}/interview/evaluate-interview/${interviewId}`,
     {
       method: "PATCH",
       headers: {
+        "Content-Type": "application/json",
         authorization: token!,
       },
-      body: payload.videoFile,
+      body: JSON.stringify(payload),
     }
   );
   return response.json();
+};
+
+export const saveRecordingUrl = async (
+  payload: { recordingUrl: string },
+  interviewId: string
+) => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  const response = await fetch(
+    `${config.server_url}/interview/save-recording-url/${interviewId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: token!,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+  return response.json();
+};
+
+export const getAuthToken = async () => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  return token;
 };

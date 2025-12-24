@@ -1,5 +1,5 @@
 "use client";
-import { endInterviewCall, finishInterviewService } from "@/services/interview";
+import { finishInterviewService, getAuthToken } from "@/services/interview";
 import { Button } from "../ui/button";
 import { MdSettingsVoice as MicrophoneIcon } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
@@ -9,6 +9,7 @@ import { vapi } from "@/lib/vapi-sdk";
 import { config } from "@/config";
 import { authClient } from "@/lib/auth-client";
 import { ElevenLabsVoice } from "@vapi-ai/web/dist/api";
+import { InterviewMessage } from "@/types/interview";
 
 const INTERVIEWERS: { voice: ElevenLabsVoice; name: string; avatar: string }[] =
   [
@@ -58,9 +59,7 @@ const AnswerQuestions = ({
   interviewId: string;
   resume: string;
 }) => {
-  const [messages, setMessages] = useState<{ from: string; text: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<InterviewMessage[]>([]);
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [selectedInterviewer, setSelectedInterviewer] = useState<{
@@ -75,6 +74,9 @@ const AnswerQuestions = ({
   const [vapiAudioStream, setVapiAudioStream] = useState<MediaStream | null>(
     null
   );
+
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const { data: user } = authClient.useSession();
 
@@ -119,12 +121,14 @@ const AnswerQuestions = ({
 
   const handleConnect = async () => {
     setCallStatus(CallStatus.CONNECTING);
+    const token = await getAuthToken();
     vapi.start(config.vapi_workflow_id!, {
       variableValues: {
         username: user?.user.name?.split(" ")[0],
         interviewId: interviewId,
         userId: user?.user.id,
         resume,
+        token,
       },
       voice: selectedInterviewer.voice,
     });
@@ -201,6 +205,9 @@ const AnswerQuestions = ({
       //     setFeedback(result.data.feedback);
       //   }
       // }
+      if (CallStatus.ENDED !== callStatus) {
+        setCallStatus(CallStatus.ENDED);
+      }
     };
     const onSpeachStart = () => {
       // setIsSpeaking(true);
@@ -313,6 +320,9 @@ const AnswerQuestions = ({
                     setScore={setScore}
                     setFeedback={setFeedback}
                     interviewId={interviewId}
+                    setUploading={setUploading}
+                    setProgress={setProgress}
+                    messages={messages}
                   />
                 </div>
               )}
@@ -330,22 +340,28 @@ const AnswerQuestions = ({
                 </div>
               </div>
             </div>
-            {callStatus === CallStatus.ACTIVE && lastMessage?.text?.length && (
-              <div
-                className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
-                  lastMessage?.from === "ai"
-                    ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
-                    : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
-                } max-w-[80%]`}
-              >
+            {callStatus === CallStatus.ACTIVE ? (
+              lastMessage?.text?.length ? (
                 <div
-                  className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                  className={`mb-4 p-3 rounded-lg gap-2 flex items-center ${
+                    lastMessage?.from === "ai"
+                      ? "bg-blue-100 text-blue-900 ml-0 mr-auto "
+                      : "bg-green-100 text-green-900 mr-0 ml-auto flex-row-reverse"
+                  } max-w-[80%]`}
                 >
-                  {lastMessage?.from === "ai" ? "AI" : "You"}
+                  <div
+                    className={`text-xs font-semibold mb-1 h-10 w-10 flex justify-center items-center rounded-full ${lastMessage?.from === "ai" ? "  bg-green-300" : " bg-sky-600 text-white"}  `}
+                  >
+                    {lastMessage?.from === "ai" ? "AI" : "You"}
+                  </div>
+                  <div>{lastMessage?.text}</div>
                 </div>
-                <div>{lastMessage?.text}</div>
-              </div>
-            )}
+              ) : (
+                <div className=" bg-main/10 w-full text-center py-2 ">
+                  Waiting for the interviewer...{" "}
+                </div>
+              )
+            ) : null}
 
             {callStatus === CallStatus.ENDED ? (
               <div className="mt-8 p-6 bg-linear-to-br from-white via-main/10 to-cream rounded-lg border border-blue-200 animate-in fade-in slide-in-from-bottom-4">
@@ -381,12 +397,30 @@ const AnswerQuestions = ({
                         controls
                         className="lg:w-[30vw] w-full border-4 shadow-lg border-cream mx-auto mt-8 rounded-lg"
                       />
+                      {uploading && (
+                        <div className="mt-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium text-gray-700">
+                              Uploading Recording...
+                            </p>
+                            <span className="text-sm font-semibold text-blue-600">
+                              {progress}%
+                            </span>
+                          </div>
+                          <div className="w-full lg:w-[30vw] mx-auto bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className="bg-main h-2.5 rounded-full transition-all duration-300 ease-out"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="flex justify-center mt-4">
+              <div className="flex justify-center items-center gap-2  mt-4">
                 <MicrophoneIcon />
                 <Button onClick={handleDisconnect}>Disconnect</Button>
               </div>

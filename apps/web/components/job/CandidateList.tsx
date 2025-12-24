@@ -27,10 +27,10 @@ export const CandidateList = ({ candidates }: CandidateListProps) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between animate-in fade-in slide-in-from-top">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-heading font-bold text-gray-900">
             Recommended Candidates
           </h2>
-          <p className="text-muted-foreground">
+          <p className=" font-body ">
             {candidates.length} candidate{candidates.length !== 1 ? "s" : ""}{" "}
             matched for this position
           </p>

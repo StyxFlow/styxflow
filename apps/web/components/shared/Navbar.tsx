@@ -158,12 +158,48 @@ const Navbar = () => {
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuGroup>
+                    <Link href={"/"}>
+                      <DropdownMenuItem>
+                        Home
+                        <DropdownMenuShortcut>⇧⌘H</DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </Link>
                     <Link href={"/profile"}>
                       <DropdownMenuItem>
                         Profile
                         <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                       </DropdownMenuItem>
                     </Link>
+                    <Link href={"/about"}>
+                      <DropdownMenuItem>About</DropdownMenuItem>
+                    </Link>
+                    {session.user.role === "RECRUITER" && (
+                      <>
+                        <Link href={"/create-job"}>
+                          <DropdownMenuItem>
+                            Create Job
+                            {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href={"/uploaded-job"}>
+                          <DropdownMenuItem>
+                            Uploaded Job
+                            {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    )}
+                    {session.user.role === "CANDIDATE" && (
+                      <>
+                        <Link href={"/attempt-interview"}>
+                          <DropdownMenuItem>
+                            Attempt Interview
+                            {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    )}
+
                     <DropdownMenuItem>
                       Billing
                       <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>

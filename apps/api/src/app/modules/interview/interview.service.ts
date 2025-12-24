@@ -5,6 +5,8 @@ import { candidate, interview, question } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
+import type { TUserRole } from "../../middlewares/validateUser.js";
+import { UserRole } from "../user/user.constant.js";
 
 const createInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
@@ -118,7 +120,11 @@ const finishInterview = async (userId: string, interviewId: string) => {
   return result[0];
 };
 
-const getSingleInterview = async (userId: string, interviewId: string) => {
+const getSingleInterview = async (
+  userId: string,
+  interviewId: string,
+  userRole: TUserRole
+) => {
   const result = await db.query.interview.findFirst({
     where: eq(interview.id, interviewId),
     with: {
@@ -129,7 +135,7 @@ const getSingleInterview = async (userId: string, interviewId: string) => {
   if (!result) {
     throw new ApiError(404, "Interview not found");
   }
-  if (result?.candidate.userId !== userId) {
+  if (userRole === UserRole.candidate && result?.candidate.userId !== userId) {
     throw new ApiError(403, "Unauthorized access to this interview");
   }
   return result;
@@ -162,16 +168,28 @@ const getCandidateResume = async (userId: string) => {
   return { resume: resumeText };
 };
 
-const saveQuestion = async (payload: {
-  questionText: string;
-  answerText: string;
-  interviewId: string;
-}) => {
+const saveQuestion = async (
+  payload: {
+    questionText: string;
+    answerText: string;
+    interviewId: string;
+  },
+  userId: string
+) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, payload.interviewId),
+    with: {
+      candidate: true,
+    },
   });
   if (!isInterviewExists) {
     throw new ApiError(404, "Interview not found");
+  }
+  if (!isInterviewExists.isActive) {
+    throw new ApiError(400, "Cannot save question to an inactive interview");
+  }
+  if (isInterviewExists.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
   }
   const result = await db.insert(question).values({
     interviewId: payload.interviewId,
@@ -187,7 +205,90 @@ const evaluateInterview = async (
     interviewId: string;
   },
   userId: string
-) => {};
+) => {
+  const isInterviewExists = await db.query.interview.findFirst({
+    where: eq(interview.id, payload.interviewId),
+    with: {
+      candidate: true,
+    },
+  });
+  if (!isInterviewExists) {
+    throw new ApiError(404, "Interview not found");
+  }
+  if (!isInterviewExists.isActive) {
+    throw new ApiError(400, "Cannot save question to an inactive interview");
+  }
+  if (isInterviewExists.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
+  }
+
+  const llm = new ChatGroq({
+    apiKey: config.groq_api_key!,
+    model: "llama-3.3-70b-versatile",
+    temperature: 0.3,
+  });
+
+  const response = await llm.invoke([
+    {
+      role: "system",
+      content:
+        "You are an interview evaluator. Based on the candidate's responses, provide a score out of 100 and constructive feedback to help them improve. Keep the feedback professional and encouraging. If there is no user response in the transcript, give a score of 0 and feedback indicating that candidate have not provided any response.",
+    },
+    {
+      role: "system",
+      content: `send response in the following format: {"score": number between 0 and 100, "feedback": string with constructive feedback}`,
+    },
+    {
+      role: "user",
+      content: `Here is the transcript for the interview:\n\n${payload.transcript}`,
+    },
+  ]);
+  const content = response.content as string;
+  const startIndex = content.indexOf("{");
+  const endIndex = content.lastIndexOf("}");
+  const jsonString = content.slice(startIndex, endIndex + 1);
+  const evaluation = JSON.parse(`${jsonString}`);
+  const result = await db
+    .update(interview)
+    .set({
+      isActive: false,
+      score: evaluation?.score,
+      feedback: evaluation?.feedback,
+      isCompleted: true,
+    })
+    .where(eq(interview.id, payload.interviewId))
+    .returning();
+  return result[0];
+};
+
+const saveRecordingUrl = async (
+  interviewId: string,
+  recordingUrl: string,
+  userId: string
+) => {
+  const isInterviewExists = await db.query.interview.findFirst({
+    where: eq(interview.id, interviewId),
+    with: {
+      candidate: true,
+    },
+  });
+  if (!isInterviewExists) {
+    throw new ApiError(404, "Interview not found");
+  }
+  if (isInterviewExists.candidate.userId !== userId) {
+    throw new ApiError(403, "Unauthorized access to this interview");
+  }
+  const result = await db
+    .update(interview)
+    .set({
+      recordingUrl,
+    })
+    .where(eq(interview.id, interviewId))
+    .returning();
+  if (!result[0]) {
+    throw new ApiError(500, "Failed to save recording URL");
+  }
+};
 
 export const InterviewService = {
   createInterview,
@@ -197,4 +298,5 @@ export const InterviewService = {
   getCandidateResume,
   saveQuestion,
   evaluateInterview,
+  saveRecordingUrl,
 };

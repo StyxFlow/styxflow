@@ -33,9 +33,9 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <main className="bg-[#F9F8F4] min-h-screen selection:bg-main selection:text-white relative">
+    <main className="bg-[#F9F8F4] min-h-screen overflow-hidden selection:bg-main selection:text-white relative">
       <BackgroundMorph />
-      <div className="relative z-10">
+      <div className="relative z-10 ">
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />

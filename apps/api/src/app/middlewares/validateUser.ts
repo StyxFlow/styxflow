@@ -10,7 +10,6 @@ export const validateUser = (...roles: TUserRole[]) => {
   return async (req: ICustomRequest, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
-
       if (!token) {
         return res.status(401).json({
           success: false,
@@ -26,7 +25,6 @@ export const validateUser = (...roles: TUserRole[]) => {
       const session = await auth.api.getSession({
         headers: modifiedHeaders as any,
       });
-
       if (!session?.user) {
         return res.status(401).json({
           success: false,

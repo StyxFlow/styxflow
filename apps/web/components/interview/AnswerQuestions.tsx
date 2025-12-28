@@ -122,6 +122,7 @@ const AnswerQuestions = ({
   const handleConnect = async () => {
     setCallStatus(CallStatus.CONNECTING);
     const token = await getAuthToken();
+    console.log({ id: config.vapi_workflow_id });
     vapi.start(config.vapi_workflow_id!, {
       variableValues: {
         username: user?.user.name?.split(" ")[0],

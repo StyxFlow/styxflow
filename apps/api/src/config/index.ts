@@ -15,7 +15,10 @@ export default {
       : process.env.SERVER_URL,
   port: process.env.PORT,
   database_url: process.env.DATABASE_URL,
-  better_token_key: process.env.BETTER_AUTH_TOKEN_KEY,
+  better_token_key:
+    process.env.NODE_ENV === "production"
+      ? process.env.BETTER_AUTH_TOKEN_KEY_PROD
+      : process.env.BETTER_AUTH_TOKEN_KEY_DEV,
   // cloudinary: {
   //   api_key: process.env.CLOUDINARY_API_KEY,
   //   api_secret: process.env.CLOUDINARY_API_SECRET,

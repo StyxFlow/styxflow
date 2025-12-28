@@ -11,21 +11,24 @@ const steps = [
   {
     id: "01",
     title: "Create Profile",
-    description: "Sign up and upload your resume or post a job. Our AI parses details instantly to build a comprehensive profile.",
+    description:
+      "Sign up and upload your resume or post a job. Our AI parses details instantly to build a comprehensive profile.",
     icon: <FaUserPlus />,
     color: "bg-[#4a7199]",
   },
   {
     id: "02",
     title: "AI Screening",
-    description: "Candidates complete AI-driven interviews. We analyze soft skills, technical knowledge, and cultural fit automatically.",
+    description:
+      "Candidates complete AI-driven interviews. We analyze soft skills, technical knowledge, and cultural fit automatically.",
     icon: <FaRobot />,
     color: "bg-[#3b5c7d]",
   },
   {
     id: "03",
     title: "Perfect Match",
-    description: "Get instant, ranked recommendations. Connect with the best fit candidates or companies within seconds.",
+    description:
+      "Get instant, ranked recommendations. Connect with the best fit candidates or companies within seconds.",
     icon: <FaHandshake />,
     color: "bg-[#2a4a6d]",
   },
@@ -39,7 +42,7 @@ export default function HowItWorksSection() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>(".how-it-works-card");
-      
+
       // Horizontal Scroll Tween
       const scrollTween = gsap.to(cards, {
         xPercent: -100 * (cards.length - 1),
@@ -96,8 +99,14 @@ export default function HowItWorksSection() {
 
   return (
     <section ref={sectionRef} className="bg-white overflow-hidden">
-      <div ref={triggerRef} className="h-screen w-full relative flex items-center overflow-hidden">
-        <div ref={containerRef} className="flex flex-nowrap h-full w-[300vw] bg-linear-to-br from-white via-cream/70 to-cream">
+      <div
+        ref={triggerRef}
+        className="h-screen w-full relative flex items-center overflow-hidden"
+      >
+        <div
+          ref={containerRef}
+          className="flex flex-nowrap h-full w-[300vw] bg-linear-to-br from-white via-cream/70 to-cream"
+        >
           {steps.map((step, index) => (
             <div
               key={index}
@@ -117,7 +126,9 @@ export default function HowItWorksSection() {
                 </div>
 
                 <div className="order-1 md:order-2 flex justify-center">
-                  <div className={`reveal-icon w-40 h-40 md:w-64 md:h-64 rounded-[3rem] ${step.color} flex items-center justify-center text-white text-6xl md:text-8xl shadow-2xl transform hover:scale-105 transition-transform duration-500`}>
+                  <div
+                    className={`reveal-icon w-40 h-40 md:w-64 md:h-64 rounded-[3rem] ${step.color} flex items-center justify-center text-white text-6xl md:text-8xl shadow-2xl transform hover:scale-105 transition-transform duration-500`}
+                  >
                     {step.icon}
                   </div>
                 </div>

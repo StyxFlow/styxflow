@@ -144,7 +144,7 @@ const Navbar = () => {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger className="border-none cursor-pointer focus:outline-none outline-none">
-                  <Avatar>
+                  <Avatar className="border-main md:border-2 border">
                     <AvatarImage
                       src={session.user.image || ""}
                       alt={session.user.name || "User"}

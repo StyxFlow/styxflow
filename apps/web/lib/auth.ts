@@ -13,6 +13,10 @@ import { nextCookies } from "better-auth/next-js";
 import { eq } from "drizzle-orm";
 
 export const auth = betterAuth({
+  trustedOrigins: [
+    "https://styxflow.sajjadjonayed.com",
+    "http://localhost:3000",
+  ],
   emailAndPassword: {
     enabled: true,
   },

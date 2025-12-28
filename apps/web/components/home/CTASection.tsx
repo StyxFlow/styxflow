@@ -34,10 +34,11 @@ export default function CTASection() {
         className="container mx-auto max-w-5xl bg-main rounded-[3rem] p-12 md:p-24 text-center text-white relative overflow-hidden"
       >
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-        
+
         <div className="relative z-10">
           <h2 className="text-4xl md:text-6xl font-bold font-heading mb-8">
-            Ready to Transform Your Hiring?
+            Ready to Transform Your
+            <span className="font-mark font-light"> Hiring?</span>
           </h2>
           <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl mx-auto font-body">
             Join thousands of companies and candidates using StyxFlow today.

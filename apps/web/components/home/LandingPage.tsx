@@ -37,7 +37,9 @@ export default function LandingPage() {
       <BackgroundMorph />
       <div className="relative z-10 ">
         <HeroSection />
-        <FeaturesSection />
+        <div className="bg-cream">
+          <FeaturesSection />
+        </div>
         <HowItWorksSection />
         <TestimonialsSection />
         <CTASection />

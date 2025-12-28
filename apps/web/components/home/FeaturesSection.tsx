@@ -154,7 +154,8 @@ export default function FeaturesSection() {
       <div className="container mx-auto px-6 py-12  min-h-screen bg-main flex flex-col justify-center items-center">
         <div className="text-center mb-20 feature-title">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-cream mb-6 font-heading">
-            Why Choose StyxFlow?
+            <span className="font-mark font-extralight">Why </span>
+            Choose StyxFlow?
           </h2>
           <p className="text-xl max-w-2xl mx-auto font-body text-white/50">
             Streamline your hiring process with cutting-edge AI technology
@@ -174,7 +175,7 @@ export default function FeaturesSection() {
               <div className="mb-6 p-4 rounded-2xl bg-white inline-block shadow-sm group-hover:scale-110 transition-transform duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold text-main mb-4 font-heading">
+              <h3 className="text-xl  font-bold text-main mb-4 font-heading">
                 {feature.title}
               </h3>
               <p className="text-gray-600/80 leading-relaxed font-body">

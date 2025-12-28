@@ -16,14 +16,15 @@ export default function HeroSection() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Initial reveal animation
-      gsap.from(textRef.current!.children, {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.2,
-        ease: "power3.out",
-      });
-
+      if (window.innerWidth > 768) {
+        gsap.from(textRef.current!.children, {
+          y: 50,
+          opacity: 0,
+          duration: 1,
+          stagger: 0.2,
+          ease: "power3.out",
+        });
+      }
       // Morphing blob animation (continuous)
       gsap.to(blobRef.current, {
         borderRadius: "30% 70% 70% 30% / 30% 30% 70% 70%",
@@ -47,16 +48,16 @@ export default function HeroSection() {
       });
 
       // Grid Zoom Animation
-      gsap.to(gridRef.current, {
-        scale: 1.5,
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
+      // gsap.to(gridRef.current, {
+      //   scale: 1.5,
+      //   ease: "none",
+      //   scrollTrigger: {
+      //     trigger: containerRef.current,
+      //     start: "top top",
+      //     end: "bottom top",
+      //     scrub: true,
+      //   },
+      // });
     }, containerRef);
 
     return () => ctx.revert();
@@ -69,12 +70,12 @@ export default function HeroSection() {
     >
       {/* Subtle Background */}
       <div className="absolute inset-0 z-0">
-        <div 
+        <div
           ref={gridRef}
           className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-cream/80 bg-size-[24px_24px] origin-center"
         ></div>
         <div className="absolute left-0 right-0 top-0  m-auto h-[310px] w-[310px] rounded-full bg-main opacity-70 blur-[80px]"></div>
-        <div 
+        <div
           ref={blobRef}
           className="absolute right-0 top-1/2 -translate-y-1/2 w-160 h-160 bg-linear-to-br from-main/90 to-main/5 blur-3xl rounded-[60%_40%_30%_70%/60%_30%_70%_40%]"
         />
@@ -85,17 +86,19 @@ export default function HeroSection() {
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-gray-200 bg-white/50 backdrop-blur-sm text-sm font-medium text-gray-600">
             Reimagining Recruitment with AI
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-gray-900 mb-8 leading-[1.1] font-heading">
-            Find the perfect match <br />
-            <span className="text-main">in seconds.</span>
+            Your AI Recruiter <br />
+            <span className="text-main">
+              Never <span className="font-mark font-extralight">Sleeps.</span>
+            </span>
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed font-body">
-            The AI-powered job portal that interviews candidates for you. 
-            Save time, reduce bias, and hire the best talent effortlessly.
+            The AI-powered job portal that interviews candidates for you. Save
+            time, reduce bias, and hire the best talent effortlessly.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/auth/register"

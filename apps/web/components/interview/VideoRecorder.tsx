@@ -1,5 +1,6 @@
 "use client";
 
+import { config } from "@/config";
 import { endInterviewCall, saveRecordingUrl } from "@/services/interview";
 import { InterviewMessage } from "@/types/interview";
 import React, { useEffect, useRef, useState } from "react";
@@ -227,7 +228,9 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
           setFeedback(result.data.feedback);
           // uploading video file
           setUploading(true);
-          const signRes = await fetch("/api/sign-cloudinary");
+          const signRes = await fetch(
+            `${config.client_url}/api/sign-cloudinary`
+          );
           const { signature, timestamp, apiKey, cloudName } =
             await signRes.json();
           const url = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;

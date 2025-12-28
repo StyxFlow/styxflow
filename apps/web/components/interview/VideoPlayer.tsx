@@ -3,7 +3,7 @@ import { CldVideoPlayer } from "next-cloudinary";
 import "next-cloudinary/dist/cld-video-player.css";
 const VideoPlayer = ({ publicId }: { publicId: string }) => {
   return (
-    <div className="max-w-[30vw] block mx-auto ">
+    <div className="lg:max-w-[30vw] max-w-[90vw] block mx-auto ">
       <CldVideoPlayer
         width="1920"
         height="1080"

@@ -7,6 +7,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-body: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mark: var(--font-mark), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
   --font-logo: var(--font-logo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
@@ -45,6 +46,13 @@
   --radius-xl: calc(var(--radius) + 4px);
   --color-cream: #fffaef;
   --color-main: #4a7199;
+}
+
+body {
+  /* Standard fix for macOS/iOS */
+  -webkit-font-smoothing: antialiased;
+  /* Standard fix for Firefox */
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
@@ -122,5 +130,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .font-mark {
+    font-family: var(--font-mark), cursive;
   }
 }

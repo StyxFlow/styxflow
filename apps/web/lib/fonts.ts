@@ -5,6 +5,10 @@ export const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-body",
 });
+export const markScript = Outfit({
+  subsets: ["latin"],
+  variable: "--font-mark",
+});
 
 export const qurova = localFont({
   src: [

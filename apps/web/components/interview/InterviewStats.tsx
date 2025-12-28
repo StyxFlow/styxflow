@@ -99,11 +99,11 @@ export const InterviewStats = ({ interview }: InterviewStatsProps) => {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
           <div className="rounded-2xl bg-linear-to-br from-cream/80 to-white border border-main/10 p-6 hover:shadow-md transition-all duration-300">
             <div className="flex items-start gap-4">
-              <div className="rounded-xl p-3 shrink-0">
+              <div className="rounded-xl p-3 shrink-0 md:block hidden">
                 <HiOutlineLightBulb className="text-4xl text-main" />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex  items-center flex-row  gap-2">
                   <h3 className="font-semibold text-gray-900">AI Feedback</h3>
                   <FiAward className="h-4 w-4 text-main" />
                 </div>

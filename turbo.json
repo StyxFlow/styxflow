@@ -5,7 +5,25 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "NODE_ENV",
+        "BETTER_AUTH_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_TOKEN_KEY",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "TWITTER_CLIENT_ID",
+        "TWITTER_CLIENT_SECRET",
+        "MICROSOFT_CLIENT_ID",
+        "MICROSOFT_CLIENT_SECRET",
+        "DATABASE_URL",
+        "VAPI_PUBLIC_KEY",
+        "VAPI_WORKFLOW_ID",
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_SECRET",
+        "CLOUDINARY_API_KEY"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

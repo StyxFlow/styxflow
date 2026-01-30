@@ -8,10 +8,7 @@ export const config = {
     process.env.NODE_ENV === "development"
       ? process.env.NEXT_PUBLIC_SERVER_URL_DEV
       : process.env.NEXT_PUBLIC_SERVER_URL_PROD,
-  better_auth_key:
-    process.env.NODE_ENV === "development"
-      ? process.env.BETTER_AUTH_TOKEN_KEY_DEV
-      : process.env.BETTER_AUTH_TOKEN_KEY_PROD,
+  better_auth_key: process.env.BETTER_AUTH_TOKEN_KEY_PROD,
   vapi_workflow_id: process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID,
   vapi_public_key: process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY,
   cloudinary: {

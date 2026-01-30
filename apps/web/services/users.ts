@@ -123,7 +123,7 @@ export const getProfile = async () => {
 };
 
 export const getCandidateProfile = async (
-  candidateId: string
+  candidateId: string,
 ): Promise<IServerResponse<ICandidate>> => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   if (!token) {
@@ -140,7 +140,7 @@ export const getCandidateProfile = async (
       headers: {
         authorization: token,
       },
-    }
+    },
   );
   return response.json();
 };

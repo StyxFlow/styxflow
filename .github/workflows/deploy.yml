@@ -48,10 +48,10 @@ jobs:
           context: .
           file: ./Dockerfile.prod
           push: true
+          cache-from: type=gha,scope=styxflow-v2
+          cache-to: type=gha,mode=max,scope=styxflow-v2
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   deploy:
     needs: build-and-push

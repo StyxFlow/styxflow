@@ -12,3 +12,4 @@ build
 coverage
 apps/web/node_modules
 apps/web/.next
+apps/api/.env

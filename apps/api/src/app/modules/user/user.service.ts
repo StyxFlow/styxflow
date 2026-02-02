@@ -3,7 +3,6 @@ import { db } from "../../../db/drizzle.js";
 import { candidate, recruiter } from "../../../db/schema.js";
 import { ApiError } from "../../errors/apiError.js";
 import { addResumeToQueue } from "../../../queues/producer.js";
-import { getVectorStore } from "../../../db/qdrant.js";
 
 const uploadResume = async (userId: string, filePath: string) => {
   const isCandateExists = await db.query.candidate.findFirst({
@@ -14,6 +13,7 @@ const uploadResume = async (userId: string, filePath: string) => {
   }
   if (filePath) {
     const queueData = { filePath, candidateId: isCandateExists.id };
+    console.log("resume File path: ", filePath);
     await addResumeToQueue(JSON.stringify(queueData));
   }
 };

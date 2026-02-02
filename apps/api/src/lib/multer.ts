@@ -1,19 +1,18 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
 
-// Get directory path for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Create uploads directory path (relative to project root, not src)
-const uploadsDir = path.join(__dirname, "../../uploads");
+// Use /app/uploads in production (Docker), or local uploads folder in development
+const uploadsDir = process.env.NODE_ENV === "production" 
+  ? "/app/uploads"
+  : path.join(process.cwd(), "uploads");
 
 // Ensure uploads directory exists
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
+
+console.log("Multer uploads directory:", uploadsDir);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

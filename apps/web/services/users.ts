@@ -26,18 +26,13 @@ export const signUp = async (payload: {
     }
     const formData = new FormData();
     formData.append("resume", payload.resume);
-    const res = await fetch(`${config.server_url}/user/upload-resume`, {
+    await fetch(`${config.server_url}/user/upload-resume`, {
       method: "POST",
       headers: {
         authorization: token,
       },
       body: formData,
     });
-    if (!res.ok) {
-      const data = await res.json();
-      console.log(data);
-      throw new Error(data.error || "Failed to upload resume");
-    }
   }
   return result;
 };

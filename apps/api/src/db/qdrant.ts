@@ -15,7 +15,8 @@ export const connectQdrant = async () => {
       url: config.qdrant.url!,
       collectionName: "resume",
       apiKey: config.qdrant.key!,
-    }
+      contentPayloadKey: "content",
+    },
   );
   console.log("✅ Qdrant vector store connected");
 };
@@ -31,7 +32,8 @@ export const getVectorStore = async (): Promise<QdrantVectorStore> => {
         url: config.qdrant.url!,
         collectionName: "resume",
         apiKey: config.qdrant.key!,
-      }
+        contentPayloadKey: "content",
+      },
     );
     console.log("✅ Qdrant vector store connected");
     return vectorStoreInstance;

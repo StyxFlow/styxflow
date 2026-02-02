@@ -13,7 +13,9 @@ import { getVectorStore } from "../db/qdrant.js";
 const worker = new Worker(
   "resume-upload-queue",
   async (job: Job<{ queueData: string }>) => {
+    console.log("s");
     const { filePath, candidateId } = JSON.parse(job.data.queueData);
+    console.log("worker is processing", filePath);
 
     const pdfParser = new PDFParse({ url: filePath });
     const parsedData = (await pdfParser.getText()).text;
@@ -30,12 +32,18 @@ const worker = new Worker(
             candidateId,
             chunkIndex: idx,
           },
-        })
+        }),
     );
 
     const vectorStore = await getVectorStore();
-    await vectorStore.addDocuments(docs);
-    console.log("all docs are added to vector database");
+    console.log("Vector store obtained, adding", docs.length, "documents...");
+    try {
+      await vectorStore.addDocuments(docs);
+      console.log("all docs are added to vector database");
+    } catch (err) {
+      console.error("Error adding documents to Qdrant:", err);
+      throw err;
+    }
     const absolutePath = path.resolve(filePath);
     fs.unlink(absolutePath, (err) => {
       if (err) {
@@ -47,5 +55,28 @@ const worker = new Worker(
   {
     connection: bullmqConnection,
     concurrency: 5,
-  }
+  },
 );
+
+// Worker event handlers
+worker.on("ready", () => {
+  console.log("✅ Worker is ready and listening for jobs");
+});
+
+worker.on("active", (job) => {
+  console.log(`🔄 Job ${job.id} has started processing`);
+});
+
+worker.on("completed", (job) => {
+  console.log(`✅ Job ${job.id} completed successfully`);
+});
+
+worker.on("failed", (job, err) => {
+  console.error(`❌ Job ${job?.id} failed:`, err.message);
+});
+
+worker.on("error", (err) => {
+  console.error("Worker error:", err);
+});
+
+console.log("Worker script loaded, connecting to Redis...");

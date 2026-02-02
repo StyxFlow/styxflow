@@ -10,6 +10,7 @@
     "start": "node dist/index.js",
     "db:push": "npx drizzle-kit push",
     "dev:worker": "nodemon --watch src --ext ts,json --exec \"tsx ./src/queues/worker.ts\"",
+    "index:qdrant": "nodemon src --ext ts,json --exec \"tsx ./src/db/qdrant-index.ts\"",
     "test": "vitest",
     "test:unit": "vitest run --reporter=verbose src/__tests__/unit/*.test.ts",
     "test:integration": "vitest run --reporter=verbose src/__tests__/integration/*.test.ts",

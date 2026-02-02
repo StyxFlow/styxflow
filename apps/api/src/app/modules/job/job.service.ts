@@ -59,7 +59,7 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
   if (isJobExists.recruiter.userId !== userId) {
     throw new ApiError(
       403,
-      "You are not authorized to view candidates for this job."
+      "You are not authorized to view candidates for this job.",
     );
   }
 
@@ -72,7 +72,7 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
   }
   if (isJobExists.additionalSkills?.length) {
     queryTextParts.push(
-      `Additional skills: ${isJobExists.additionalSkills.join(", ")}`
+      `Additional skills: ${isJobExists.additionalSkills.join(", ")}`,
     );
   }
 
@@ -83,7 +83,7 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
   const vectorStor = await getVectorStore();
   const matchedChunks = await vectorStor.similaritySearchWithScore(
     queryText,
-    k
+    k,
   );
 
   type Aggregate = {
@@ -134,7 +134,7 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
     }
   }
   const ranked = Array.from(perCandidate.values()).sort(
-    (a, b) => b.avgScore - a.avgScore
+    (a, b) => b.avgScore - a.avgScore,
   );
   const finalResult = await Promise.all(
     ranked.map(async (r) => {
@@ -156,7 +156,7 @@ const findEmployeesForJob = async (userId: string, jobId: string) => {
         candidate: cand?.user || null,
         interview: isInterviewed,
       };
-    })
+    }),
   );
 
   const sorterInterviewedFirst = finalResult

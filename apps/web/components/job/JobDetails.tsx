@@ -51,6 +51,7 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
     setShowCandidates(true);
     try {
       const result = await getCandidateSuggestions(job.id);
+      console.log(result);
       if (result?.data) {
         setCandidates(result.data);
       }
@@ -103,13 +104,17 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
             <div className="p-2 bg-green-100 rounded-full transition-transform hover:scale-110">
               <FiDollarSign className="h-5 w-5 text-green-600" />
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Salary Range</p>
-              <p className="text-xl font-bold text-green-700">
-                ${formatSalary(`${job.salaryRange.min}`)} - $
-                {formatSalary(`${job.salaryRange.max}`)}
-              </p>
-            </div>
+            {job?.salaryRange?.min && job?.salaryRange?.max ? (
+              <div>
+                <p className="text-sm text-muted-foreground">Salary Range</p>
+                <p className="text-xl font-bold text-green-700">
+                  ${formatSalary(`${job?.salaryRange?.min}`)} - $
+                  {formatSalary(`${job?.salaryRange?.max}`)}
+                </p>
+              </div>
+            ) : (
+              <p>Not specified</p>
+            )}
           </div>
 
           {/* Posted Date */}

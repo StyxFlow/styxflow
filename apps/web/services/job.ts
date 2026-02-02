@@ -5,7 +5,7 @@ import { IJob } from "@/types/job";
 import { cookies } from "next/headers";
 
 export const createJob = async (payload: Partial<IJob>) => {
-  const token = (await cookies()).get("better-auth.session_token")?.value;
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(`${config.server_url}/job`, {
     method: "POST",
     headers: {
@@ -18,7 +18,7 @@ export const createJob = async (payload: Partial<IJob>) => {
 };
 
 export const getMyUploadedJobs = async () => {
-  const token = (await cookies()).get("better-auth.session_token")?.value;
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(`${config.server_url}/job/my-uploaded-jobs`, {
     method: "GET",
     headers: {
@@ -29,7 +29,7 @@ export const getMyUploadedJobs = async () => {
 };
 
 export const getASingleJob = async (jobId: string) => {
-  const token = (await cookies()).get("better-auth.session_token")?.value;
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(`${config.server_url}/job/single-job/${jobId}`, {
     method: "GET",
     headers: {
@@ -40,7 +40,7 @@ export const getASingleJob = async (jobId: string) => {
 };
 
 export const getCandidateSuggestions = async (jobId: string) => {
-  const token = (await cookies()).get("better-auth.session_token")?.value;
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(
     `${config.server_url}/job/find-employees-for-job/${jobId}`,
     {
@@ -48,7 +48,7 @@ export const getCandidateSuggestions = async (jobId: string) => {
       headers: {
         authorization: token!,
       },
-    }
+    },
   );
   return response.json();
 };

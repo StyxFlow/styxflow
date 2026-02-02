@@ -70,6 +70,7 @@ export function SignupForm({
         organizationRole: role === "RECRUITER" ? organizationRole : undefined,
         resume: role === "CANDIDATE" ? resumeFile : undefined,
       });
+      console.log(result);
 
       // Check if signup was successful
       if (result && result.user) {

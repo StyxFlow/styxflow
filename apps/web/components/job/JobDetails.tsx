@@ -51,6 +51,7 @@ export const JobDetails = ({ job }: JobDetailsProps) => {
     setShowCandidates(true);
     try {
       const result = await getCandidateSuggestions(job.id);
+      console.log(result);
       if (result?.data) {
         setCandidates(result.data);
       }

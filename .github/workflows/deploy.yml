@@ -31,7 +31,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.CR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
@@ -70,8 +70,8 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT || 22 }}
           script: |
             cd ${{ secrets.EC2_PROJECT_PATH || '/home/ubuntu/styxflow' }}
-            echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/jonayeds/styxflow-server:latest
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/styxflow/styxflow-server:latest
             docker compose down
             docker compose up -d
             docker image prune -af

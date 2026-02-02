@@ -2,7 +2,7 @@ name: Server CD
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: jonayeds/styxflow-server
+  IMAGE_NAME: ${{ github.repository }}
 
 on:
   workflow_run:

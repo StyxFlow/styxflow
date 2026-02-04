@@ -2,23 +2,29 @@ import { Job, Worker } from "bullmq";
 import { bullmqConnection } from "./index.js";
 import path from "path";
 import fs from "fs";
-import { PDFParse } from "pdf-parse";
+import * as pdfParse from "pdf-parse";
 import { CharacterTextSplitter } from "@langchain/textsplitters";
-import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
 import { Document } from "@langchain/core/documents";
-import { QdrantVectorStore } from "@langchain/qdrant";
-import config from "../config/index.js";
 import { getVectorStore } from "../db/qdrant.js";
+
+// Handle ESM/CJS compatibility for pdf-parse
+const pdf = (pdfParse as any).default || pdfParse;
 
 const worker = new Worker(
   "resume-upload-queue",
   async (job: Job<{ queueData: string }>) => {
-    console.log("s");
+    console.log("Job received:", job.id);
     const { filePath, candidateId } = JSON.parse(job.data.queueData);
     console.log("worker is processing", filePath);
 
-    const pdfParser = new PDFParse({ url: filePath });
-    const parsedData = (await pdfParser.getText()).text;
+    // Read PDF file as buffer
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`File not found: ${filePath}`);
+    }
+    const dataBuffer = fs.readFileSync(filePath);
+    const pdfData = await pdf(dataBuffer);
+    const parsedData = pdfData.text;
+
     const textSplitter = new CharacterTextSplitter({
       chunkSize: 300,
       chunkOverlap: 0,

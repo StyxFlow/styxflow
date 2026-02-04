@@ -5,7 +5,7 @@ import { ICandidate, IRecruiter } from "@/types/user";
 const ProfilePage = async () => {
   const profile = await getProfile();
   const data = profile?.data as ICandidate | IRecruiter;
-
+  console.log(profile);
   if (!data || !data.user) {
     return (
       <div className="min-h-screen bg-cream pt-28 flex items-center justify-center">

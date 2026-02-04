@@ -10,6 +10,7 @@ export const validateUser = (...roles: TUserRole[]) => {
   return async (req: ICustomRequest, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
+      console.log("token --> ", token);
       if (!token) {
         return res.status(401).json({
           success: false,
@@ -21,10 +22,18 @@ export const validateUser = (...roles: TUserRole[]) => {
         ...req.headers,
         cookie: `${config.better_token_key}=${token}`,
       };
-
-      const session = await auth.api.getSession({
-        headers: modifiedHeaders as any,
-      });
+      console.log(
+        "modifiedHeaders --> ",
+        `${config.better_token_key}=${token}`,
+      );
+      const session = await auth.api
+        .getSession({
+          headers: modifiedHeaders as any,
+        })
+        .catch((err) => {
+          console.log("better_auth err --> ", err);
+        });
+      console.log("session --> ", session);
       if (!session?.user) {
         return res.status(401).json({
           success: false,

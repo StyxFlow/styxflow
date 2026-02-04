@@ -105,6 +105,8 @@ export const completeProfile = async (payload: {
 
 export const getProfile = async () => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
+  console.log("token", token);
+  console.log("token key ", config.better_auth_key);
   if (!token) {
     return { success: false, message: "No You are not logged in" };
   }
@@ -114,6 +116,7 @@ export const getProfile = async () => {
       authorization: token,
     },
   });
+  console.log(response);
   return response.json();
 };
 

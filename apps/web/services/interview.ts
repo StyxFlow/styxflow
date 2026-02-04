@@ -15,7 +15,7 @@ export const createInterview = async () => {
       headers: {
         authorization: token!,
       },
-    }
+    },
   );
   return response.json();
 };
@@ -24,6 +24,8 @@ export const getMyInterviews = async (): Promise<
   IServerResponse<IInterview[]>
 > => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
+  console.log("token", token);
+  console.log("token key ", config.better_auth_key);
   const response = await fetch(`${config.server_url}/interview/my-interviews`, {
     method: "GET",
     headers: {
@@ -33,6 +35,7 @@ export const getMyInterviews = async (): Promise<
       tags: ["interview-list"],
     },
   });
+  console.log(response);
   return response.json();
 };
 
@@ -45,7 +48,7 @@ export const finishInterviewService = async (interviewId: string) => {
       headers: {
         authorization: token!,
       },
-    }
+    },
   );
   const result = await response.json();
   revalidatePath("/", "layout");
@@ -53,9 +56,11 @@ export const finishInterviewService = async (interviewId: string) => {
 };
 
 export const getSingleInterview = async (
-  interviewId: string
+  interviewId: string,
 ): Promise<IServerResponse<IInterview>> => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
+  console.log("token", token);
+  console.log("token key ", config.better_auth_key);
   const response = await fetch(
     `${config.server_url}/interview/${interviewId}`,
     {
@@ -63,7 +68,7 @@ export const getSingleInterview = async (
       headers: {
         authorization: token!,
       },
-    }
+    },
   );
   return response.json();
 };
@@ -81,7 +86,7 @@ export const getResumeText = async () => {
 
 export const endInterviewCall = async (
   payload: { transcript: string },
-  interviewId: string
+  interviewId: string,
 ) => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(
@@ -93,14 +98,14 @@ export const endInterviewCall = async (
         authorization: token!,
       },
       body: JSON.stringify(payload),
-    }
+    },
   );
   return response.json();
 };
 
 export const saveRecordingUrl = async (
   payload: { recordingUrl: string },
-  interviewId: string
+  interviewId: string,
 ) => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(
@@ -112,7 +117,7 @@ export const saveRecordingUrl = async (
         authorization: token!,
       },
       body: JSON.stringify(payload),
-    }
+    },
   );
   return response.json();
 };

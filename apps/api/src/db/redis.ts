@@ -1,4 +1,8 @@
-import { createClient, type RedisClientType } from "redis";
+import {
+  createClient,
+  type RedisClientOptions,
+  type RedisClientType,
+} from "redis";
 import status from "http-status";
 import config from "../config/index.js";
 import { ApiError } from "../app/errors/apiError.js";
@@ -10,18 +14,20 @@ export const connectRedis = async () => {
     return redisClient;
   }
   try {
-    const usename = config.redis.username!;
-    const password = config.redis.password!;
-    const host = config.redis.host!;
-    const port = Number(config.redis.port);
-    const client = createClient({
-      password: password,
-      username: usename,
+    const redisConfig: RedisClientOptions = {
       socket: {
-        host: host,
-        port: port,
+        host: config.redis.host,
+        port: Number(config.redis.port),
       },
-    });
+    };
+    if (config.redis.password) {
+      redisConfig.password = config.redis.password;
+    }
+    if (config.redis.username) {
+      redisConfig.username = config.redis.username;
+    }
+
+    const client = createClient(redisConfig);
 
     client.on("error", (err) => {
       // Suppress ECONNRESET errors during reconnection attempts
@@ -61,7 +67,7 @@ export const connectRedis = async () => {
     console.error("Failed to connect to Redis:", error);
     throw new ApiError(
       status.INTERNAL_SERVER_ERROR,
-      `Failed to connect to Redis: ${error}`
+      `Failed to connect to Redis: ${error}`,
     );
   }
 };
@@ -69,7 +75,7 @@ export const connectRedis = async () => {
 export const getRedisClient = (): RedisClientType => {
   if (!redisClient || !redisClient.isOpen) {
     throw new Error(
-      "Redis client is not initialized or not open. Call connectRedis() first."
+      "Redis client is not initialized or not open. Call connectRedis() first.",
     );
   }
   return redisClient;

@@ -9,5 +9,4 @@ COPY packages/ ./packages/
 
 RUN yarn install
 
-# Default command (can be overridden)
 CMD ["yarn","dev"]

@@ -19,16 +19,23 @@ export default {
     process.env.NODE_ENV === "production"
       ? process.env.BETTER_AUTH_TOKEN_KEY_PROD
       : process.env.BETTER_AUTH_TOKEN_KEY_DEV,
-  // cloudinary: {
-  //   api_key: process.env.CLOUDINARY_API_KEY,
-  //   api_secret: process.env.CLOUDINARY_API_SECRET,
-  //   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  // },
   redis: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    password: process.env.REDIS_PASSWORD,
-    username: process.env.REDIS_USERNAME,
+    host:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_HOST
+        : process.env.REDIS_HOST_DEV,
+    port:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_PORT
+        : process.env.REDIS_PORT_DEV,
+    password:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_PASSWORD
+        : undefined,
+    username:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_USERNAME
+        : undefined,
   },
   qdrant: {
     key: process.env.QDRANT_KEY,

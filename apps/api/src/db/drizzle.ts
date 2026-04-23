@@ -1,5 +1,12 @@
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
+import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import config from "../config/index.js";
 import * as schema from "./schema.js";
 
-export const db = drizzle(config.database_url!, { schema, logger: false });
+const databaseUrl = config.database_url!;
+
+export const db =
+  config.env === "production"
+    ? drizzleNeon(databaseUrl, { schema, logger: false })
+    : drizzlePostgres(postgres(databaseUrl), { schema, logger: false });

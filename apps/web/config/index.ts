@@ -16,4 +16,8 @@ export const config = {
     api_secret: process.env.CLOUDINARY_API_SECRET,
     api_key: process.env.CLOUDINARY_API_KEY,
   },
+  database_url:
+    process.env.NODE_ENV === "development"
+      ? process.env.DATABASE_URL_DEV
+      : process.env.DATABASE_URL,
 };

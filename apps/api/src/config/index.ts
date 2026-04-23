@@ -14,7 +14,10 @@ export default {
       ? process.env.SERVER_URL_HOSTED
       : process.env.SERVER_URL,
   port: process.env.PORT,
-  database_url: process.env.DATABASE_URL,
+  database_url:
+    process.env.NODE_ENV === "production"
+      ? process.env.DATABASE_URL
+      : process.env.DATABASE_URL_DEV,
   better_token_key:
     process.env.NODE_ENV === "production"
       ? process.env.BETTER_AUTH_TOKEN_KEY_PROD

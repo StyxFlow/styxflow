@@ -7,6 +7,7 @@ import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
 import type { TUserRole } from "../../middlewares/validateUser.js";
 import { UserRole } from "../user/user.constant.js";
+import { AccessToken, WebhookReceiver } from "livekit-server-sdk";
 
 const createInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
@@ -20,7 +21,7 @@ const createInterview = async (userId: string) => {
   });
 
   const isActiveInterview = allInterviews.find(
-    (i) => i.candidateId === isCandidate.id && i.isActive
+    (i) => i.candidateId === isCandidate.id && i.isActive,
   );
 
   if (isActiveInterview) {
@@ -123,7 +124,7 @@ const finishInterview = async (userId: string, interviewId: string) => {
 const getSingleInterview = async (
   userId: string,
   interviewId: string,
-  userRole: TUserRole
+  userRole: TUserRole,
 ) => {
   const result = await db.query.interview.findFirst({
     where: eq(interview.id, interviewId),
@@ -174,7 +175,7 @@ const saveQuestion = async (
     answerText: string;
     interviewId: string;
   },
-  userId: string
+  userId: string,
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, payload.interviewId),
@@ -204,7 +205,7 @@ const evaluateInterview = async (
     transcript: string;
     interviewId: string;
   },
-  userId: string
+  userId: string,
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, payload.interviewId),
@@ -264,7 +265,7 @@ const evaluateInterview = async (
 const saveRecordingUrl = async (
   interviewId: string,
   recordingUrl: string,
-  userId: string
+  userId: string,
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, interviewId),
@@ -290,6 +291,26 @@ const saveRecordingUrl = async (
   }
 };
 
+const getInterviewAccessToken = async (userId: string, interviewId: string) => {
+  const candidateName = "candidate-" + userId;
+  const interviewRoom = "interview-room-" + interviewId;
+  const at = new AccessToken(
+    config.livekit.api_key!,
+    config.livekit.api_secret,
+    {
+      identity: candidateName,
+    },
+  );
+  at.addGrant({
+    roomJoin: true,
+    room: interviewRoom,
+    canPublish: true,
+    canSubscribe: true,
+  });
+  const token = await at.toJwt();
+  return { token };
+};
+
 export const InterviewService = {
   createInterview,
   getMyInterviews,
@@ -299,4 +320,5 @@ export const InterviewService = {
   saveQuestion,
   evaluateInterview,
   saveRecordingUrl,
+  getInterviewAccessToken,
 };

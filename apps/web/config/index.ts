@@ -20,4 +20,9 @@ export const config = {
     process.env.NODE_ENV === "development"
       ? process.env.DATABASE_URL_DEV
       : process.env.DATABASE_URL,
+  livekit: {
+    url: process.env.NEXT_PUBLIC_LIVEKIT_URL,
+    api_key: process.env.LIVEKIT_API_KEY,
+    api_secret: process.env.LIVEKIT_API_SECRET,
+  },
 };

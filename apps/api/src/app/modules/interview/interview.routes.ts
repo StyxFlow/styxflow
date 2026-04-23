@@ -2,55 +2,64 @@ import express from "express";
 import { validateUser } from "../../middlewares/validateUser.js";
 import { InterviewController } from "./interview.controller.js";
 import { UserRole } from "../user/user.constant.js";
+import { auth } from "../../../lib/auth.js";
 
 const router = express.Router();
 
 router.post(
   "/create-interview",
   validateUser(UserRole.candidate),
-  InterviewController.createInterview
+  InterviewController.createInterview,
 );
 
 router.post(
   "/save-question",
   validateUser(UserRole.candidate),
-  InterviewController.saveQuestion
+  InterviewController.saveQuestion,
 );
+
+router.post("/connect-interviewer", InterviewController.connectInterviewer);
 
 router.get(
   "/my-interviews",
   validateUser(UserRole.candidate),
-  InterviewController.getMyInterviews
+  InterviewController.getMyInterviews,
 );
 
 router.get(
   "/get-resume",
   validateUser(UserRole.candidate),
-  InterviewController.getCandidateResume
+  InterviewController.getCandidateResume,
 );
 
 router.get(
   "/:interviewId",
   validateUser(UserRole.candidate, UserRole.recruiter),
-  InterviewController.getSingleInterview
+  InterviewController.getSingleInterview,
+);
+
+router.get(
+  "/interview-access/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.getInterviewAccess,
 );
 
 router.patch(
   "/finish-interview/:interviewId",
   validateUser(UserRole.candidate),
-  InterviewController.finishInterview
+  InterviewController.finishInterview,
 );
 
 router.patch(
   "/evaluate-interview/:interviewId",
   validateUser(UserRole.candidate),
-  InterviewController.evaluateInterview
+  InterviewController.evaluateInterview,
 );
 
 router.patch(
   "/save-recording-url/:interviewId",
   validateUser(UserRole.candidate),
-  InterviewController.saveRecordingUrl
+  InterviewController.saveRecordingUrl,
 );
 
 export const InterviewRoutes = router;

@@ -9,8 +9,9 @@ import { Document } from "@langchain/core/documents";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import config from "../config/index.js";
 import { getVectorStore } from "../db/qdrant.js";
+import { Room, RoomEvent, TrackKind } from "@livekit/rtc-node";
 
-const worker = new Worker(
+const resume_worker = new Worker(
   "resume-upload-queue",
   async (job: Job<{ queueData: string }>) => {
     console.log("s");
@@ -58,25 +59,65 @@ const worker = new Worker(
   },
 );
 
-// Worker event handlers
-worker.on("ready", () => {
-  console.log("✅ Worker is ready and listening for jobs");
+const interviewer_connect_worker = new Worker(
+  "interviewer-connect-queue",
+  async (job: Job<{ queueData: string }>) => {
+    const room = new Room();
+
+    // Connect to the LiveKit Cloud room
+    await room.connect(config.livekit.url!, config.livekit.server_token!);
+    console.log("AI Interviewer joined the room!");
+
+    // Listen for the candidate's audio track
+    room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+      if (track.kind === TrackKind.KIND_AUDIO) {
+        console.log(`Receiving audio from ${participant.identity}`);
+
+        // 🚀 THE MAGIC HAPPENS HERE:
+        // 1. You take this 'track' stream
+        // 2. You pipe it into your Gemini Multimodal Live API WebSocket
+        // 3. You take Gemini's audio response and publish it back into the 'room'
+      }
+    });
+  },
+  {
+    connection: bullmqConnection,
+    concurrency: 5,
+  },
+);
+
+// Resume worker event handlers
+resume_worker.on("ready", () => {
+  console.log("✅ Resume Worker is ready and listening for jobs");
 });
 
-worker.on("active", (job) => {
-  console.log(`🔄 Job ${job.id} has started processing`);
+resume_worker.on("active", (job) => {
+  console.log(`🔄 Resume Job ${job.id} has started processing`);
 });
 
-worker.on("completed", (job) => {
-  console.log(`✅ Job ${job.id} completed successfully`);
+resume_worker.on("completed", (job) => {
+  console.log(`✅ Resume Job ${job.id} completed successfully`);
 });
 
-worker.on("failed", (job, err) => {
-  console.error(`❌ Job ${job?.id} failed:`, err.message);
+resume_worker.on("failed", (job, err) => {
+  console.error(`❌ Resume Job ${job?.id} failed:`, err.message);
 });
 
-worker.on("error", (err) => {
-  console.error("Worker error:", err);
+// Interviewer connect worker event handlers
+interviewer_connect_worker.on("ready", () => {
+  console.log("✅ Interviewer worker is ready and listening for jobs");
+});
+
+interviewer_connect_worker.on("active", (job) => {
+  console.log(`🔄 Interviewer job ${job.id} has started processing`);
+});
+
+interviewer_connect_worker.on("completed", (job) => {
+  console.log(`✅ Interviewer job ${job.id} completed successfully`);
+});
+
+interviewer_connect_worker.on("failed", (job, err) => {
+  console.error(`❌ Interviewer job ${job?.id} failed:`, err.message);
 });
 
 console.log("Worker script loaded, connecting to Redis...");

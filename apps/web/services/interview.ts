@@ -15,7 +15,7 @@ export const createInterview = async () => {
       headers: {
         authorization: token!,
       },
-    }
+    },
   );
   return response.json();
 };
@@ -45,7 +45,7 @@ export const finishInterviewService = async (interviewId: string) => {
       headers: {
         authorization: token!,
       },
-    }
+    },
   );
   const result = await response.json();
   revalidatePath("/", "layout");
@@ -53,7 +53,7 @@ export const finishInterviewService = async (interviewId: string) => {
 };
 
 export const getSingleInterview = async (
-  interviewId: string
+  interviewId: string,
 ): Promise<IServerResponse<IInterview>> => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(
@@ -63,7 +63,7 @@ export const getSingleInterview = async (
       headers: {
         authorization: token!,
       },
-    }
+    },
   );
   return response.json();
 };
@@ -81,7 +81,7 @@ export const getResumeText = async () => {
 
 export const endInterviewCall = async (
   payload: { transcript: string },
-  interviewId: string
+  interviewId: string,
 ) => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(
@@ -93,14 +93,14 @@ export const endInterviewCall = async (
         authorization: token!,
       },
       body: JSON.stringify(payload),
-    }
+    },
   );
   return response.json();
 };
 
 export const saveRecordingUrl = async (
   payload: { recordingUrl: string },
-  interviewId: string
+  interviewId: string,
 ) => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   const response = await fetch(
@@ -112,7 +112,7 @@ export const saveRecordingUrl = async (
         authorization: token!,
       },
       body: JSON.stringify(payload),
-    }
+    },
   );
   return response.json();
 };
@@ -120,4 +120,19 @@ export const saveRecordingUrl = async (
 export const getAuthToken = async () => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   return token;
+};
+
+export const getInterviewAccessToken = async (interviewId: string) => {
+  const token = (await cookies()).get(config.better_auth_key!)?.value;
+  const response = await fetch(
+    `${config.server_url}/interview/interview-access/${interviewId}`,
+    {
+      method: "GET",
+      headers: {
+        authorization: token!,
+      },
+    },
+  );
+  const data = await response.json();
+  return data;
 };

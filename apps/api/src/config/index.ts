@@ -53,4 +53,10 @@ export default {
   },
   groq_api_key: process.env.GROQ_API_KEY,
   google_genai_api_key: process.env.GOOGLE_GENAI_API_KEY,
+  livekit: {
+    url: process.env.LIVEKIT_URL,
+    api_key: process.env.LIVEKIT_API_KEY,
+    api_secret: process.env.LIVEKIT_API_SECRET,
+    server_token: process.env.LIVEKIT_SERVER_TOKEN,
+  },
 };

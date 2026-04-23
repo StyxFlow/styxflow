@@ -1,4 +1,5 @@
-FROM node:24-alpine
+FROM node:24-bookworm-slim
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # We just install dependencies here. The code comes from volumes.
 COPY package.json turbo.json ./

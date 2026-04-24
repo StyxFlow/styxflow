@@ -17,7 +17,11 @@ export const addInterviewerConnectJobToQueue = async (queueData: string) => {
     {
       queueData,
     },
-    { removeOnComplete: true, removeOnFail: true },
+    {
+      jobId: `interviewer-connect-${queueData}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
   );
   console.log(`Interviewer connect job added with ID: ${result?.id}`);
 };

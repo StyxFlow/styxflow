@@ -6,6 +6,11 @@ import config from "./config/index.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
+// LiveKit webhook verification needs the raw request body for signature validation.
+app.use(
+  "/api/v1/interview/connect-interviewer",
+  express.raw({ type: ["application/webhook+json", "application/json"] }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -14,7 +19,7 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 app.use(cookieParser());
 

@@ -1,4 +1,4 @@
-import { WebhookReceiver } from "livekit-server-sdk";
+import { RoomServiceClient, WebhookReceiver } from "livekit-server-sdk";
 import type { ICustomRequest } from "../../../interface/index.js";
 import { catchAsync } from "../../../shared/catchAsync.js";
 import { sendResponse } from "../../../shared/sendResponse.js";
@@ -115,22 +115,81 @@ const getInterviewAccess = catchAsync(async (req: ICustomRequest, res) => {
 
 const connectInterviewer = catchAsync(async (req: ICustomRequest, res) => {
   console.log("sss");
-  const receiver = new WebhookReceiver(
-    config.livekit.api_key!,
-    config.livekit.api_secret!,
-  );
+  try {
+    const receiver = new WebhookReceiver(
+      config.livekit.api_key!,
+      config.livekit.api_secret!,
+    );
+    const roomServiceUrl = config.livekit.url?.replace(/^ws/, "http");
+    const roomService = new RoomServiceClient(
+      roomServiceUrl!,
+      config.livekit.api_key!,
+      config.livekit.api_secret!,
+    );
 
-  const event = await receiver.receive(req.body, req.get("Authorization"));
+    console.log(receiver);
+    const event = await receiver.receive(req.body, req.get("Authorization"));
+    console.log("Received LiveKit webhook event:", event.event);
+    if (event.event === "participant_joined") {
+      const roomName = event.room?.name;
+      const participantName = event.participant?.identity;
 
-  if (event.event === "participant_joined") {
-    const roomName = event.room?.name;
-    const participantName = event.participant?.identity;
+      if (!roomName || !participantName) {
+        sendResponse(res, {
+          statusCode: 200,
+          success: true,
+          message: "Webhook ignored: missing room or participant",
+          data: {},
+        });
+        return;
+      }
 
-    console.log(`${participantName} joined ${roomName}. Booting up AI...`);
+      if (participantName.startsWith("interviewer-")) {
+        sendResponse(res, {
+          statusCode: 200,
+          success: true,
+          message: "Webhook ignored: interviewer bot",
+          data: {},
+        });
+        return;
+      }
 
-    // Fire off your worker function in the background!
-    // Do NOT await it here, otherwise LiveKit's webhook will timeout
-    await addInterviewerConnectJobToQueue(roomName!);
+      console.log(`${participantName} joined ${roomName}. Booting up AI...`);
+      // Fire off your worker function in the background!
+      // Do NOT await it here, otherwise LiveKit's webhook will timeout
+      await addInterviewerConnectJobToQueue(roomName!);
+    }
+
+    if (event.event === "participant_left") {
+      const roomName = event.room?.name;
+      const participantName = event.participant?.identity;
+
+      if (!roomName || !participantName) {
+        sendResponse(res, {
+          statusCode: 200,
+          success: true,
+          message: "Webhook ignored: missing room or participant",
+          data: {},
+        });
+        return;
+      }
+
+      if (participantName.startsWith("interviewer-")) {
+        sendResponse(res, {
+          statusCode: 200,
+          success: true,
+          message: "Webhook ignored: interviewer bot",
+          data: {},
+        });
+        return;
+      }
+
+      const interviewerIdentity = `interviewer-${roomName}`;
+      await roomService.removeParticipant(roomName, interviewerIdentity);
+      console.log(`Disconnected ${interviewerIdentity} from ${roomName}`);
+    }
+  } catch (error) {
+    console.log(error);
   }
 
   sendResponse(res, {

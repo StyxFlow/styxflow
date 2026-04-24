@@ -9,7 +9,8 @@ import { Document } from "@langchain/core/documents";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import config from "../config/index.js";
 import { getVectorStore } from "../db/qdrant.js";
-import { Room, RoomEvent, TrackKind } from "@livekit/rtc-node";
+import { AudioStream, Room, RoomEvent, TrackKind } from "@livekit/rtc-node";
+import { AccessToken } from "livekit-server-sdk";
 
 const resume_worker = new Worker(
   "resume-upload-queue",
@@ -62,16 +63,50 @@ const resume_worker = new Worker(
 const interviewer_connect_worker = new Worker(
   "interviewer-connect-queue",
   async (job: Job<{ queueData: string }>) => {
+    const roomName = job.data.queueData;
+    if (!roomName) {
+      throw new Error("Missing room name for LiveKit connection");
+    }
+
+    const token = new AccessToken(
+      config.livekit.api_key!,
+      config.livekit.api_secret!,
+      {
+        identity: `interviewer-${roomName}`,
+      },
+    );
+    token.addGrant({
+      roomJoin: true,
+      room: roomName,
+      canPublish: true,
+      canSubscribe: true,
+    });
+    const serverToken = await token.toJwt();
+
     const room = new Room();
 
     // Connect to the LiveKit Cloud room
-    await room.connect(config.livekit.url!, config.livekit.server_token!);
+    await room.connect(config.livekit.url!, serverToken);
     console.log("AI Interviewer joined the room!");
 
     // Listen for the candidate's audio track
     room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
       if (track.kind === TrackKind.KIND_AUDIO) {
         console.log(`Receiving audio from ${participant.identity}`);
+
+        const audioStream = new AudioStream(track);
+        let frameCount = 0;
+        (async () => {
+          for await (const frame of audioStream) {
+            frameCount += 1;
+            if (frameCount % 50 === 0) {
+              console.log(
+                `Audio frame ${frameCount} from ${participant.identity}: ` +
+                  `${frame.samplesPerChannel} samples`,
+              );
+            }
+          }
+        })();
 
         // 🚀 THE MAGIC HAPPENS HERE:
         // 1. You take this 'track' stream

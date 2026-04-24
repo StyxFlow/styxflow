@@ -46,7 +46,6 @@ const RealtimeInterview = ({ interviewId }: { interviewId: string }) => {
           <VoiceAssistantControl />
         </div>
       </LiveKitRoom>
-      <div>aaa..........</div>
     </div>
   );
 };

@@ -293,7 +293,7 @@ const saveRecordingUrl = async (
 };
 
 const getGenAiAccessToken = async (
-  resume: string,
+  payload: { resume: string; voice: string },
   userId: string,
   interviewId: string,
 ) => {
@@ -332,7 +332,7 @@ const getGenAiAccessToken = async (
 
 CANDIDATE CONTEXT:
 - Name: ${candidateName}
-- Resume/Background: ${resume}
+- Resume/Background: ${payload.resume}
 - This is attempt number ${attemptNumber} for the candidate, so they might be a bit nervous and under pressure to perform well. 
 - Primary Focus of this Interview: Based on the candidate's resume, focus on assessing their skills and experience in the areas mentioned in their resume. If the resume mentions specific technologies, projects, or roles, tailor your questions to dive deeper into those areas. 
 
@@ -348,7 +348,6 @@ CRITICAL SPEECH & BEHAVIOR RULES:
 
 INTERVIEW STRUCTURE:
 - **Phase 1: The Intro:** Start the conversation by warmly introducing yourself. Mention the role (that is mentioned in the resume) and express excitement about speaking with them based on their background. Explicitly ask if they are ready to begin.
-  *Example:* "Hi ${candidateName}, I'm the hiring manager here at Styxflow. It's really great to meet you. Ummm, I was looking over your resume and I'm excited to chat about your skillsets today. Uh, does that sound good, and are you ready to jump in?"
 - **Phase 2: The Interview:** Wait for them to say yes. Then, start by asking about a specific, interesting detail you see on their resume that relates to the interview focus. Let the conversation flow naturally from there.
 - **Phase 3: The Wrap-up:** After covering the key focus areas, wrap up the interview by thanking them for their time and providing a brief overview of the next steps in the hiring process. `;
 
@@ -365,7 +364,7 @@ INTERVIEW STRUCTURE:
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: {
-                voiceName: "Puck",
+                voiceName: payload.voice,
               },
             },
           },

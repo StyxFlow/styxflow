@@ -7,7 +7,11 @@ import { Input } from "../ui/input";
 const GeminiLiveAssistant = ({ token }: { token: string }) => {
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const nextPlayTimeRef = useRef<number>(0); // ADD THIS LINE
+  const nextPlayTimeRef = useRef<number>(0);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const micAudioCtxRef = useRef<AudioContext | null>(null);
+  const micProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const [isMicOn, setIsMicOn] = useState(true);
   const [status, setStatus] = useState("Idle");
   const [userInput, setUserInput] = useState("");
 
@@ -177,6 +181,97 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
       audioCtxRef.current?.close();
     }
     setStatus("Disconnected");
+    if (isMicOn) {
+      stopMicrophone();
+    }
+  };
+
+  const startMicrophone = async () => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      console.error("WebSocket is not connected!");
+      return;
+    }
+
+    try {
+      // 1. Request mic access with Echo Cancellation turned ON
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 16000, // Request 16kHz from the hardware
+        },
+      });
+
+      micStreamRef.current = stream;
+
+      // 2. Create a dedicated AudioContext for the microphone
+      const AudioContext =
+        window.AudioContext || (window as any).webkitAudioContext;
+      const audioCtx = new AudioContext({ sampleRate: 16000 });
+      micAudioCtxRef.current = audioCtx;
+
+      const source = audioCtx.createMediaStreamSource(stream);
+
+      // 3. Create a processor to grab audio chunks (4096 samples at a time)
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      micProcessorRef.current = processor;
+
+      processor.onaudioprocess = (e) => {
+        // Stop processing if WebSocket closes
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN)
+          return;
+
+        const float32Data = e.inputBuffer.getChannelData(0);
+
+        // 4. Convert Float32 (-1.0 to 1.0) to Int16 (-32768 to 32767)
+        const int16Data = new Int16Array(float32Data.length);
+        for (let i = 0; i < float32Data.length; i++) {
+          int16Data[i] = Math.max(-1, Math.min(1, float32Data[i]!)) * 32767;
+        }
+
+        // 5. Convert Int16Array to Base64 string
+        const uint8Data = new Uint8Array(int16Data.buffer);
+        let binaryString = "";
+        for (let i = 0; i < uint8Data.byteLength; i++) {
+          binaryString += String.fromCharCode(uint8Data[i]!);
+        }
+        const base64Audio = window.btoa(binaryString);
+
+        // 6. Send the chunk to Gemini
+        wsRef.current.send(
+          JSON.stringify({
+            realtimeInput: {
+              // Replaced mediaChunks array with the direct audio object
+              audio: {
+                mimeType: "audio/pcm;rate=16000",
+                data: base64Audio,
+              },
+            },
+          }),
+        );
+      };
+
+      // Connect the pipeline
+      source.connect(processor);
+      processor.connect(audioCtx.destination); // Required for the processor to run
+
+      setIsMicOn(true);
+      console.log("Microphone is streaming to Gemini!");
+    } catch (error) {
+      console.error("Microphone access denied or failed:", error);
+    }
+  };
+
+  const stopMicrophone = () => {
+    if (micProcessorRef.current && micAudioCtxRef.current) {
+      micProcessorRef.current.disconnect();
+      micAudioCtxRef.current.close();
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
+    }
+    setIsMicOn(false);
+    console.log("Microphone stopped.");
   };
 
   return (
@@ -200,22 +295,45 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
       )}
 
       {status === "Connected" && (
-        <div className="flex gap-2">
-          <Input
-            type="text"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            placeholder="Type a message..."
-          />
-          <button
-            onClick={() => {
-              sendTextMessage(userInput);
-              setUserInput("");
-            }}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Send
-          </button>
+        <div className="flex flex-col gap-4 mt-4">
+          {/* Microphone Toggle */}
+          <div>
+            {!isMicOn ? (
+              <button
+                onClick={startMicrophone}
+                className="bg-purple-600 text-white px-4 py-2 rounded"
+              >
+                Turn On Microphone
+              </button>
+            ) : (
+              <button
+                onClick={stopMicrophone}
+                className="bg-yellow-600 text-white px-4 py-2 rounded"
+              >
+                Mute Microphone
+              </button>
+            )}
+          </div>
+
+          {/* Existing Text Input */}
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              placeholder="Or type a message..."
+            />
+            <button
+              onClick={() => {
+                if (userInput.trim() === "") return;
+                sendTextMessage(userInput);
+                setUserInput("");
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Send Text
+            </button>
+          </div>
         </div>
       )}
     </div>

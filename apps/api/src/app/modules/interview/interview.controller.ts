@@ -189,8 +189,12 @@ const connectInterviewer = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const getGenAiAccessToken = catchAsync(async (req: ICustomRequest, res) => {
+  const payload = {
+    resume: req.body.resume,
+    voice: req.body.voice,
+  };
   const data = await InterviewService.getGenAiAccessToken(
-    req.body.resume,
+    payload,
     req.user!.id,
     req.params.interviewId!,
   );

@@ -84,6 +84,28 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
           sendTextMessage(initialPrompt);
         }
 
+        if (response.toolCall) {
+          const functionCalls = response.toolCall.functionCalls;
+
+          for (const call of functionCalls) {
+            if (call.name === "end_interview") {
+              console.log(
+                "AI Agent decided to end the interview. Disconnecting...",
+              );
+
+              // We add a short 3-second delay just to ensure the AI's
+              // final "Goodbye" audio finishes playing through the speakers
+              // before we violently kill the AudioContext.
+              setTimeout(() => {
+                disconnect();
+              }, 3000);
+
+              // Note: Because we are killing the call, we do NOT need
+              // to send a toolResponse back to Google.
+            }
+          }
+        }
+
         // ... the rest of your audio handling logic stays exactly the same
         if (response.serverContent?.modelTurn) {
           const parts = response.serverContent.modelTurn.parts;

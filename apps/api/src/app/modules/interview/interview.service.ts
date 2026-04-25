@@ -345,11 +345,10 @@ CRITICAL SPEECH & BEHAVIOR RULES:
 6. **Pause and Wait:** After asking each question, pause and wait for the candidate to respond. Do not rush into the next question. This simulates a real interview where the candidate needs time to think and answer. Ask the candidate if he/she is there after a long pause (e.g., more than 20 seconds) to keep them engaged.
 6. **Dont rush and dont be robotic:** Remember, the goal is to create a realistic interview experience that helps the candidate perform their best while giving them a taste of what a real interview at Styxflow would be like. Pause in between lines to simulate natural conversation flow.
 
-
-INTERVIEW STRUCTURE:
-- **Phase 1: The Intro:** Start the conversation by warmly introducing yourself. Mention the role (that is mentioned in the resume) and express excitement about speaking with them based on their background. Explicitly ask if they are ready to begin.
-- **Phase 2: The Interview:** Wait for them to say yes. Then, start by asking about a specific, interesting detail you see on their resume that relates to the interview focus. Let the conversation flow naturally from there.
-- **Phase 3: The Wrap-up:** After covering the key focus areas, wrap up the interview by thanking them for their time and providing a brief overview of the next steps in the hiring process. `;
+CRITICAL INTERVIEW PACING & WRAP UP:
+1. You must ask exactly 4 technical questions based on the candidate's resume.
+2. After the candidate answers the 4th question, you must say a polite goodbye (e.g., "Thank you for your time, we will be in touch!").
+3. IMMEDIATELY after saying goodbye, you MUST use the \`end_interview\` tool to hang up the call. Do not ask any more questions.`;
 
   const token = await ai.authTokens.create({
     config: {
@@ -375,6 +374,17 @@ INTERVIEW STRUCTURE:
               },
             ],
           },
+          tools: [
+            {
+              functionDeclarations: [
+                {
+                  name: "end_interview",
+                  description:
+                    "Triggers the system to disconnect the call. Use this ONLY when the interview is completely finished and you have said your goodbyes.",
+                },
+              ],
+            },
+          ],
         },
       },
       httpOptions: { apiVersion: "v1alpha" },

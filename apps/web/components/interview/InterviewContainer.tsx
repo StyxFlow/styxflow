@@ -79,7 +79,7 @@ const InterviewContainer = ({
     <div>
       <div></div>
 
-      <div className="flex flex-col md:flex-row justify-center items-center gap-10">
+      <div className="flex flex-col md:flex-row justify-center items-center md:gap-10 gap-2">
         <p>Select interviewer</p>
         <div className="flex flex-wrap gap-3 my-4  justify-center">
           {interviewers.map((interviewer) => {

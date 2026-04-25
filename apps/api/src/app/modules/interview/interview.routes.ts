@@ -20,6 +20,12 @@ router.post(
 
 router.post("/connect-interviewer", InterviewController.connectInterviewer);
 
+router.post(
+  "/interview-access/:interviewId",
+  validateUser(UserRole.candidate),
+  InterviewController.getGenAiAccessToken,
+);
+
 router.get(
   "/my-interviews",
   validateUser(UserRole.candidate),
@@ -36,12 +42,6 @@ router.get(
   "/:interviewId",
   validateUser(UserRole.candidate, UserRole.recruiter),
   InterviewController.getSingleInterview,
-);
-
-router.get(
-  "/interview-access/:interviewId",
-  validateUser(UserRole.candidate),
-  InterviewController.getInterviewAccess,
 );
 
 router.patch(

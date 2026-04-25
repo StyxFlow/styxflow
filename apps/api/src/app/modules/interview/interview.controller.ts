@@ -54,11 +54,12 @@ const getSingleInterview = catchAsync(async (req: ICustomRequest, res) => {
 });
 
 const getCandidateResume = catchAsync(async (req: ICustomRequest, res) => {
+  console.log("resume");
   const result = await InterviewService.getCandidateResume(req.user!.id);
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Interview questions generated successfully",
+    message: "Resume fetched successfully",
     data: result,
   });
 });
@@ -96,19 +97,6 @@ const saveRecordingUrl = catchAsync(async (req: ICustomRequest, res) => {
     statusCode: 201,
     success: true,
     message: "Interview recording saved successfully",
-    data,
-  });
-});
-
-const getInterviewAccess = catchAsync(async (req: ICustomRequest, res) => {
-  const data = await InterviewService.getInterviewAccessToken(
-    req.user!.id,
-    req.params.interviewId!,
-  );
-  sendResponse(res, {
-    statusCode: 201,
-    success: true,
-    message: "Interview access token sent succsessfully",
     data,
   });
 });
@@ -200,6 +188,21 @@ const connectInterviewer = catchAsync(async (req: ICustomRequest, res) => {
   });
 });
 
+const getGenAiAccessToken = catchAsync(async (req: ICustomRequest, res) => {
+  const data = await InterviewService.getGenAiAccessToken(
+    req.body.resume,
+    req.user!.id,
+    req.params.interviewId!,
+  );
+
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Interview access token sent succsessfully",
+    data,
+  });
+});
+
 export const InterviewController = {
   createInterview,
   getMyInterviews,
@@ -209,6 +212,6 @@ export const InterviewController = {
   saveQuestion,
   evaluateInterview,
   saveRecordingUrl,
-  getInterviewAccess,
   connectInterviewer,
+  getGenAiAccessToken,
 };

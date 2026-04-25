@@ -68,17 +68,6 @@ export const getSingleInterview = async (
   return response.json();
 };
 
-export const getResumeText = async () => {
-  const token = (await cookies()).get(config.better_auth_key!)?.value;
-  const response = await fetch(`${config.server_url}/interview/get-resume`, {
-    method: "GET",
-    headers: {
-      authorization: token!,
-    },
-  });
-  return response.json();
-};
-
 export const endInterviewCall = async (
   payload: { transcript: string },
   interviewId: string,
@@ -120,19 +109,4 @@ export const saveRecordingUrl = async (
 export const getAuthToken = async () => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
   return token;
-};
-
-export const getInterviewAccessToken = async (interviewId: string) => {
-  const token = (await cookies()).get(config.better_auth_key!)?.value;
-  const response = await fetch(
-    `${config.server_url}/interview/interview-access/${interviewId}`,
-    {
-      method: "GET",
-      headers: {
-        authorization: token!,
-      },
-    },
-  );
-  const data = await response.json();
-  return data;
 };

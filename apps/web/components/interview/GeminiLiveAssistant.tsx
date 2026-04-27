@@ -1,17 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 
-const GeminiLiveAssistant = ({ token }: { token: string }) => {
+const GeminiLiveAssistant = ({
+  token,
+  autoConnect = false,
+}: {
+  token: string;
+  autoConnect?: boolean;
+}) => {
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const nextPlayTimeRef = useRef<number>(0);
   const micStreamRef = useRef<MediaStream | null>(null);
   const micAudioCtxRef = useRef<AudioContext | null>(null);
   const micProcessorRef = useRef<ScriptProcessorNode | null>(null);
-  const [isMicOn, setIsMicOn] = useState(true);
+  const hasConnectedRef = useRef(false);
+  const [isMicOn, setIsMicOn] = useState(false);
   const [status, setStatus] = useState("Idle");
   const [userInput, setUserInput] = useState("");
 
@@ -21,6 +28,8 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
       console.error("No token available");
       return;
     }
+    if (hasConnectedRef.current) return;
+    hasConnectedRef.current = true;
 
     setStatus("Connecting...");
 
@@ -37,12 +46,8 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
     ws.onopen = () => {
       setStatus("Connected");
       console.log("WebSocket connection opened");
-
-      // Optional: Send an initial hello automatically once connected
-      // sendTextMessage("Hello, the interview has started.");
       const setupMessage = {
         setup: {
-          // Make sure this matches the model you set in your backend token generator!
           model: "gemini-3.1-flash-live-preview",
           generationConfig: {
             responseModalities: ["AUDIO"],
@@ -51,6 +56,7 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
       };
 
       ws.send(JSON.stringify(setupMessage));
+      startMicrophone();
     };
 
     ws.onclose = (event) => {
@@ -127,6 +133,13 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
       }
     };
   };
+
+  useEffect(() => {
+    if (autoConnect && token) {
+      connectToGemini();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoConnect, token]);
   const playGeminiAudio = async (base64Audio: string) => {
     if (!audioCtxRef.current) return;
 
@@ -300,21 +313,12 @@ const GeminiLiveAssistant = ({ token }: { token: string }) => {
     <div className="flex flex-col gap-4 p-4">
       <h2 className="text-xl font-bold">Status: {status}</h2>
 
-      {status === "Idle" || status === "Disconnected" ? (
-        <button
-          onClick={connectToGemini}
-          className="bg-blue-600 text-white px-4 py-2 rounded max-w-xs"
-        >
-          Connect AI
-        </button>
-      ) : (
-        <button
-          onClick={disconnect}
-          className="bg-red-600 text-white px-4 py-2 rounded max-w-xs"
-        >
-          End Interview
-        </button>
-      )}
+      <button
+        onClick={disconnect}
+        className="bg-red-600 text-white px-4 py-2 rounded max-w-xs"
+      >
+        End Interview
+      </button>
 
       {status === "Connected" && (
         <div className="flex flex-col gap-4 mt-4">

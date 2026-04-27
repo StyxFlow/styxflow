@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: { interviewId: string } },
 ) {
   const body = await _request.json();
-  const interviewId = params?.interviewId ?? body?.interviewId;
+  const interviewId = (await params?.interviewId) ?? body?.interviewId;
   if (!interviewId) {
     return NextResponse.json(
       { success: false, message: "Missing interviewId" },

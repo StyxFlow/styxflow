@@ -2,6 +2,7 @@
 
 import { Button } from "../ui/button";
 import GeminiLiveAssistant from "./GeminiLiveAssistant";
+import SimpleVideoRecorder from "./SimpleVideoRecorder";
 import { useMemo, useState } from "react";
 
 const InterviewContainer = ({
@@ -50,6 +51,8 @@ const InterviewContainer = ({
     interviewers[0]?.id ?? "",
   );
   const [token, setToken] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   const handleStartInterview = async () => {
     if (!interviewId) {
       console.error("Missing interviewId for access token request");
@@ -73,7 +76,12 @@ const InterviewContainer = ({
     console.log(result);
     if (result?.success) {
       setToken(result.data.token?.name);
+      setIsRecording(true);
     }
+  };
+
+  const handleStopInterview = () => {
+    setIsRecording(false);
   };
   return (
     <div>
@@ -111,7 +119,28 @@ const InterviewContainer = ({
       <hr className="border-t my-4 max-w-full md:max-w-4xl mx-auto  border-main/50 w-full" />
 
       {token ? (
-        <GeminiLiveAssistant token={token} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <GeminiLiveAssistant token={token} autoConnect />
+          {!recordedVideoUrl ? (
+            <SimpleVideoRecorder
+              isRecording={isRecording}
+              onRecordingComplete={setRecordedVideoUrl}
+            />
+          ) : (
+            <div className="space-y-4">
+              <video
+                src={recordedVideoUrl || undefined}
+                controls
+                className="w-full border-4 shadow-lg border-cream mx-auto mt-2 rounded-lg"
+              />
+            </div>
+          )}
+          <div className="lg:col-span-2 flex justify-center">
+            <Button onClick={handleStopInterview} variant="outline">
+              Stop Recording
+            </Button>
+          </div>
+        </div>
       ) : (
         <Button onClick={handleStartInterview} className="flex mx-auto">
           Start Interview

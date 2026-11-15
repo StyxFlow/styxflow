@@ -18,6 +18,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@repo/db": "0.0.0",
     "@google/genai": "^1.50.1",
     "@huggingface/inference": "^4.13.3",
     "@langchain/community": "^1.0.3",

@@ -11,3 +11,7 @@ export const bullmqConnection = {
 export const resumeQueue = new Queue("resume-upload-queue", {
   connection: bullmqConnection,
 });
+
+export const interviewerConnectQueue = new Queue("interviewer-connect-queue", {
+  connection: bullmqConnection,
+});

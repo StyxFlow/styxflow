@@ -1,13 +1,13 @@
-FROM node:24-alpine
+FROM node:24-bookworm-slim
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # We just install dependencies here. The code comes from volumes.
-COPY package.json turbo.json ./
+COPY package.json yarn.lock turbo.json ./
 # Copy all package.jsons from subfolders to install correct deps
 COPY apps/api/package.json ./apps/api/package.json
 
 COPY packages/ ./packages/
 
-RUN yarn install
+RUN yarn install --frozen-lockfile && yarn workspace @repo/db build
 
-# Default command (can be overridden)
 CMD ["yarn","dev"]

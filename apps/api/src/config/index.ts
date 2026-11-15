@@ -14,21 +14,31 @@ export default {
       ? process.env.SERVER_URL_HOSTED
       : process.env.SERVER_URL,
   port: process.env.PORT,
-  database_url: process.env.DATABASE_URL,
+  database_url:
+    process.env.NODE_ENV === "production"
+      ? process.env.DATABASE_URL
+      : process.env.DATABASE_URL_DEV,
   better_token_key:
     process.env.NODE_ENV === "production"
       ? process.env.BETTER_AUTH_TOKEN_KEY_PROD
       : process.env.BETTER_AUTH_TOKEN_KEY_DEV,
-  // cloudinary: {
-  //   api_key: process.env.CLOUDINARY_API_KEY,
-  //   api_secret: process.env.CLOUDINARY_API_SECRET,
-  //   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  // },
   redis: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    password: process.env.REDIS_PASSWORD,
-    username: process.env.REDIS_USERNAME,
+    host:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_HOST
+        : process.env.REDIS_HOST_DEV,
+    port:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_PORT
+        : process.env.REDIS_PORT_DEV,
+    password:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_PASSWORD
+        : undefined,
+    username:
+      process.env.NODE_ENV === "production"
+        ? process.env.REDIS_USERNAME
+        : undefined,
   },
   qdrant: {
     key: process.env.QDRANT_KEY,
@@ -43,4 +53,9 @@ export default {
   },
   groq_api_key: process.env.GROQ_API_KEY,
   google_genai_api_key: process.env.GOOGLE_GENAI_API_KEY,
+  livekit: {
+    url: process.env.LIVEKIT_URL,
+    api_key: process.env.LIVEKIT_API_KEY,
+    api_secret: process.env.LIVEKIT_API_SECRET,
+  },
 };

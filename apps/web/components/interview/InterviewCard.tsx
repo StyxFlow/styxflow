@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RiVoiceAiLine } from "react-icons/ri";
 import { FiCalendar, FiCheckCircle, FiClock } from "react-icons/fi";
 import { MdOutlineScore } from "react-icons/md";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { finishInterviewService } from "@/services/interview";
 import { IInterview } from "@/types/interview";
 import Link from "next/link";
@@ -16,6 +16,7 @@ interface InterviewCardProps {
 }
 
 export const InterviewCard = ({ interview }: InterviewCardProps) => {
+  const router = useRouter();
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -24,9 +25,11 @@ export const InterviewCard = ({ interview }: InterviewCardProps) => {
     });
   };
   const redirectToInterviewPage = (id: string) => {
-    redirect(`/attempt-interview/${id}`);
+    console.log(id);
+    router.push(`/attempt-interview/${id}`);
   };
   const finishInterview = async (id: string) => {
+    console.log(id);
     const result = await finishInterviewService(id);
     console.log(result);
   };

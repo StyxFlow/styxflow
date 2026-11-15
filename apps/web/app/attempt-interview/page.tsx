@@ -6,7 +6,6 @@ import { RiVoiceAiLine } from "react-icons/ri";
 
 const AttemtInterviewPage = async () => {
   const res = await getMyInterviews();
-  console.log(res);
   const { data } = res;
   if (!data) {
     return <FetchFailed />;

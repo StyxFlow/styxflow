@@ -7,6 +7,8 @@ import { ChatGroq } from "@langchain/groq";
 import config from "../../../config/index.js";
 import type { TUserRole } from "../../middlewares/validateUser.js";
 import { UserRole } from "../user/user.constant.js";
+import { AccessToken, WebhookReceiver } from "livekit-server-sdk";
+import { GoogleGenAI, Modality } from "@google/genai";
 
 const createInterview = async (userId: string) => {
   const isCandidate = await db.query.candidate.findFirst({
@@ -20,7 +22,7 @@ const createInterview = async (userId: string) => {
   });
 
   const isActiveInterview = allInterviews.find(
-    (i) => i.candidateId === isCandidate.id && i.isActive
+    (i) => i.candidateId === isCandidate.id && i.isActive,
   );
 
   if (isActiveInterview) {
@@ -123,7 +125,7 @@ const finishInterview = async (userId: string, interviewId: string) => {
 const getSingleInterview = async (
   userId: string,
   interviewId: string,
-  userRole: TUserRole
+  userRole: TUserRole,
 ) => {
   const result = await db.query.interview.findFirst({
     where: eq(interview.id, interviewId),
@@ -174,7 +176,7 @@ const saveQuestion = async (
     answerText: string;
     interviewId: string;
   },
-  userId: string
+  userId: string,
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, payload.interviewId),
@@ -204,7 +206,7 @@ const evaluateInterview = async (
     transcript: string;
     interviewId: string;
   },
-  userId: string
+  userId: string,
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, payload.interviewId),
@@ -264,7 +266,7 @@ const evaluateInterview = async (
 const saveRecordingUrl = async (
   interviewId: string,
   recordingUrl: string,
-  userId: string
+  userId: string,
 ) => {
   const isInterviewExists = await db.query.interview.findFirst({
     where: eq(interview.id, interviewId),
@@ -290,6 +292,107 @@ const saveRecordingUrl = async (
   }
 };
 
+const getGenAiAccessToken = async (
+  payload: { resume: string; voice: string },
+  userId: string,
+  interviewId: string,
+) => {
+  // validate user and interview
+  const isCandidateExists = await db.query.candidate.findFirst({
+    where: eq(candidate.userId, userId),
+    with: {
+      user: true,
+    },
+  });
+  if (!isCandidateExists) {
+    throw new ApiError(404, "Candidate not found");
+  }
+
+  const isInterviewExists = await db.query.interview.findFirst({
+    where: and(
+      eq(interview.candidateId, isCandidateExists.id),
+      eq(interview.isActive, true),
+      eq(interview.id, interviewId),
+    ),
+  });
+  if (!isInterviewExists) {
+    throw new ApiError(404, "Active interview not found");
+  }
+
+  const ai = new GoogleGenAI({
+    apiKey: config.google_genai_api_key!,
+  });
+  const expireTime = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15-minute interview max
+  const newSessionExpireTime = new Date(
+    Date.now() + 1 * 60 * 1000,
+  ).toISOString(); // Token burns if not used in 1 min
+  const candidateName = isCandidateExists?.user?.name || "Candidate";
+  const attemptNumber = isInterviewExists.attempt;
+  const systemInstruction = `You are an experienced, empathetic, and highly realistic Hiring Manager at Styxflow. You are conducting a technical interview according to the candidate's resume skills. 
+
+CANDIDATE CONTEXT:
+- Name: ${candidateName}
+- Resume/Background: ${payload.resume}
+- This is attempt number ${attemptNumber} for the candidate, so they might be a bit nervous and under pressure to perform well. 
+- Primary Focus of this Interview: Based on the candidate's resume, focus on assessing their skills and experience in the areas mentioned in their resume. If the resume mentions specific technologies, projects, or roles, tailor your questions to dive deeper into those areas. 
+
+CRITICAL SPEECH & BEHAVIOR RULES:
+1. **Sound Like a Real Human:** You are speaking aloud on a voice call, not writing an email. Use natural conversational fillers (e.g., "ummm", "uh", "hmm", "let's see", "right", "okay") to simulate human thought processes. 
+2. **Use Their Name:** Naturally weave the candidate's name (${candidateName}) into the conversation occasionally, just like a real person would.
+3. **Be Dynamic and Reactive:** DO NOT just read down a rigid list of questions. Actively listen. Acknowledge their previous answer before asking the next question (e.g., "Oh, that makes a lot of sense," or "Right, I've run into that issue before too. So how did you..."). 
+4. **Ask Follow-ups Based on the Focus:** Base your questions heavily on the details the candidate just provided, while gently steering the conversation to cover the 'Primary Focus' areas mentioned above.
+5. **Keep it Conversational and Brief:** Never monologue. Ask one clear, focused question at a time. Keep your turns concise so the candidate does most of the talking.
+6. **Pause and Wait:** After asking each question, pause and wait for the candidate to respond. Do not rush into the next question. This simulates a real interview where the candidate needs time to think and answer. Ask the candidate if he/she is there after a long pause (e.g., more than 20 seconds) to keep them engaged.
+6. **Dont rush and dont be robotic:** Remember, the goal is to create a realistic interview experience that helps the candidate perform their best while giving them a taste of what a real interview at Styxflow would be like. Pause in between lines to simulate natural conversation flow.
+
+CRITICAL INTERVIEW PACING & WRAP UP:
+1. You must ask exactly 4 technical questions based on the candidate's resume.
+2. After the candidate answers the 4th question, you must say a polite goodbye (e.g., "Thank you for your time, we will be in touch!").
+3. IMMEDIATELY after saying goodbye, you MUST use the \`end_interview\` tool to hang up the call. Do not ask any more questions.`;
+
+  const token = await ai.authTokens.create({
+    config: {
+      uses: 1,
+      expireTime: expireTime,
+      newSessionExpireTime: newSessionExpireTime,
+      // SECURITY: Lock the token so hackers cannot change the prompt or model!
+      liveConnectConstraints: {
+        model: "gemini-3.1-flash-live-preview",
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: payload.voice,
+              },
+            },
+          },
+          systemInstruction: {
+            parts: [
+              {
+                text: systemInstruction,
+              },
+            ],
+          },
+          tools: [
+            {
+              functionDeclarations: [
+                {
+                  name: "end_interview",
+                  description:
+                    "Triggers the system to disconnect the call. Use this ONLY when the interview is completely finished and you have said your goodbyes.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      httpOptions: { apiVersion: "v1alpha" },
+    },
+  });
+  return { token };
+};
+
 export const InterviewService = {
   createInterview,
   getMyInterviews,
@@ -299,4 +402,5 @@ export const InterviewService = {
   saveQuestion,
   evaluateInterview,
   saveRecordingUrl,
+  getGenAiAccessToken,
 };

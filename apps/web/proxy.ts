@@ -62,6 +62,7 @@ export async function proxy(request: NextRequest) {
       if (interviewId) {
         const result = await getSingleInterview(interviewId);
         if (!result || !result?.data) {
+          console.log("no result");
           return NextResponse.redirect(
             new URL("/attempt-interview", request.url),
           );
@@ -80,7 +81,6 @@ export async function proxy(request: NextRequest) {
 
   if (candidateOnlyRoutes.some((route) => route.test(pathname))) {
     if (session?.user?.role !== "CANDIDATE") {
-      console.log("Hit");
       return NextResponse.redirect(new URL("/", request.url));
     }
   }

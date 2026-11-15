@@ -24,6 +24,8 @@ export const getMyInterviews = async (): Promise<
   IServerResponse<IInterview[]>
 > => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
+  console.log("token", token);
+  console.log("token key ", config.better_auth_key);
   const response = await fetch(`${config.server_url}/interview/my-interviews`, {
     method: "GET",
     headers: {
@@ -33,6 +35,7 @@ export const getMyInterviews = async (): Promise<
       tags: ["interview-list"],
     },
   });
+  console.log(response);
   return response.json();
 };
 
@@ -56,6 +59,8 @@ export const getSingleInterview = async (
   interviewId: string,
 ): Promise<IServerResponse<IInterview>> => {
   const token = (await cookies()).get(config.better_auth_key!)?.value;
+  console.log("token", token);
+  console.log("token key ", config.better_auth_key);
   const response = await fetch(
     `${config.server_url}/interview/${interviewId}`,
     {

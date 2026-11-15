@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
+import type { Session } from "@/lib/auth-client";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,6 +64,8 @@ export default function HeroSection() {
 
     return () => ctx.revert();
   }, []);
+  const { data } = authClient.useSession();
+  const session = data as Session | null;
 
   return (
     <section
@@ -100,14 +104,33 @@ export default function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {session ? (
+              session.user.role === "RECRUITER" ? (
+                <Link
+                  href="/create-job"
+                  className="px-8 py-4 rounded-full bg-main text-white text-lg font-medium hover:bg-[#3b5c7d] transition-all hover:scale-105 active:scale-95 shadow-lg shadow-main/20"
+                >
+                  Start Hiring Now
+                </Link>
+              ) : (
+                <Link
+                  href="/attempt-interview"
+                  className="px-8 py-4 rounded-full bg-main text-white text-lg font-medium hover:bg-[#3b5c7d] transition-all hover:scale-105 active:scale-95 shadow-lg shadow-main/20"
+                >
+                  Attempt AI Interview
+                </Link>
+              )
+            ) : (
+              <Link
+                href="/signup"
+                className="px-8 py-4 rounded-full bg-main text-white text-lg font-medium hover:bg-[#3b5c7d] transition-all hover:scale-105 active:scale-95 shadow-lg shadow-main/20"
+              >
+                Get Started
+              </Link>
+            )}
+
             <Link
-              href="/auth/register"
-              className="px-8 py-4 rounded-full bg-main text-white text-lg font-medium hover:bg-[#3b5c7d] transition-all hover:scale-105 active:scale-95 shadow-lg shadow-main/20"
-            >
-              Start Hiring Now
-            </Link>
-            <Link
-              href="#how-it-works"
+              href="/about"
               className="px-8 py-4 rounded-full bg-white text-gray-900 border border-gray-200 text-lg font-medium hover:bg-gray-50 transition-all hover:scale-105 active:scale-95"
             >
               See How it Works

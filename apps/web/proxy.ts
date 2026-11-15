@@ -100,5 +100,6 @@ export const config = {
     "/attempt-interview",
     "/attempt-interview/:interviewId",
     "/attempt/:interviewId",
+    "/profile",
   ],
 };

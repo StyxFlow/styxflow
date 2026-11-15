@@ -23,6 +23,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -47,6 +50,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile.prod
+          platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=gha,scope=styxflow-v2
           cache-to: type=gha,mode=max,scope=styxflow-v2
@@ -58,9 +62,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -69,7 +70,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_SSH_PORT || 22 }}
           script: |
-            cd ${{ secrets.EC2_PROJECT_PATH || '/home/ubuntu/styxflow' }}
+            cd ${{ secrets.EC2_PROJECT_PATH || '/home/ec2-user/styxflow' }}
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker pull ghcr.io/styxflow/styxflow-server:latest
             docker compose down

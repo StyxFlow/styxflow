@@ -51,10 +51,11 @@ export const connectQdrant = async () => {
   try {
     await ensureCollectionExists();
 
+    const url = config.qdrant.url?.replace(":6333", "").replace(":6334", "");
     vectorStoreInstance = await QdrantVectorStore.fromExistingCollection(
       embeddings,
       {
-        url: config.qdrant.url!,
+        url: url!,
         collectionName: COLLECTION_NAME,
         apiKey: config.qdrant.key!,
         contentPayloadKey: "content",

@@ -1,0 +1,9 @@
+dataset
+dataset/*
+.env
+.env.local
+src/resume_extractors/unstructured/output
+src/resume_extractors/versapdf/output
+src/resume_extractors/pdf2md/output
+src/resume_extractors/pdf_parse/output
+src/resume_extractors/llamaparse/output
